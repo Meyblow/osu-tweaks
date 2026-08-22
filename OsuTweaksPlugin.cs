@@ -20,6 +20,7 @@ namespace OsuTweaks
         public static OsuTweaksPlugin? Instance { get; private set; }
 
         public Bindable<AutoSkipMode> AutoSkipMode { get; private set; } = new(Models.AutoSkipMode.Disabled);
+        public Bindable<UserProfileDisplayMode> UserProfileDisplayMode { get; private set; } = new(Models.UserProfileDisplayMode.Default);
 
         private ModularToolbarManager? toolbarManager;
 
@@ -29,7 +30,13 @@ namespace OsuTweaks
             TweaksLog.Init(Host);
             TweaksLog.Info("osu!tweaks: OnLoad() starting...");
 
+            if (Host.Data != null)
+            {
+                ToolbarPresetManager.Init(Host.Data);
+            }
+
             AutoSkipMode = Host.GetSettings().Bind("auto_skip_mode", Models.AutoSkipMode.Disabled);
+            UserProfileDisplayMode = Host.GetSettings().Bind("user_profile_display_mode", Models.UserProfileDisplayMode.Default);
 
             toolbarManager = new ModularToolbarManager(Host);
             Host.AddPatch(new ToolbarPatch(this, Host));

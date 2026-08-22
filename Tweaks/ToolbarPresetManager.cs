@@ -1,49 +1,44 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
-using osu.Framework.Platform;
+using osucc.Data;
 using OsuTweaks.Models;
 
 namespace OsuTweaks.Tweaks
 {
     /// <summary>
-    /// Управляет JSON-пресетами расположения тулбара, сохраняя их через Storage плагина (presets/*.json).
+    /// Управляет JSON-пресетами расположения тулбара, используя IOsuCcStorage плагина (presets/*.json).
     /// </summary>
     public static class ToolbarPresetManager
     {
-        private static Storage? pluginStorage;
-        public static string PresetsDirectory => pluginStorage != null 
-            ? pluginStorage.GetFullPath("presets") 
-            : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "osu", "osu-cc", "plugins", "osu-tweaks", "presets");
+        private static IOsuCcStorage? storage;
 
-        public static void Init(Storage storage)
+        public static void Init(IOsuCcStorage pluginStorage)
         {
-            pluginStorage = storage;
+            storage = pluginStorage;
             EnsureDefaultPresetsExist();
         }
 
         public static void EnsureDefaultPresetsExist()
         {
+            if (storage == null) return;
+
             try
             {
-                if (!Directory.Exists(PresetsDirectory))
-                    Directory.CreateDirectory(PresetsDirectory);
-
-                string defaultPath = Path.Combine(PresetsDirectory, "Default (Ванильный).json");
-                if (!File.Exists(defaultPath))
+                if (!storage.Exists("presets/Default (Ванильный).json"))
                 {
-                    ToolbarLayoutConfig.CreateDefault().Save(defaultPath);
+                    storage.WriteJson("presets/Default (Ванильный).json", ToolbarLayoutConfig.CreateDefault());
                 }
 
-                string centeredPath = Path.Combine(PresetsDirectory, "Centered (По центру).json");
-                if (!File.Exists(centeredPath))
+                if (!storage.Exists("presets/Centered (По центру).json"))
                 {
-                    ToolbarLayoutConfig.CreateCentered().Save(centeredPath);
+                    storage.WriteJson("presets/Centered (По центру).json", ToolbarLayoutConfig.CreateCentered());
                 }
             }
             catch (Exception ex)
             {
-                TweaksLog.Error("Failed to ensure default presets exist", ex);
+                TweaksLog.Error("Failed to ensure default presets exist via IOsuCcStorage", ex);
             }
         }
 
@@ -52,24 +47,26 @@ namespace OsuTweaks.Tweaks
             EnsureDefaultPresetsExist();
             var list = new List<string>();
 
-            try
+            if (storage != null)
             {
-                if (Directory.Exists(PresetsDirectory))
+                try
                 {
-                    foreach (var file in Directory.GetFiles(PresetsDirectory, "*.json"))
+                    var files = storage.GetFiles("presets", "*.json");
+                    foreach (var file in files)
                     {
                         list.Add(Path.GetFileNameWithoutExtension(file));
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                TweaksLog.Error("Failed to list presets", ex);
+                catch (Exception ex)
+                {
+                    TweaksLog.Error("Failed to list presets from IOsuCcStorage", ex);
+                }
             }
 
             if (list.Count == 0)
             {
                 list.Add("Default (Ванильный)");
+                list.Add("Centered (По центру)");
             }
 
             return list;
@@ -78,10 +75,22 @@ namespace OsuTweaks.Tweaks
         public static ToolbarLayoutConfig LoadPreset(string presetName)
         {
             EnsureDefaultPresetsExist();
-            string path = Path.Combine(PresetsDirectory, presetName + ".json");
-            if (File.Exists(path))
+
+            if (storage != null)
             {
-                return ToolbarLayoutConfig.Load(path);
+                try
+                {
+                    string relativePath = $"presets/{presetName}.json";
+                    if (storage.Exists(relativePath))
+                    {
+                        var loaded = storage.ReadJson<ToolbarLayoutConfig>(relativePath);
+                        if (loaded != null) return loaded;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    TweaksLog.Error($"Failed to load preset '{presetName}' via IOsuCcStorage", ex);
+                }
             }
 
             return ToolbarLayoutConfig.CreateDefault();
@@ -89,9 +98,67 @@ namespace OsuTweaks.Tweaks
 
         public static void SaveCustomPreset(string presetName, ToolbarLayoutConfig config)
         {
-            EnsureDefaultPresetsExist();
-            string path = Path.Combine(PresetsDirectory, presetName + ".json");
-            config.Save(path);
+            if (storage == null) return;
+
+            try
+            {
+                string relativePath = $"presets/{presetName}.json";
+                storage.WriteJson(relativePath, config);
+                TweaksLog.Info($"SaveCustomPreset: Saved preset '{presetName}' to {relativePath}");
+            }
+            catch (Exception ex)
+            {
+                TweaksLog.Error($"Failed to save preset '{presetName}' via IOsuCcStorage", ex);
+            }
+        }
+
+        public static bool DeletePreset(string presetName)
+        {
+            if (storage == null) return false;
+
+            try
+            {
+                string? fullPath = storage.GetFullPath($"presets/{presetName}.json");
+                if (fullPath != null && File.Exists(fullPath))
+                {
+                    File.Delete(fullPath);
+                    TweaksLog.Info($"DeletePreset: Deleted preset '{presetName}'");
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                TweaksLog.Error($"Failed to delete preset '{presetName}'", ex);
+            }
+
+            return false;
+        }
+
+        public static void OpenPresetsFolder()
+        {
+            if (storage == null) return;
+
+            try
+            {
+                string? fullPath = storage.GetFullPath("presets");
+                if (fullPath != null)
+                {
+                    if (!Directory.Exists(fullPath))
+                    {
+                        Directory.CreateDirectory(fullPath);
+                    }
+
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = fullPath,
+                        UseShellExecute = true
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                TweaksLog.Error("Failed to open presets folder", ex);
+            }
         }
     }
 }

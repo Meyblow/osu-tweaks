@@ -190,6 +190,7 @@ namespace OsuTweaks.UI
                 contentWrapper.AlwaysPresent = true;
                 this.FadeIn(150);
                 AlwaysPresent = true;
+                AutoSizeAxes = Axes.X;
                 BypassAutoSizeAxes = Axes.None;
                 editOverlay.FadeIn(150);
 
@@ -213,10 +214,12 @@ namespace OsuTweaks.UI
 
                 if (IsHidden.Value || isHiddenByScreen)
                 {
-                    // В обычном режиме скрытые блоки полностью невидимы, не кликаются и не занимают место,
+                    // В обычном режиме скрытые блоки полностью схлопываются в 0px ширины, не кликаются и не занимают место,
                     // НО AlwaysPresent = true сохраняет работу глобальных хоткеев (Ctrl+O, F8, F9)!
                     this.FadeOut(150);
                     AlwaysPresent = true;
+                    AutoSizeAxes = Axes.None;
+                    Width = 0;
                     BypassAutoSizeAxes = Axes.Both;
                     contentWrapper.Alpha = 0;
                     contentWrapper.AlwaysPresent = true;
@@ -226,6 +229,7 @@ namespace OsuTweaks.UI
                 {
                     this.FadeIn(150);
                     AlwaysPresent = true;
+                    AutoSizeAxes = Axes.X;
                     BypassAutoSizeAxes = Axes.None;
                     contentWrapper.Alpha = 1;
                     contentWrapper.AlwaysPresent = true;

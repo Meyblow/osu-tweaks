@@ -13,6 +13,7 @@ using osu.Framework.Graphics.Shapes;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Input.Events;
 using osu.Framework.Screens;
+using osu.Framework.Testing;
 using osu.Game;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Containers;
@@ -73,10 +74,9 @@ namespace OsuTweaks.Tweaks
             Instance = this;
             this.host = host;
 
-            var storage = host.GetStorage();
-            configFilePath = storage != null
-                ? storage.GetFullPath("layout.json")
-                : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "osu", "osu-cc", "plugins", "osu-tweaks", "layout.json");
+            var storage = host.Data;
+            configFilePath = storage?.GetFullPath("layout.json")
+                ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "osu", "osu-cc", "plugins", "osu-tweaks", "layout.json");
 
             if (storage != null)
                 ToolbarPresetManager.Init(storage);
@@ -236,6 +236,11 @@ namespace OsuTweaks.Tweaks
             }
 
             overlayPositioner?.BindOverlays();
+
+            if (OsuTweaksPlugin.Instance != null)
+            {
+                OsuTweaksPlugin.Instance.UserProfileDisplayMode.BindValueChanged(e => ApplyUserProfileDisplayMode(e.NewValue), true);
+            }
         }
 
         private void updateScreenRulesetVisibility(IScreen? screen)
@@ -478,6 +483,95 @@ namespace OsuTweaks.Tweaks
             };
         }
 
+        public ToolbarLayoutConfig GetCurrentConfig() => captureCurrentConfig();
+
+        public void ShowSavePresetDialog(Action<string> onSaved)
+        {
+            var config = captureCurrentConfig();
+            var dialog = new SavePresetDialog(config, name =>
+            {
+                onSaved(name);
+                host.Notify($"Пресет \"{name}\" успешно сохранён!", NotificationKind.Success);
+            });
+
+            if (host.Game is Container<Drawable> gameContainer)
+            {
+                gameContainer.Add(dialog);
+                dialog.ShowDialog();
+            }
+            else if (toolbar?.Parent is Container<Drawable> parentContainer)
+            {
+                parentContainer.Add(dialog);
+                dialog.ShowDialog();
+            }
+        }
+
+        public void ApplyUserProfileDisplayMode(UserProfileDisplayMode mode)
+        {
+            if (!allBlocks.TryGetValue("user_profile", out var userBlock))
+                return;
+
+            var userButton = userBlock.ContentDrawable;
+            var flow = userButton.ChildrenOfType<FillFlowContainer>().FirstOrDefault();
+            var avatar = userButton.ChildrenOfType<Drawable>().FirstOrDefault(d => d.GetType().Name.Contains("Avatar"));
+            var text = userButton.ChildrenOfType<OsuSpriteText>().FirstOrDefault();
+
+            if (avatar == null || text == null)
+                return;
+
+            switch (mode)
+            {
+                case UserProfileDisplayMode.Default:
+                    avatar.Alpha = 1;
+                    text.Alpha = 1;
+                    if (flow != null)
+                    {
+                        flow.SetLayoutPosition(text, 0);
+                        flow.SetLayoutPosition(avatar, 1);
+                    }
+                    break;
+
+                case UserProfileDisplayMode.AvatarLeft:
+                    avatar.Alpha = 1;
+                    text.Alpha = 1;
+                    if (flow != null)
+                    {
+                        flow.SetLayoutPosition(avatar, 0);
+                        flow.SetLayoutPosition(text, 1);
+                    }
+                    break;
+
+                case UserProfileDisplayMode.AvatarOnly:
+                    avatar.Alpha = 1;
+                    text.Alpha = 0;
+                    break;
+
+                case UserProfileDisplayMode.UsernameOnly:
+                    avatar.Alpha = 0;
+                    text.Alpha = 1;
+                    break;
+
+                case UserProfileDisplayMode.WithSeparator:
+                case UserProfileDisplayMode.AvatarLeftWithSep:
+                    avatar.Alpha = 1;
+                    text.Alpha = 1;
+                    if (flow != null)
+                    {
+                        if (mode == UserProfileDisplayMode.AvatarLeftWithSep)
+                        {
+                            flow.SetLayoutPosition(avatar, 0);
+                            flow.SetLayoutPosition(text, 1);
+                        }
+                        else
+                        {
+                            flow.SetLayoutPosition(text, 0);
+                            flow.SetLayoutPosition(avatar, 1);
+                        }
+                    }
+                    break;
+            }
+        }
+
         private void onZoneRightClicked(ToolbarZoneContainer zone, MouseDownEvent e)
         {
             showGlobalMenu(e.ScreenSpaceMouseDownPosition, zone);
@@ -507,6 +601,18 @@ namespace OsuTweaks.Tweaks
                 });
                 menuItems.Add(new ContextMenuItemData
                 {
+                    Title = "Сохранить как пресет...",
+                    Icon = FontAwesome.Solid.Save,
+                    Action = () => ShowSavePresetDialog(_ => { })
+                });
+                menuItems.Add(new ContextMenuItemData
+                {
+                    Title = "Открыть папку с пресетами",
+                    Icon = FontAwesome.Solid.FolderOpen,
+                    Action = ToolbarPresetManager.OpenPresetsFolder
+                });
+                menuItems.Add(new ContextMenuItemData
+                {
                     Title = "Сбросить по умолчанию",
                     Icon = FontAwesome.Solid.Undo,
                     Action = ResetToDefault
@@ -518,20 +624,31 @@ namespace OsuTweaks.Tweaks
                 {
                     Title = "Применить и выйти",
                     Icon = FontAwesome.Solid.Check,
-                    IsActive = true,
                     Action = SaveAndExitEditMode
+                });
+                menuItems.Add(new ContextMenuItemData
+                {
+                    Title = "Сохранить как пресет...",
+                    Icon = FontAwesome.Solid.Save,
+                    Action = () => ShowSavePresetDialog(_ => { })
+                });
+                menuItems.Add(new ContextMenuItemData
+                {
+                    Title = "Добавить разделитель (Spacer)",
+                    Icon = FontAwesome.Solid.Plus,
+                    Action = () => addSpacer(clickedZone ?? rightZone)
+                });
+                menuItems.Add(new ContextMenuItemData
+                {
+                    Title = "Открыть папку с пресетами",
+                    Icon = FontAwesome.Solid.FolderOpen,
+                    Action = ToolbarPresetManager.OpenPresetsFolder
                 });
                 menuItems.Add(new ContextMenuItemData
                 {
                     Title = "Отменить изменения",
                     Icon = FontAwesome.Solid.Times,
                     Action = CancelEditMode
-                });
-                menuItems.Add(new ContextMenuItemData
-                {
-                    Title = "Добавить разделитель (Spacer)",
-                    Icon = FontAwesome.Solid.ArrowsAltH,
-                    Action = () => addSpacer(clickedZone ?? centerZone)
                 });
                 menuItems.Add(new ContextMenuItemData
                 {
