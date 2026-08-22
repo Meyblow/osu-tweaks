@@ -31,4 +31,8 @@
     <PackageReference Include="ppy.osu.Game" Version="2026.702.1" />
   </ItemGroup>
 
+  <Target Name="DeployToOsuCc" AfterTargets="Build" Condition="Exists('$(APPDATA)\osu\osu-cc\plugins\osu-tweaks')">
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(APPDATA)\osu\osu-cc\plugins\osu-tweaks" ContinueOnError="true" />
+  </Target>
+
 </Project>
