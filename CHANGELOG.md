@@ -2,6 +2,13 @@
 
 All notable changes to osu!tweaks are documented in this file.
 
+## [1.2.3] - 2026-08-22
+
+### Fixed
+- **Release Build CI Pipeline**: Rebuilt the plugin with updated `osucc.Build` SDK and fixed GitHub Actions CI workflow, resolving `MissingMethodException` on plugin discovery.
+
+---
+
 ## [1.2.2] - 2026-08-22
 
 ### Fixed
