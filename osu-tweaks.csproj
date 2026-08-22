@@ -8,7 +8,7 @@
     <PackageId>osu-tweaks</PackageId>
     <Title>osu!tweaks</Title>
     <Description>Коллекция полезных твиков и улучшений интерфейса для osu!cc.</Description>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <Priority>50</Priority>
     <IconGlyph>SlidersH</IconGlyph>
     <IsPlugin>true</IsPlugin>
@@ -29,9 +29,5 @@
     <PackageReference Include="osucc.Build" Version="2.2.0" PrivateAssets="all" />
     <PackageReference Include="ppy.osu.Game" Version="2026.702.1" />
   </ItemGroup>
-
-  <Target Name="DeployToOsuCc" AfterTargets="PackagePluginArchive" Condition="'$(OS)' == 'Windows_NT' and Exists('$(APPDATA)\osu\osu-cc\plugins')">
-    <Copy SourceFiles="$(OutDir)plugin-$(_PluginId)-$(_PluginVersion).zip" DestinationFolder="$(APPDATA)\osu\osu-cc\plugins" ContinueOnError="true" />
-  </Target>
 
 </Project>
