@@ -1,3 +1,6 @@
+using osu.Framework.Localisation;
+using OsuTweaks.Localisation;
+
 namespace OsuTweaks.Models
 {
     /// <summary>
@@ -5,11 +8,20 @@ namespace OsuTweaks.Models
     /// </summary>
     public enum ClockDisplayFormat
     {
-        StandardWithSeconds,   // HH:mm:ss
-        CompactNoSeconds,      // HH:mm
-        WithDate,              // dd MMM · HH:mm
-        WithDateAndSeconds,    // dd MMM · HH:mm:ss
-        SessionTimerOnly       // ⏳ 1ч 24м
+        [LocalisableDescription(typeof(OsuTweaksStrings), nameof(OsuTweaksStrings.ClockFormatStandard))]
+        StandardWithSeconds,
+
+        [LocalisableDescription(typeof(OsuTweaksStrings), nameof(OsuTweaksStrings.ClockFormatCompact))]
+        CompactNoSeconds,
+
+        [LocalisableDescription(typeof(OsuTweaksStrings), nameof(OsuTweaksStrings.ClockFormatWithDate))]
+        WithDate,
+
+        [LocalisableDescription(typeof(OsuTweaksStrings), nameof(OsuTweaksStrings.ClockFormatWithDateAndSeconds))]
+        WithDateAndSeconds,
+
+        [LocalisableDescription(typeof(OsuTweaksStrings), nameof(OsuTweaksStrings.ClockFormatSessionOnly))]
+        SessionTimerOnly
     }
 
     /// <summary>
@@ -17,9 +29,14 @@ namespace OsuTweaks.Models
     /// </summary>
     public enum SpacerStyle
     {
-        Blank,  // Невидимый пустой зазор
-        Line,   // Тонкая вертикальная разделительная линия
-        Dot     // Минималистичный маркер-точка
+        [LocalisableDescription(typeof(OsuTweaksStrings), nameof(OsuTweaksStrings.SpacerBlank))]
+        Blank,
+
+        [LocalisableDescription(typeof(OsuTweaksStrings), nameof(OsuTweaksStrings.SpacerLine))]
+        Line,
+
+        [LocalisableDescription(typeof(OsuTweaksStrings), nameof(OsuTweaksStrings.SpacerDot))]
+        Dot
     }
 
     /// <summary>
@@ -27,11 +44,22 @@ namespace OsuTweaks.Models
     /// </summary>
     public enum ToolbarAccentColor
     {
-        Pink,       // #FF66AA (osu! Pink)
-        Purple,     // #AA55FF (Neon Purple)
-        Cyan,       // #00DDFF (Cyberpunk Cyan)
-        Lime,       // #55EE77 (Emerald Lime)
-        Gold,       // #FFCC22 (Warm Gold)
-        White       // #FFFFFF (Clean White)
+        [LocalisableDescription(typeof(OsuTweaksStrings), nameof(OsuTweaksStrings.AccentPink))]
+        Pink,
+
+        [LocalisableDescription(typeof(OsuTweaksStrings), nameof(OsuTweaksStrings.AccentPurple))]
+        Purple,
+
+        [LocalisableDescription(typeof(OsuTweaksStrings), nameof(OsuTweaksStrings.AccentCyan))]
+        Cyan,
+
+        [LocalisableDescription(typeof(OsuTweaksStrings), nameof(OsuTweaksStrings.AccentLime))]
+        Lime,
+
+        [LocalisableDescription(typeof(OsuTweaksStrings), nameof(OsuTweaksStrings.AccentGold))]
+        Gold,
+
+        [LocalisableDescription(typeof(OsuTweaksStrings), nameof(OsuTweaksStrings.AccentWhite))]
+        White
     }
 }

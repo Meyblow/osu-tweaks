@@ -203,19 +203,12 @@ namespace OsuTweaks.UI
                     Current = plugin.NeonGlowLine
                 });
 
-                var accentDropdown = new SettingsDropdown<string>
+                Add(new SettingsEnumDropdown<ToolbarAccentColor>
                 {
                     LabelText = OsuTweaksStrings.NeonAccentColorDropdown,
                     Margin = new MarginPadding { Top = 6f },
-                    Current = new Bindable<string>(getAccentColorString(plugin.ToolbarAccentColor.Value)),
-                    Items = new[] { "osu! Розовый", "Неоновый фиолетовый", "Киберпанк циан", "Изумрудный лайм", "Золотой", "Белый" }
-                };
-                accentDropdown.Current.BindValueChanged(e =>
-                {
-                    if (!string.IsNullOrEmpty(e.NewValue))
-                        plugin.ToolbarAccentColor.Value = parseAccentColor(e.NewValue);
+                    Current = plugin.ToolbarAccentColor
                 });
-                Add(accentDropdown);
             }
 
             // ==========================================
@@ -223,26 +216,12 @@ namespace OsuTweaks.UI
             // ==========================================
             if (plugin != null)
             {
-                var clockDropdown = new SettingsDropdown<string>
+                Add(new SettingsEnumDropdown<ClockDisplayFormat>
                 {
                     LabelText = OsuTweaksStrings.ClockFormatDropdown,
                     Margin = new MarginPadding { Top = 10f },
-                    Current = new Bindable<string>(getClockFormatString(plugin.ClockDisplayFormat.Value)),
-                    Items = new[]
-                    {
-                        "Стандартный с секундами (HH:mm:ss)",
-                        "Компактный без секунд (HH:mm)",
-                        "С датой (дд MMM · HH:mm)",
-                        "С датой и секундами (дд MMM · HH:mm:ss)",
-                        "Только таймер сессии"
-                    }
-                };
-                clockDropdown.Current.BindValueChanged(e =>
-                {
-                    if (!string.IsNullOrEmpty(e.NewValue))
-                        plugin.ClockDisplayFormat.Value = parseClockFormat(e.NewValue);
+                    Current = plugin.ClockDisplayFormat
                 });
-                Add(clockDropdown);
 
                 Add(new SettingsCheckbox
                 {
@@ -257,160 +236,45 @@ namespace OsuTweaks.UI
             // ==========================================
             if (plugin != null)
             {
-                var spacerDropdown = new SettingsDropdown<string>
+                Add(new SettingsEnumDropdown<SpacerStyle>
                 {
                     LabelText = OsuTweaksStrings.SpacerStyleDropdown,
                     Margin = new MarginPadding { Top = 10f },
-                    Current = new Bindable<string>(getSpacerStyleString(plugin.SpacerStyle.Value)),
-                    Items = new[] { "Невидимый зазор", "Тонкая вертикальная линия", "Точка" }
-                };
-                spacerDropdown.Current.BindValueChanged(e =>
-                {
-                    if (!string.IsNullOrEmpty(e.NewValue))
-                        plugin.SpacerStyle.Value = parseSpacerStyle(e.NewValue);
+                    Current = plugin.SpacerStyle
                 });
-                Add(spacerDropdown);
             }
 
             // ==========================================
             // РАЗДЕЛ 5: ПРОФИЛЬ ПОЛЬЗОВАТЕЛЯ
             // ==========================================
-            var currentProfileMode = plugin?.UserProfileDisplayMode.Value ?? UserProfileDisplayMode.Default;
-
-            var profileModeDropdown = new SettingsDropdown<string>
+            if (plugin != null)
             {
-                LabelText = OsuTweaksStrings.ProfileModeDropdown,
-                Margin = new MarginPadding { Top = 10f },
-                Current = new Bindable<string>(getProfileModeString(currentProfileMode)),
-                Items = new[]
+                var profileDropdown = new SettingsEnumDropdown<UserProfileDisplayMode>
                 {
-                    "По умолчанию (Ник | Аватар)",
-                    "Аватар слева (Аватар | Ник)",
-                    "С разделителем (Ник │ Аватар)",
-                    "Аватар слева с разделителем (Аватар │ Ник)",
-                    "Только аватар",
-                    "Только никнейм"
-                }
-            };
+                    LabelText = OsuTweaksStrings.ProfileModeDropdown,
+                    Margin = new MarginPadding { Top = 10f },
+                    Current = plugin.UserProfileDisplayMode
+                };
 
-            profileModeDropdown.Current.BindValueChanged(e =>
-            {
-                if (plugin != null && !string.IsNullOrEmpty(e.NewValue))
+                profileDropdown.Current.BindValueChanged(e =>
                 {
-                    var parsed = parseProfileMode(e.NewValue);
-                    plugin.UserProfileDisplayMode.Value = parsed;
-                    ModularToolbarManager.Instance?.ApplyUserProfileDisplayMode(parsed);
-                }
-            });
-            Add(profileModeDropdown);
+                    ModularToolbarManager.Instance?.ApplyUserProfileDisplayMode(e.NewValue);
+                });
+                Add(profileDropdown);
+            }
 
             // ==========================================
             // РАЗДЕЛ 6: ГЕЙМПЛЕЙ
             // ==========================================
-            var initialAutoSkip = plugin?.AutoSkipMode.Value ?? AutoSkipMode.Disabled;
-
-            var autoSkipDropdown = new SettingsDropdown<string>
+            if (plugin != null)
             {
-                LabelText = OsuTweaksStrings.AutoSkipDropdown,
-                Margin = new MarginPadding { Top = 10f },
-                Current = new Bindable<string>(getAutoSkipModeString(initialAutoSkip)),
-                Items = new[] { "Выкл", "Автоскип мид-мап брейков", "Автоскип всего (интро, брейки, аутро)" }
-            };
-
-            autoSkipDropdown.Current.BindValueChanged(e =>
-            {
-                if (plugin != null && !string.IsNullOrEmpty(e.NewValue))
+                Add(new SettingsEnumDropdown<AutoSkipMode>
                 {
-                    plugin.AutoSkipMode.Value = parseAutoSkipMode(e.NewValue);
-                }
-            });
-            Add(autoSkipDropdown);
+                    LabelText = OsuTweaksStrings.AutoSkipDropdown,
+                    Margin = new MarginPadding { Top = 10f },
+                    Current = plugin.AutoSkipMode
+                });
+            }
         }
-
-        private static string getAccentColorString(ToolbarAccentColor color) => color switch
-        {
-            ToolbarAccentColor.Purple => "Неоновый фиолетовый",
-            ToolbarAccentColor.Cyan => "Киберпанк циан",
-            ToolbarAccentColor.Lime => "Изумрудный лайм",
-            ToolbarAccentColor.Gold => "Золотой",
-            ToolbarAccentColor.White => "Белый",
-            _ => "osu! Розовый"
-        };
-
-        private static ToolbarAccentColor parseAccentColor(string str) => str switch
-        {
-            "Неоновый фиолетовый" => ToolbarAccentColor.Purple,
-            "Киберпанк циан" => ToolbarAccentColor.Cyan,
-            "Изумрудный лайм" => ToolbarAccentColor.Lime,
-            "Золотой" => ToolbarAccentColor.Gold,
-            "Белый" => ToolbarAccentColor.White,
-            _ => ToolbarAccentColor.Pink
-        };
-
-        private static string getClockFormatString(ClockDisplayFormat format) => format switch
-        {
-            ClockDisplayFormat.CompactNoSeconds => "Компактный без секунд (HH:mm)",
-            ClockDisplayFormat.WithDate => "С датой (дд MMM · HH:mm)",
-            ClockDisplayFormat.WithDateAndSeconds => "С датой и секундами (дд MMM · HH:mm:ss)",
-            ClockDisplayFormat.SessionTimerOnly => "Только таймер сессии",
-            _ => "Стандартный с секундами (HH:mm:ss)"
-        };
-
-        private static ClockDisplayFormat parseClockFormat(string str) => str switch
-        {
-            "Компактный без секунд (HH:mm)" => ClockDisplayFormat.CompactNoSeconds,
-            "С датой (дд MMM · HH:mm)" => ClockDisplayFormat.WithDate,
-            "С датой и секундами (дд MMM · HH:mm:ss)" => ClockDisplayFormat.WithDateAndSeconds,
-            "Только таймер сессии" => ClockDisplayFormat.SessionTimerOnly,
-            _ => ClockDisplayFormat.StandardWithSeconds
-        };
-
-        private static string getSpacerStyleString(SpacerStyle style) => style switch
-        {
-            SpacerStyle.Line => "Тонкая вертикальная линия",
-            SpacerStyle.Dot => "Точка",
-            _ => "Невидимый зазор"
-        };
-
-        private static SpacerStyle parseSpacerStyle(string str) => str switch
-        {
-            "Тонкая вертикальная линия" => SpacerStyle.Line,
-            "Точка" => SpacerStyle.Dot,
-            _ => SpacerStyle.Blank
-        };
-
-        private static string getProfileModeString(UserProfileDisplayMode mode) => mode switch
-        {
-            UserProfileDisplayMode.AvatarLeft => "Аватар слева (Аватар | Ник)",
-            UserProfileDisplayMode.WithSeparator => "С разделителем (Ник │ Аватар)",
-            UserProfileDisplayMode.AvatarLeftWithSep => "Аватар слева с разделителем (Аватар │ Ник)",
-            UserProfileDisplayMode.AvatarOnly => "Только аватар",
-            UserProfileDisplayMode.UsernameOnly => "Только никнейм",
-            _ => "По умолчанию (Ник | Аватар)"
-        };
-
-        private static UserProfileDisplayMode parseProfileMode(string str) => str switch
-        {
-            "Аватар слева (Аватар | Ник)" => UserProfileDisplayMode.AvatarLeft,
-            "С разделителем (Ник │ Аватар)" => UserProfileDisplayMode.WithSeparator,
-            "Аватар слева с разделителем (Аватар │ Ник)" => UserProfileDisplayMode.AvatarLeftWithSep,
-            "Только аватар" => UserProfileDisplayMode.AvatarOnly,
-            "Только никнейм" => UserProfileDisplayMode.UsernameOnly,
-            _ => UserProfileDisplayMode.Default
-        };
-
-        private static string getAutoSkipModeString(AutoSkipMode mode) => mode switch
-        {
-            AutoSkipMode.BreaksOnly => "Автоскип мид-мап брейков",
-            AutoSkipMode.All => "Автоскип всего (интро, брейки, аутро)",
-            _ => "Выкл"
-        };
-
-        private static AutoSkipMode parseAutoSkipMode(string str) => str switch
-        {
-            "Автоскип мид-мап брейков" => AutoSkipMode.BreaksOnly,
-            "Автоскип всего (интро, брейки, аутро)" => AutoSkipMode.All,
-            _ => AutoSkipMode.Disabled
-        };
     }
 }

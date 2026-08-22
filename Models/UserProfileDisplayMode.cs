@@ -1,3 +1,6 @@
+using osu.Framework.Localisation;
+using OsuTweaks.Localisation;
+
 namespace OsuTweaks.Models
 {
     /// <summary>
@@ -5,11 +8,22 @@ namespace OsuTweaks.Models
     /// </summary>
     public enum UserProfileDisplayMode
     {
-        Default,            // Ник | Аватар (По умолчанию в игре)
-        AvatarLeft,         // Аватар | Ник
-        WithSeparator,      // Ник │ Аватар
-        AvatarLeftWithSep,  // Аватар │ Ник
-        AvatarOnly,         // Только аватар
-        UsernameOnly        // Только никнейм
+        [LocalisableDescription(typeof(OsuTweaksStrings), nameof(OsuTweaksStrings.ProfileDefault))]
+        Default,
+
+        [LocalisableDescription(typeof(OsuTweaksStrings), nameof(OsuTweaksStrings.ProfileAvatarLeft))]
+        AvatarLeft,
+
+        [LocalisableDescription(typeof(OsuTweaksStrings), nameof(OsuTweaksStrings.ProfileWithSeparator))]
+        WithSeparator,
+
+        [LocalisableDescription(typeof(OsuTweaksStrings), nameof(OsuTweaksStrings.ProfileAvatarLeftWithSep))]
+        AvatarLeftWithSep,
+
+        [LocalisableDescription(typeof(OsuTweaksStrings), nameof(OsuTweaksStrings.ProfileAvatarOnly))]
+        AvatarOnly,
+
+        [LocalisableDescription(typeof(OsuTweaksStrings), nameof(OsuTweaksStrings.ProfileUsernameOnly))]
+        UsernameOnly
     }
 }

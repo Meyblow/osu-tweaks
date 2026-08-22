@@ -1,4 +1,5 @@
-using System.ComponentModel;
+using osu.Framework.Localisation;
+using OsuTweaks.Localisation;
 
 namespace OsuTweaks.Models
 {
@@ -7,13 +8,13 @@ namespace OsuTweaks.Models
     /// </summary>
     public enum AutoSkipMode
     {
-        [Description("Выкл")]
+        [LocalisableDescription(typeof(OsuTweaksStrings), nameof(OsuTweaksStrings.AutoSkipDisabled))]
         Disabled,
 
-        [Description("Автоскип мид-мап брейков")]
+        [LocalisableDescription(typeof(OsuTweaksStrings), nameof(OsuTweaksStrings.AutoSkipBreaksOnly))]
         BreaksOnly,
 
-        [Description("Автоскип всего (интро, брейки, аутро)")]
+        [LocalisableDescription(typeof(OsuTweaksStrings), nameof(OsuTweaksStrings.AutoSkipAll))]
         All
     }
 }

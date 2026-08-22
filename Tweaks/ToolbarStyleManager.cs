@@ -1,35 +1,37 @@
 using System;
 using System.Linq;
+using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
-using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Effects;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Testing;
+using osu.Game.Graphics;
 using osu.Game.Overlays.Toolbar;
 using osuTK;
-using osuTK.Graphics;
 using osucc.Plugin;
 using OsuTweaks.Models;
+using OsuTweaks.Utils;
 
 namespace OsuTweaks.Tweaks
 {
     /// <summary>
-    /// Управляет визуальным стилем тулбара: Floating Island, прозрачность фона, неоновая линия, высота и акцентный цвет.
+    /// Управляет визуальным стилем тулбара: Floating Island (плавающий док),
+    /// прозрачность фона (0-100%), компактная высота (26-40px), неоновая полоса подсветки и акцентные цвета.
     /// </summary>
     public class ToolbarStyleManager : IDisposable
     {
         private readonly IOsuCcPluginHost host;
         private Toolbar? toolbar;
+        private Box? toolbarBackground;
         private Box? neonGlowLine;
-        private Drawable? toolbarBackground;
 
-        private readonly Bindable<bool> floatingIsland = new(false);
-        private readonly Bindable<float> backgroundOpacity = new(1.0f);
-        private readonly Bindable<float> toolbarHeight = new(40.0f);
+        private readonly Bindable<bool> floatingIsland = new();
+        private readonly Bindable<float> backgroundOpacity = new(1f);
+        private readonly Bindable<float> toolbarHeight = new(40f);
         private readonly Bindable<bool> neonGlow = new(false);
-        private readonly Bindable<ToolbarAccentColor> accentColor = new(ToolbarAccentColor.Pink);
+        private readonly Bindable<ToolbarAccentColor> neonColor = new(ToolbarAccentColor.Pink);
 
         public ToolbarStyleManager(IOsuCcPluginHost host)
         {
@@ -38,81 +40,84 @@ namespace OsuTweaks.Tweaks
 
         public void Attach(
             Toolbar targetToolbar,
-            Bindable<bool> islandBindable,
-            Bindable<float> opacityBindable,
-            Bindable<float> heightBindable,
-            Bindable<bool> neonBindable,
-            Bindable<ToolbarAccentColor> accentBindable)
+            Bindable<bool> floatingIslandMode,
+            Bindable<float> bgOpacity,
+            Bindable<float> height,
+            Bindable<bool> glowLine,
+            Bindable<ToolbarAccentColor> glowColor)
         {
             toolbar = targetToolbar;
 
             floatingIsland.UnbindBindings();
-            floatingIsland.BindTo(islandBindable);
+            floatingIsland.BindTo(floatingIslandMode);
             floatingIsland.BindValueChanged(_ => applyStyles(), false);
 
             backgroundOpacity.UnbindBindings();
-            backgroundOpacity.BindTo(opacityBindable);
+            backgroundOpacity.BindTo(bgOpacity);
             backgroundOpacity.BindValueChanged(_ => applyOpacity(), false);
 
             toolbarHeight.UnbindBindings();
-            toolbarHeight.BindTo(heightBindable);
+            toolbarHeight.BindTo(height);
             toolbarHeight.BindValueChanged(_ => applyHeight(), false);
 
             neonGlow.UnbindBindings();
-            neonGlow.BindTo(neonBindable);
+            neonGlow.BindTo(glowLine);
             neonGlow.BindValueChanged(_ => applyNeonGlow(), false);
 
-            accentColor.UnbindBindings();
-            accentColor.BindTo(accentBindable);
-            accentColor.BindValueChanged(_ => applyNeonColor(), false);
+            neonColor.UnbindBindings();
+            neonColor.BindTo(glowColor);
+            neonColor.BindValueChanged(_ => applyNeonColor(), false);
 
-            findBackground();
-            createOrUpdateNeonLine();
-            applyAll();
+            findToolbarBackground();
+            createNeonGlowLine();
+
+            host.Scheduler?.AddOnce(() =>
+            {
+                applyStyles();
+                applyOpacity();
+                applyHeight();
+                applyNeonGlow();
+                applyNeonColor();
+            });
         }
 
-        private void findBackground()
+        private void findToolbarBackground()
         {
             if (toolbar == null) return;
 
-            try
-            {
-                toolbarBackground = toolbar.Children.FirstOrDefault(c => c.GetType().Name.Contains("ToolbarBackground"));
-            }
-            catch (Exception ex)
-            {
-                TweaksLog.Error("ToolbarStyleManager: Error finding ToolbarBackground", ex);
-            }
+            toolbarBackground = toolbar.ChildrenOfType<Box>().FirstOrDefault(b => b.Name.Contains("background", StringComparison.OrdinalIgnoreCase))
+                                ?? ReflectionHelper.GetFieldValue<Box>(toolbar, "background")
+                                ?? toolbar.ChildrenOfType<Box>().FirstOrDefault();
         }
 
-        private void createOrUpdateNeonLine()
+        private void createNeonGlowLine()
         {
-            if (toolbar == null) return;
+            if (toolbar == null || neonGlowLine != null) return;
 
-            if (neonGlowLine == null)
+            neonGlowLine = new Box
             {
-                neonGlowLine = new Box
-                {
-                    Name = "osu!tweaks Neon Glow Line",
-                    RelativeSizeAxes = Axes.X,
-                    Height = 2f,
-                    Anchor = Anchor.BottomLeft,
-                    Origin = Anchor.BottomLeft,
-                    Depth = float.MinValue,
-                    Alpha = neonGlow.Value ? 1f : 0f,
-                    Colour = getColourForAccent(accentColor.Value)
-                };
+                Name = "osu!tweaks Neon Glow Line",
+                RelativeSizeAxes = Axes.X,
+                Height = 2f,
+                Anchor = Anchor.BottomCentre,
+                Origin = Anchor.BottomCentre,
+                Alpha = 0,
+                Colour = getColourForAccent(neonColor.Value)
+            };
 
+            var container = toolbar.ChildrenOfType<Container>().FirstOrDefault();
+            if (container != null)
+            {
+                container.Add(neonGlowLine);
+            }
+            else
+            {
                 toolbar.Add(neonGlowLine);
             }
         }
 
-        public void ApplyAll() => applyAll();
-
-        private void applyAll()
+        public void ApplyAll()
         {
-            if (toolbar == null || !toolbar.IsAlive) return;
-
             host.Scheduler?.AddOnce(() =>
             {
                 applyStyles();
@@ -129,9 +134,15 @@ namespace OsuTweaks.Tweaks
 
             if (floatingIsland.Value)
             {
+                toolbar.Anchor = Anchor.TopCentre;
+                toolbar.Origin = Anchor.TopCentre;
+                toolbar.X = 0f;
+                toolbar.Y = 6f;
+                toolbar.Width = 0.985f;
+                toolbar.Margin = new MarginPadding(0);
+                toolbar.Padding = new MarginPadding(0);
                 toolbar.Masking = true;
                 toolbar.CornerRadius = 12f;
-                toolbar.Margin = new MarginPadding { Top = 6f, Horizontal = 14f };
                 toolbar.EdgeEffect = new EdgeEffectParameters
                 {
                     Type = EdgeEffectType.Shadow,
@@ -141,9 +152,15 @@ namespace OsuTweaks.Tweaks
             }
             else
             {
+                toolbar.Anchor = Anchor.TopLeft;
+                toolbar.Origin = Anchor.TopLeft;
+                toolbar.X = 0f;
+                toolbar.Y = 0f;
+                toolbar.Width = 1f;
+                toolbar.Margin = new MarginPadding(0);
+                toolbar.Padding = new MarginPadding(0);
                 toolbar.Masking = false;
                 toolbar.CornerRadius = 0f;
-                toolbar.Margin = new MarginPadding(0);
                 toolbar.EdgeEffect = default;
             }
         }
@@ -181,39 +198,51 @@ namespace OsuTweaks.Tweaks
 
         private void applyNeonGlow()
         {
-            if (neonGlowLine != null)
-            {
-                neonGlowLine.Alpha = neonGlow.Value ? 1f : 0f;
-            }
+            if (neonGlowLine == null) return;
+
+            neonGlowLine.Alpha = neonGlow.Value ? 1f : 0f;
         }
 
         private void applyNeonColor()
         {
-            if (neonGlowLine != null)
-            {
-                neonGlowLine.Colour = getColourForAccent(accentColor.Value);
-            }
-        }
+            if (neonGlowLine == null) return;
 
-        public static Colour4 GetAccentColour(ToolbarAccentColor color) => getColourForAccent(color);
+            neonGlowLine.Colour = getColourForAccent(neonColor.Value);
+        }
 
         private static Colour4 getColourForAccent(ToolbarAccentColor color) => color switch
         {
-            ToolbarAccentColor.Purple => Colour4.FromHex("#AA55FF"),
-            ToolbarAccentColor.Cyan => Colour4.FromHex("#00DDFF"),
-            ToolbarAccentColor.Lime => Colour4.FromHex("#55EE77"),
-            ToolbarAccentColor.Gold => Colour4.FromHex("#FFCC22"),
+            ToolbarAccentColor.Purple => Colour4.FromHex("#aa55ff"),
+            ToolbarAccentColor.Cyan => Colour4.FromHex("#00ddff"),
+            ToolbarAccentColor.Lime => Colour4.FromHex("#55ee77"),
+            ToolbarAccentColor.Gold => Colour4.FromHex("#ffcc22"),
             ToolbarAccentColor.White => Colour4.White,
-            _ => Colour4.FromHex("#FF66AA") // Pink
+            _ => Colour4.FromHex("#ff66aa")
         };
 
         public void Dispose()
         {
-            if (neonGlowLine?.Parent != null)
+            if (toolbar != null)
             {
-                toolbar?.Remove(neonGlowLine, true);
+                toolbar.Anchor = Anchor.TopLeft;
+                toolbar.Origin = Anchor.TopLeft;
+                toolbar.X = 0f;
+                toolbar.Y = 0f;
+                toolbar.Width = 1f;
+                toolbar.Masking = false;
+                toolbar.CornerRadius = 0f;
+                toolbar.Margin = new MarginPadding(0);
+                toolbar.Padding = new MarginPadding(0);
+                toolbar.Height = 40f;
+                toolbar.EdgeEffect = default;
             }
-            neonGlowLine = null;
+
+            if (neonGlowLine != null)
+            {
+                neonGlowLine.Expire();
+                neonGlowLine = null;
+            }
+
             toolbar = null;
             toolbarBackground = null;
             GC.SuppressFinalize(this);

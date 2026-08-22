@@ -96,34 +96,40 @@ namespace OsuTweaks.Tweaks
                         Name = "osu!tweaks Custom Clock Display",
                         AutoSizeAxes = Axes.Both,
                         Direction = FillDirection.Vertical,
-                        Anchor = Anchor.CentreLeft,
-                        Origin = Anchor.CentreLeft,
+                        Anchor = Anchor.TopLeft,
+                        Origin = Anchor.TopLeft,
                         AlwaysPresent = true,
                         Children = new Drawable[]
                         {
                             customRealTime = new OsuSpriteText
                             {
+                                Anchor = Anchor.TopLeft,
+                                Origin = Anchor.TopLeft,
                                 Font = OsuFont.Default.With(fixedWidth: true),
-                                Spacing = new Vector2(-1.5f, 0),
-                                Anchor = Anchor.CentreLeft,
-                                Origin = Anchor.CentreLeft
+                                Spacing = new Vector2(-1.5f, 0)
                             },
                             customSessionFlow = new FillFlowContainer
                             {
                                 AutoSizeAxes = Axes.Both,
                                 Direction = FillDirection.Horizontal,
                                 Spacing = new Vector2(2f, 0),
+                                Anchor = Anchor.TopLeft,
+                                Origin = Anchor.TopLeft,
                                 Colour = Colour4.FromHex("#ff66aa"),
                                 Alpha = 0,
                                 Children = new Drawable[]
                                 {
                                     new OsuSpriteText
                                     {
+                                        Anchor = Anchor.TopLeft,
+                                        Origin = Anchor.TopLeft,
                                         Text = "SESSION",
                                         Font = OsuFont.Default.With(size: 10f, weight: FontWeight.SemiBold)
                                     },
                                     (customSessionText = new OsuSpriteText
                                     {
+                                        Anchor = Anchor.TopLeft,
+                                        Origin = Anchor.TopLeft,
                                         Font = OsuFont.Default.With(size: 10f, weight: FontWeight.SemiBold, fixedWidth: true),
                                         Spacing = new Vector2(-0.5f, 0)
                                     })
@@ -175,7 +181,7 @@ namespace OsuTweaks.Tweaks
 
                     case ClockDisplayFormat.SessionTimerOnly:
                         var elapsedOnly = now - sessionStartTime;
-                        customRealTime.Text = $"⏳ {(int)elapsedOnly.TotalHours}ч {elapsedOnly.Minutes:D2}м";
+                        customRealTime.Text = $"⏳ {(int)elapsedOnly.TotalHours}h {elapsedOnly.Minutes:D2}m";
                         break;
 
                     default: // StandardWithSeconds

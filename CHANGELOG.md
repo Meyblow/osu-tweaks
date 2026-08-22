@@ -2,15 +2,13 @@
 
 All notable changes to osu!tweaks are documented in this file.
 
-## [1.2.5] - 2026-08-22
-
-### Added
-- **Full Russian & English Localization**: Integrated `OsuCcLocalisation` and embedded `Localisation/ru.json` so all settings, tooltips, buttons, dialogs, banners, and context menus automatically match the game's selected language in osu! settings.
+## [1.3.0] - 2026-08-22
 
 ### Fixed
-- **Clock Flickering & Desync**: Eliminated second-by-second clock text flickering by replacing vanilla text rendering with a dedicated custom clock layer, preventing race conditions with osu!lazer's native `DigitalClockDisplay`.
-- **Toolbar Position & Reset**: Guaranteed precise top alignment (`Margin = 0`, `Y = 0`) when floating island is disabled, preventing unwanted offsets.
-- **Preset Cleanliness**: Removed obsolete bundled presets (`Centered`), retaining only `Default (Vanilla)` so users can create, save, and manage their own personalized presets cleanly.
+- **Fatal Crash in Clock FillFlowContainer**: Fixed `System.InvalidOperationException: All drawables in a FillFlowContainer must use the same RelativeAnchorPosition for the given FillDirection(Vertical)` by synchronizing all child anchors to `Anchor.TopLeft`.
+- **Floating Island Horizontal Displacement**: Fixed the floating toolbar shifting to the right on the X axis by anchoring it symmetrically to `Anchor.TopCentre` with `Origin = TopCentre`, ensuring perfect center alignment and clean reset.
+- **Native Localization in All Dropdowns**: Switched all settings dropdowns to `SettingsEnumDropdown<T>` with `[LocalisableDescription]`, allowing options (`Accent Glow Color`, `Time & Date Format`, `Spacer Style`, `Avatar & Username Layout`, `Auto-Skip Mode`) to automatically render in English or Russian based on the game's active language.
+- **Drag Ghost & Spacer Badges**: Localized drag preview badges and spacer context menu labels.
 
 ---
 
