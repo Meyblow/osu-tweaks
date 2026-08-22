@@ -2,7 +2,7 @@
 
 All notable changes to osu!tweaks are documented in this file.
 
-## [1.2.3] - 2026-08-22
+## [1.2.5] - 2026-08-22
 
 ### Added
 - **Full Russian & English Localization**: Integrated `OsuCcLocalisation` and embedded `Localisation/ru.json` so all settings, tooltips, buttons, dialogs, banners, and context menus automatically match the game's selected language in osu! settings.
@@ -11,6 +11,13 @@ All notable changes to osu!tweaks are documented in this file.
 - **Clock Flickering & Desync**: Eliminated second-by-second clock text flickering by replacing vanilla text rendering with a dedicated custom clock layer, preventing race conditions with osu!lazer's native `DigitalClockDisplay`.
 - **Toolbar Position & Reset**: Guaranteed precise top alignment (`Margin = 0`, `Y = 0`) when floating island is disabled, preventing unwanted offsets.
 - **Preset Cleanliness**: Removed obsolete bundled presets (`Centered`), retaining only `Default (Vanilla)` so users can create, save, and manage their own personalized presets cleanly.
+
+---
+
+## [1.2.4] - 2026-08-22
+
+### Fixed
+- **SDK Metadata Synchronization**: Internal build synchronization for package metadata.
 
 ---
 
