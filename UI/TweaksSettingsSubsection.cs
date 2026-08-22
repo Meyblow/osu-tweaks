@@ -47,12 +47,14 @@ namespace OsuTweaks.UI
             Add(new SettingsButton
             {
                 Text = "Настроить тулбар (Режим редактирования)",
+                Margin = new MarginPadding { Top = 6f },
                 Action = () => ModularToolbarManager.Instance?.EnterEditMode()
             });
 
             Add(new SettingsButton
             {
                 Text = "Сохранить текущий тулбар как пресет...",
+                Margin = new MarginPadding { Top = 6f },
                 Action = () =>
                 {
                     ModularToolbarManager.Instance?.ShowSavePresetDialog(savedName =>
@@ -67,12 +69,14 @@ namespace OsuTweaks.UI
             Add(new SettingsButton
             {
                 Text = "Открыть папку с пресетами",
+                Margin = new MarginPadding { Top = 6f },
                 Action = ToolbarPresetManager.OpenPresetsFolder
             });
 
             Add(new SettingsButton
             {
                 Text = "Сбросить расположение по умолчанию",
+                Margin = new MarginPadding { Top = 6f, Bottom = 6f },
                 Action = () =>
                 {
                     ModularToolbarManager.Instance?.ResetToDefault();
@@ -89,6 +93,7 @@ namespace OsuTweaks.UI
             var profileModeDropdown = new SettingsDropdown<string>
             {
                 LabelText = "Расположение аватарки и ника",
+                Margin = new MarginPadding { Top = 10f },
                 Current = new Bindable<string>(getProfileModeString(currentProfileMode)),
                 Items = new[]
                 {
@@ -105,7 +110,9 @@ namespace OsuTweaks.UI
             {
                 if (plugin != null && !string.IsNullOrEmpty(e.NewValue))
                 {
-                    plugin.UserProfileDisplayMode.Value = parseProfileMode(e.NewValue);
+                    var parsed = parseProfileMode(e.NewValue);
+                    plugin.UserProfileDisplayMode.Value = parsed;
+                    ModularToolbarManager.Instance?.ApplyUserProfileDisplayMode(parsed);
                 }
             });
             Add(profileModeDropdown);
@@ -118,6 +125,7 @@ namespace OsuTweaks.UI
             var autoSkipDropdown = new SettingsDropdown<string>
             {
                 LabelText = "Режим пропуска пауз (Автоскип)",
+                Margin = new MarginPadding { Top = 10f },
                 Current = new Bindable<string>(getAutoSkipModeString(initialAutoSkip)),
                 Items = new[] { "Выкл", "Автоскип мид-мап брейков", "Автоскип всего (интро, брейки, аутро)" }
             };

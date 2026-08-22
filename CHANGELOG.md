@@ -2,10 +2,18 @@
 
 All notable changes to osu!tweaks are documented in this file.
 
+## [1.0.9] - 2026-08-22
+
+### Changed
+- **Settings Spacing & Padding**: Added 6px vertical spacing between action buttons and 10px section separation in the settings subsection so buttons are clearly separated instead of merged into a single block.
+
+---
+
 ## [1.0.8] - 2026-08-22
 
 ### Fixed
 - **User Profile Statistics Overlap**: Fixed visual overlap between `Global Ranking` and `Performance` by retrieving the exact `avatar` and `usernameText` fields directly from `ToolbarUserButton` without modifying or traversing the `UserStatisticsDisplay` sub-tree.
+- **Thread Safety**: Wrapped profile UI mutation logic in `Scheduler.AddOnce` for instant update synchronization.
 
 ---
 
