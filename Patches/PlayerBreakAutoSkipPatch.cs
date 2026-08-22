@@ -2,13 +2,14 @@ using System;
 using osu.Game.Screens.Play;
 using osucc.Core;
 using osucc.Plugin;
+using OsuTweaks.Models;
 using OsuTweaks.Tweaks;
 using OsuTweaks.Utils;
 
 namespace OsuTweaks.Patches
 {
     /// <summary>
-    /// Патч на Player.LoadComplete для добавления TweaksBreakAutoSkipper в GameplayClockContainer.
+    /// Патч на Player.LoadComplete для внедрения TweaksBreakAutoSkipper в GameplayClockContainer.
     /// </summary>
     public sealed class PlayerBreakAutoSkipPatch : PluginPatch<OsuTweaksPlugin>
     {
@@ -23,19 +24,16 @@ namespace OsuTweaks.Patches
             try
             {
                 var plugin = OsuTweaksPlugin.Instance;
-                if (plugin == null || !plugin.AutoSkipBreaks.Value)
+                if (plugin == null || plugin.AutoSkipMode.Value == AutoSkipMode.Disabled)
                     return;
 
                 var breaks = __instance.GameplayState?.Beatmap?.Breaks;
-                if (breaks == null || breaks.Count == 0)
-                    return;
-
                 var gcc = ReflectionHelper.GetPropertyValue<GameplayClockContainer>(__instance, "GameplayClockContainer");
                 if (gcc != null)
                 {
                     var skipper = new TweaksBreakAutoSkipper(__instance, gcc, breaks);
                     gcc.Add(skipper);
-                    TweaksLog.Info($"PlayerBreakAutoSkipPatch: Successfully injected TweaksBreakAutoSkipper ({breaks.Count} breaks)");
+                    TweaksLog.Info($"PlayerBreakAutoSkipPatch: Successfully injected TweaksBreakAutoSkipper (Mode={plugin.AutoSkipMode.Value})");
                 }
             }
             catch (Exception ex)

@@ -11,6 +11,7 @@ using osu.Game.Graphics.UserInterfaceV2;
 using osu.Game.Overlays.Settings;
 using osucc.Plugin;
 using osuTK;
+using OsuTweaks.Models;
 using OsuTweaks.Tweaks;
 
 namespace OsuTweaks.UI
@@ -89,7 +90,11 @@ namespace OsuTweaks.UI
             // --- Категория: Gameplay ---
             Add(createSectionHeader("Gameplay", FontAwesome.Solid.Gamepad));
 
-            this.AddCheckbox(settings, "auto_skip_breaks", false, "Автоматический скип брейков", "Автоматически перематывает паузы между секциями карты без нажатия кнопки (требуется включенная опция 'Skip breaks mid-map' в Specials osu!cc)");
+            Add(new SettingsEnumDropdown<AutoSkipMode>
+            {
+                LabelText = "Режим автоскипа",
+                Current = OsuTweaksPlugin.Instance?.AutoSkipMode ?? new Bindable<AutoSkipMode>(AutoSkipMode.Disabled)
+            });
         }
 
         private static Container createSectionHeader(string text, IconUsage icon) => new Container

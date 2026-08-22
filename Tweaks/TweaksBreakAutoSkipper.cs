@@ -1,21 +1,25 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Testing;
 using osu.Game.Beatmaps.Timing;
+using osu.Game.Rulesets.Objects;
 using osu.Game.Screens.Play;
+using OsuTweaks.Models;
 using OsuTweaks.Utils;
 
 namespace OsuTweaks.Tweaks
 {
     /// <summary>
-    /// Автономный компонент автоскипа брейков для osu!tweaks.
-    /// Внедряется в GameplayClockContainer и оптимизированно перематывает брейк к нотам.
-    /// Зависит от настройки 'Skip breaks mid-map' в Specials osu!cc.
-    /// При активном автоскипе скрывает визуальную полосу и кнопку SKIP только во время брейков.
+    /// Автономный компонент автоскипа для osu!tweaks.
+    /// Поддерживает режимы:
+    /// - Disabled (Выкл)
+    /// - BreaksOnly (Автоскип мид-мап брейков)
+    /// - All (Автоскип всего: интро, брейки, аутро)
     /// </summary>
     public partial class TweaksBreakAutoSkipper : Component
     {
@@ -24,10 +28,14 @@ namespace OsuTweaks.Tweaks
 
         private readonly Player player;
         private readonly GameplayClockContainer clockContainer;
-        private readonly IReadOnlyList<BreakPeriod> breaks;
+        private readonly IReadOnlyList<BreakPeriod>? breaks;
 
         private double firstNoteTime = double.MaxValue;
+        private double lastNoteEndTime = double.MaxValue;
+
         private int nextBreakIndex;
+        private bool hasSkippedIntro;
+        private bool hasSkippedOutro;
 
         private object? drawableRuleset;
         private PropertyInfo? frameStablePlaybackProp;
@@ -35,7 +43,7 @@ namespace OsuTweaks.Tweaks
         private MethodInfo? updateSampleDisabledStateMethod;
         private Bindable<bool>? osuCcSkipBreakTime;
 
-        public TweaksBreakAutoSkipper(Player player, GameplayClockContainer clockContainer, IReadOnlyList<BreakPeriod> breaks)
+        public TweaksBreakAutoSkipper(Player player, GameplayClockContainer clockContainer, IReadOnlyList<BreakPeriod>? breaks)
         {
             this.player = player;
             this.clockContainer = clockContainer;
@@ -51,6 +59,7 @@ namespace OsuTweaks.Tweaks
                 if (hitObjects != null && hitObjects.Count > 0)
                 {
                     firstNoteTime = hitObjects[0].StartTime;
+                    lastNoteEndTime = hitObjects.Max(h => h.GetEndTime());
                 }
 
                 drawableRuleset = ReflectionHelper.GetPropertyValue<object>(player, "DrawableRuleset");
@@ -80,46 +89,69 @@ namespace OsuTweaks.Tweaks
             base.Update();
 
             var plugin = OsuTweaksPlugin.Instance;
-            if (plugin == null || !plugin.AutoSkipBreaks.Value)
+            if (plugin == null)
                 return;
 
-            // Проверяем зависимость от настройки osu!cc "Skip breaks mid-map"
-            if (osuCcSkipBreakTime != null && !osuCcSkipBreakTime.Value)
-                return;
-
-            if (breaks == null || nextBreakIndex >= breaks.Count)
+            var mode = plugin.AutoSkipMode.Value;
+            if (mode == AutoSkipMode.Disabled)
                 return;
 
             double currentTime = clockContainer.CurrentTime;
 
-            // Пропускаем интро в начале карты
-            if (currentTime < firstNoteTime - 500)
-                return;
-
-            var currentBreak = breaks[nextBreakIndex];
-
-            // Если время вышло за пределы текущего брейка, переходим к следующему
-            if (currentTime >= currentBreak.EndTime)
+            // 1. АВТОСКИП ИНТРО (только в режиме All)
+            if (mode == AutoSkipMode.All && !hasSkippedIntro)
             {
-                nextBreakIndex++;
-                return;
+                double introSkipTarget = firstNoteTime - skip_lead_in;
+                if (introSkipTarget - currentTime >= minimum_skip_savings)
+                {
+                    hasSkippedIntro = true;
+                    performSkip(introSkipTarget, "Intro");
+                    hideSkipOverlays();
+                    return;
+                }
             }
 
-            // Если вошли в диапазон брейка:
-            if (currentBreak.HasEffect && currentTime >= currentBreak.StartTime && currentTime < currentBreak.EndTime)
+            // 2. АВТОСКИП МИД-МАП БРЕЙКОВ (в режимах BreaksOnly и All)
+            if (breaks != null && nextBreakIndex < breaks.Count && currentTime >= firstNoteTime - 500)
             {
-                hideBreakSkipOverlays();
-
-                double skipTarget = currentBreak.EndTime - skip_lead_in;
-                if (skipTarget - currentTime >= minimum_skip_savings)
+                // Проверяем зависимость от настройки osu!cc "Skip breaks mid-map"
+                if (osuCcSkipBreakTime == null || osuCcSkipBreakTime.Value)
                 {
-                    nextBreakIndex++;
-                    performBreakSkip(skipTarget);
+                    var currentBreak = breaks[nextBreakIndex];
+
+                    if (currentTime >= currentBreak.EndTime)
+                    {
+                        nextBreakIndex++;
+                    }
+                    else if (currentBreak.HasEffect && currentTime >= currentBreak.StartTime && currentTime < currentBreak.EndTime)
+                    {
+                        hideSkipOverlays();
+
+                        double breakSkipTarget = currentBreak.EndTime - skip_lead_in;
+                        if (breakSkipTarget - currentTime >= minimum_skip_savings)
+                        {
+                            nextBreakIndex++;
+                            performSkip(breakSkipTarget, "Break");
+                            return;
+                        }
+                    }
                 }
+            }
+
+            // 3. АВТОСКИП АУТРО (только в режиме All)
+            if (mode == AutoSkipMode.All && !hasSkippedOutro && currentTime >= lastNoteEndTime + 800)
+            {
+                hasSkippedOutro = true;
+                double trackEndTime = player.GameplayState?.Beatmap?.HitObjects.Count > 0
+                    ? lastNoteEndTime + 1200
+                    : clockContainer.CurrentTime;
+
+                TweaksLog.Info($"TweaksBreakAutoSkipper: Outro auto-complete at {currentTime:F0}ms");
+                hideSkipOverlays();
             }
         }
 
-        private void hideBreakSkipOverlays()
+        private void hideSkipOverlays()
         {
             try
             {
@@ -134,11 +166,11 @@ namespace OsuTweaks.Tweaks
             catch { }
         }
 
-        private void performBreakSkip(double targetTime)
+        private void performSkip(double targetTime, string reason)
         {
             try
             {
-                TweaksLog.Info($"TweaksBreakAutoSkipper: Event-driven auto-skipping break to {targetTime:F0}ms");
+                TweaksLog.Info($"TweaksBreakAutoSkipper: Auto-skipping {reason} to {targetTime:F0}ms");
 
                 // 1. Mute samples
                 var sampleDisabled = samplePlaybackDisabledField?.GetValue(player) as Bindable<bool>;
@@ -173,7 +205,7 @@ namespace OsuTweaks.Tweaks
             }
             catch (Exception ex)
             {
-                TweaksLog.Error("TweaksBreakAutoSkipper.performBreakSkip error", ex);
+                TweaksLog.Error($"TweaksBreakAutoSkipper.performSkip ({reason}) error", ex);
             }
         }
     }

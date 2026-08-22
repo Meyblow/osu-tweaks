@@ -12,7 +12,6 @@ using osu.Game.Graphics;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.Sprites;
 using osuTK;
-using osuTK.Graphics;
 using osuTK.Input;
 
 namespace OsuTweaks.UI
@@ -27,14 +26,16 @@ namespace OsuTweaks.UI
     }
 
     /// <summary>
-    /// Всплывающее контекстное меню с анимациями и osu!-дизайном.
-    /// Конструкция UI создается сразу в конструкторе, чтобы гарантировать отсутствие NRE.
+    /// Полноэкранное контекстное меню с osu!-дизайном.
+    /// Перехватывает клики вне карточки меню и мгновенно сворачивается при нажатии в любое место экрана.
     /// </summary>
     public partial class ToolbarContextMenu : CompositeDrawable
     {
         private readonly Container card;
         private readonly FillFlowContainer menuFlow;
         private readonly List<ContextMenuItemData> items = new();
+
+        public override bool HandlePositionalInput => true;
 
         public ToolbarContextMenu()
         {
@@ -77,7 +78,7 @@ namespace OsuTweaks.UI
                 new Box
                 {
                     RelativeSizeAxes = Axes.Both,
-                    Colour = Colour4.Black.Opacity(0.01f),
+                    Colour = Colour4.Black.Opacity(0.001f),
                     AlwaysPresent = true
                 },
                 card

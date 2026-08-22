@@ -99,10 +99,10 @@ namespace OsuTweaks.Tweaks
                 {
                     RelativeSizeAxes = Axes.Both,
                     AlwaysPresent = true
-                },
-                contextMenu = new ToolbarContextMenu()
+                }
             };
 
+            contextMenu = new ToolbarContextMenu();
             editHintBanner = new DraggableEditHintBanner(colours, SaveAndExitEditMode);
 
             leftZone.OnZoneRightClicked += onZoneRightClicked;
@@ -207,14 +207,16 @@ namespace OsuTweaks.Tweaks
                 toolbar.Add(this);
             }
 
-            // Прикрепляем плашку режима редактирования к корневому контейнеру игры (внизу экрана)
-            if (toolbar.Parent is Container<Drawable> gameRoot && editHintBanner.Parent == null)
+            // Прикрепляем плашку режима редактирования и контекстное меню к корневому контейнеру игры (полноэкранные оверлеи)
+            if (toolbar.Parent is Container<Drawable> gameRoot)
             {
-                gameRoot.Add(editHintBanner);
+                if (editHintBanner.Parent == null) gameRoot.Add(editHintBanner);
+                if (contextMenu.Parent == null) gameRoot.Add(contextMenu);
             }
-            else if (host.Game is Container<Drawable> gameContainer && editHintBanner.Parent == null)
+            else if (host.Game is Container<Drawable> gameContainer)
             {
-                gameContainer.Add(editHintBanner);
+                if (editHintBanner.Parent == null) gameContainer.Add(editHintBanner);
+                if (contextMenu.Parent == null) gameContainer.Add(contextMenu);
             }
 
             // Загружаем сохраненный конфиг или схему по умолчанию

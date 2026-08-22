@@ -5,6 +5,7 @@ using osu.Framework.Testing;
 using osu.Game;
 using osu.Game.Overlays.Toolbar;
 using osucc.Plugin;
+using OsuTweaks.Models;
 using OsuTweaks.Patches;
 using OsuTweaks.Tweaks;
 using OsuTweaks.UI;
@@ -18,7 +19,7 @@ namespace OsuTweaks
     {
         public static OsuTweaksPlugin? Instance { get; private set; }
 
-        public Bindable<bool> AutoSkipBreaks { get; private set; } = new(false);
+        public Bindable<AutoSkipMode> AutoSkipMode { get; private set; } = new(Models.AutoSkipMode.Disabled);
 
         private ModularToolbarManager? toolbarManager;
 
@@ -28,7 +29,7 @@ namespace OsuTweaks
             TweaksLog.Init(Host);
             TweaksLog.Info("osu!tweaks: OnLoad() starting...");
 
-            AutoSkipBreaks = Host.GetSettings().Bind("auto_skip_breaks", false);
+            AutoSkipMode = Host.GetSettings().Bind("auto_skip_mode", Models.AutoSkipMode.Disabled);
 
             toolbarManager = new ModularToolbarManager(Host);
             Host.AddPatch(new ToolbarPatch(this, Host));
