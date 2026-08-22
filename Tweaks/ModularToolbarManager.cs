@@ -26,6 +26,7 @@ using osuTK;
 using osuTK.Input;
 using OsuTweaks.Models;
 using OsuTweaks.UI;
+using OsuTweaks.Utils;
 
 namespace OsuTweaks.Tweaks
 {
@@ -523,159 +524,139 @@ namespace OsuTweaks.Tweaks
         {
             if (IsDisposed) return;
 
-            try
+            Scheduler.AddOnce(() =>
             {
-                if (!allBlocks.TryGetValue("user_profile", out var userBlock))
-                    return;
+                if (IsDisposed) return;
 
-                var userButton = userBlock.ContentDrawable;
-                if (userButton == null || !userButton.IsAlive)
-                    return;
-
-                var avatar = userButton.ChildrenOfType<Drawable>().FirstOrDefault(d => d.GetType().Name.Contains("Avatar"));
-                var text = userButton.ChildrenOfType<OsuSpriteText>().FirstOrDefault();
-
-                if (avatar == null || text == null)
-                    return;
-
-                // Находим FillFlowContainer, содержащий обертки аватарки и ника
-                var flows = userButton.ChildrenOfType<FillFlowContainer>().ToList();
-                FillFlowContainer? targetFlow = null;
-                Drawable? avatarWrapper = null;
-                Drawable? textWrapper = null;
-
-                foreach (var f in flows)
+                try
                 {
-                    var aChild = f.Children.FirstOrDefault(c => c == avatar || c.ChildrenOfType<Drawable>().Any(d => d.GetType().Name.Contains("Avatar")));
-                    var tChild = f.Children.FirstOrDefault(c => c == text || c.ChildrenOfType<OsuSpriteText>().Any());
+                    if (!allBlocks.TryGetValue("user_profile", out var userBlock))
+                        return;
 
-                    if (aChild != null && tChild != null && aChild != tChild && f.Contains(aChild) && f.Contains(tChild))
+                    var userButton = userBlock.ContentDrawable;
+                    if (userButton == null || !userButton.IsAlive)
+                        return;
+
+                    // Получаем точные поля кнопки ToolbarUserButton
+                    var avatar = ReflectionHelper.GetFieldValue<Drawable>(userButton, "avatar")
+                                 ?? userButton.ChildrenOfType<Drawable>().FirstOrDefault(d => d.GetType().Name.Contains("Avatar"));
+
+                    var usernameText = ReflectionHelper.GetFieldValue<Drawable>(userButton, "usernameText")
+                                       ?? userButton.ChildrenOfType<OsuSpriteText>().FirstOrDefault(t => 
+                                           !t.Text.ToString().Contains("Ranking") && 
+                                           !t.Text.ToString().Contains("Performance") &&
+                                           !t.Text.ToString().StartsWith('#'));
+
+                    if (avatar == null || usernameText == null)
+                        return;
+
+                    // Контейнер 32x32, оборачивающий аватарку
+                    var avatarContainer = avatar.Parent ?? avatar;
+
+                    // Находим непосредственный родительский FillFlowContainer для аватарки и ника
+                    var parentFlow = (avatarContainer.Parent as FillFlowContainer) 
+                                     ?? (usernameText.Parent as FillFlowContainer)
+                                     ?? userButton.ChildrenOfType<FillFlowContainer>().FirstOrDefault(f => f.Contains(avatarContainer) && f.Contains(usernameText));
+
+                    if (parentFlow == null)
+                        return;
+
+                    switch (mode)
                     {
-                        targetFlow = f;
-                        avatarWrapper = aChild;
-                        textWrapper = tChild;
-                        break;
-                    }
-                }
+                        case UserProfileDisplayMode.Default:
+                            avatarContainer.Alpha = 1;
+                            avatarContainer.Width = 32;
+                            avatarContainer.BypassAutoSizeAxes = Axes.None;
+                            usernameText.Alpha = 1;
+                            usernameText.BypassAutoSizeAxes = Axes.None;
+                            usernameText.Margin = new MarginPadding { Right = 5f, Left = 0 };
 
-                switch (mode)
-                {
-                    case UserProfileDisplayMode.Default:
-                        avatar.Alpha = 1;
-                        text.Alpha = 1;
-                        if (avatarWrapper != null) { avatarWrapper.Alpha = 1; avatarWrapper.BypassAutoSizeAxes = Axes.None; avatarWrapper.Anchor = Anchor.CentreLeft; avatarWrapper.Origin = Anchor.CentreLeft; }
-                        if (textWrapper != null) { textWrapper.Alpha = 1; textWrapper.BypassAutoSizeAxes = Axes.None; textWrapper.Anchor = Anchor.CentreLeft; textWrapper.Origin = Anchor.CentreLeft; }
-                        if (targetFlow != null)
-                        {
-                            targetFlow.Anchor = Anchor.Centre;
-                            targetFlow.Origin = Anchor.Centre;
-                            if (textWrapper != null && avatarWrapper != null && targetFlow.Contains(textWrapper) && targetFlow.Contains(avatarWrapper))
+                            if (parentFlow.Contains(usernameText) && parentFlow.Contains(avatarContainer))
                             {
-                                targetFlow.SetLayoutPosition(textWrapper, 0);
-                                targetFlow.SetLayoutPosition(avatarWrapper, 1);
+                                parentFlow.SetLayoutPosition(usernameText, 0);
+                                parentFlow.SetLayoutPosition(avatarContainer, 1);
                             }
-                        }
-                        break;
+                            break;
 
-                    case UserProfileDisplayMode.AvatarLeft:
-                        avatar.Alpha = 1;
-                        text.Alpha = 1;
-                        if (avatarWrapper != null) { avatarWrapper.Alpha = 1; avatarWrapper.BypassAutoSizeAxes = Axes.None; avatarWrapper.Anchor = Anchor.CentreLeft; avatarWrapper.Origin = Anchor.CentreLeft; }
-                        if (textWrapper != null) { textWrapper.Alpha = 1; textWrapper.BypassAutoSizeAxes = Axes.None; textWrapper.Anchor = Anchor.CentreLeft; textWrapper.Origin = Anchor.CentreLeft; }
-                        if (targetFlow != null)
-                        {
-                            targetFlow.Anchor = Anchor.Centre;
-                            targetFlow.Origin = Anchor.Centre;
-                            if (avatarWrapper != null && textWrapper != null && targetFlow.Contains(avatarWrapper) && targetFlow.Contains(textWrapper))
+                        case UserProfileDisplayMode.AvatarLeft:
+                            avatarContainer.Alpha = 1;
+                            avatarContainer.Width = 32;
+                            avatarContainer.BypassAutoSizeAxes = Axes.None;
+                            usernameText.Alpha = 1;
+                            usernameText.BypassAutoSizeAxes = Axes.None;
+                            usernameText.Margin = new MarginPadding { Left = 5f, Right = 0 };
+
+                            if (parentFlow.Contains(avatarContainer) && parentFlow.Contains(usernameText))
                             {
-                                targetFlow.SetLayoutPosition(avatarWrapper, 0);
-                                targetFlow.SetLayoutPosition(textWrapper, 1);
+                                parentFlow.SetLayoutPosition(avatarContainer, 0);
+                                parentFlow.SetLayoutPosition(usernameText, 1);
                             }
-                        }
-                        break;
+                            break;
 
-                    case UserProfileDisplayMode.AvatarOnly:
-                        avatar.Alpha = 1;
-                        text.Alpha = 0;
-                        if (avatarWrapper != null)
-                        {
-                            avatarWrapper.Alpha = 1;
-                            avatarWrapper.BypassAutoSizeAxes = Axes.None;
-                            avatarWrapper.Anchor = Anchor.CentreLeft;
-                            avatarWrapper.Origin = Anchor.CentreLeft;
-                        }
-                        if (textWrapper != null)
-                        {
-                            textWrapper.Alpha = 0;
-                            textWrapper.BypassAutoSizeAxes = Axes.Both;
-                            textWrapper.Anchor = Anchor.CentreLeft;
-                            textWrapper.Origin = Anchor.CentreLeft;
-                        }
-                        if (targetFlow != null)
-                        {
-                            targetFlow.Anchor = Anchor.Centre;
-                            targetFlow.Origin = Anchor.Centre;
-                        }
-                        break;
+                        case UserProfileDisplayMode.AvatarOnly:
+                            avatarContainer.Alpha = 1;
+                            avatarContainer.Width = 32;
+                            avatarContainer.BypassAutoSizeAxes = Axes.None;
+                            usernameText.Alpha = 0;
+                            usernameText.BypassAutoSizeAxes = Axes.Both;
+                            usernameText.Margin = new MarginPadding(0);
 
-                    case UserProfileDisplayMode.UsernameOnly:
-                        avatar.Alpha = 0;
-                        text.Alpha = 1;
-                        if (avatarWrapper != null)
-                        {
-                            avatarWrapper.Alpha = 0;
-                            avatarWrapper.BypassAutoSizeAxes = Axes.Both;
-                            avatarWrapper.Anchor = Anchor.CentreLeft;
-                            avatarWrapper.Origin = Anchor.CentreLeft;
-                        }
-                        if (textWrapper != null)
-                        {
-                            textWrapper.Alpha = 1;
-                            textWrapper.BypassAutoSizeAxes = Axes.None;
-                            textWrapper.Anchor = Anchor.CentreLeft;
-                            textWrapper.Origin = Anchor.CentreLeft;
-                        }
-                        if (targetFlow != null)
-                        {
-                            targetFlow.Anchor = Anchor.Centre;
-                            targetFlow.Origin = Anchor.Centre;
-                        }
-                        break;
+                            if (parentFlow.Contains(avatarContainer) && parentFlow.Contains(usernameText))
+                            {
+                                parentFlow.SetLayoutPosition(avatarContainer, 0);
+                                parentFlow.SetLayoutPosition(usernameText, 1);
+                            }
+                            break;
 
-                    case UserProfileDisplayMode.WithSeparator:
-                    case UserProfileDisplayMode.AvatarLeftWithSep:
-                        avatar.Alpha = 1;
-                        text.Alpha = 1;
-                        if (avatarWrapper != null) { avatarWrapper.Alpha = 1; avatarWrapper.BypassAutoSizeAxes = Axes.None; avatarWrapper.Anchor = Anchor.CentreLeft; avatarWrapper.Origin = Anchor.CentreLeft; }
-                        if (textWrapper != null) { textWrapper.Alpha = 1; textWrapper.BypassAutoSizeAxes = Axes.None; textWrapper.Anchor = Anchor.CentreLeft; textWrapper.Origin = Anchor.CentreLeft; }
-                        if (targetFlow != null)
-                        {
-                            targetFlow.Anchor = Anchor.Centre;
-                            targetFlow.Origin = Anchor.Centre;
+                        case UserProfileDisplayMode.UsernameOnly:
+                            avatarContainer.Alpha = 0;
+                            avatarContainer.Width = 0;
+                            avatarContainer.BypassAutoSizeAxes = Axes.Both;
+                            usernameText.Alpha = 1;
+                            usernameText.BypassAutoSizeAxes = Axes.None;
+                            usernameText.Margin = new MarginPadding(0);
+
+                            if (parentFlow.Contains(usernameText) && parentFlow.Contains(avatarContainer))
+                            {
+                                parentFlow.SetLayoutPosition(usernameText, 0);
+                                parentFlow.SetLayoutPosition(avatarContainer, 1);
+                            }
+                            break;
+
+                        case UserProfileDisplayMode.WithSeparator:
+                        case UserProfileDisplayMode.AvatarLeftWithSep:
+                            avatarContainer.Alpha = 1;
+                            avatarContainer.Width = 32;
+                            avatarContainer.BypassAutoSizeAxes = Axes.None;
+                            usernameText.Alpha = 1;
+                            usernameText.BypassAutoSizeAxes = Axes.None;
+
                             if (mode == UserProfileDisplayMode.AvatarLeftWithSep)
                             {
-                                if (avatarWrapper != null && textWrapper != null && targetFlow.Contains(avatarWrapper) && targetFlow.Contains(textWrapper))
+                                usernameText.Margin = new MarginPadding { Left = 8f, Right = 0 };
+                                if (parentFlow.Contains(avatarContainer) && parentFlow.Contains(usernameText))
                                 {
-                                    targetFlow.SetLayoutPosition(avatarWrapper, 0);
-                                    targetFlow.SetLayoutPosition(textWrapper, 1);
+                                    parentFlow.SetLayoutPosition(avatarContainer, 0);
+                                    parentFlow.SetLayoutPosition(usernameText, 1);
                                 }
                             }
                             else
                             {
-                                if (textWrapper != null && avatarWrapper != null && targetFlow.Contains(textWrapper) && targetFlow.Contains(avatarWrapper))
+                                usernameText.Margin = new MarginPadding { Right = 8f, Left = 0 };
+                                if (parentFlow.Contains(usernameText) && parentFlow.Contains(avatarContainer))
                                 {
-                                    targetFlow.SetLayoutPosition(textWrapper, 0);
-                                    targetFlow.SetLayoutPosition(avatarWrapper, 1);
+                                    parentFlow.SetLayoutPosition(usernameText, 0);
+                                    parentFlow.SetLayoutPosition(avatarContainer, 1);
                                 }
                             }
-                        }
-                        break;
+                            break;
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                TweaksLog.Error($"ApplyUserProfileDisplayMode exception for mode {mode}", ex);
-            }
+                catch (Exception ex)
+                {
+                    TweaksLog.Error($"ApplyUserProfileDisplayMode exception for mode {mode}", ex);
+                }
+            });
         }
 
         private void onZoneRightClicked(ToolbarZoneContainer zone, MouseDownEvent e)

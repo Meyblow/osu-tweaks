@@ -2,10 +2,17 @@
 
 All notable changes to osu!tweaks are documented in this file.
 
+## [1.0.8] - 2026-08-22
+
+### Fixed
+- **User Profile Statistics Overlap**: Fixed visual overlap between `Global Ranking` and `Performance` by retrieving the exact `avatar` and `usernameText` fields directly from `ToolbarUserButton` without modifying or traversing the `UserStatisticsDisplay` sub-tree.
+
+---
+
 ## [1.0.7] - 2026-08-22
 
 ### Fixed
-- **FillFlowContainer Anchor Alignment Crash**: Fixed `InvalidOperationException: All drawables in a FillFlowContainer must use the same RelativeAnchorPosition for the given FillDirection(Horizontal) (0 != 0.5)` by maintaining uniform `Anchor.CentreLeft` across all children and centering the container via `targetFlow.Anchor = Anchor.Centre`.
+- **FillFlowContainer Anchor Alignment Crash**: Fixed `InvalidOperationException: All drawables in a FillFlowContainer must use the same RelativeAnchorPosition for the given FillDirection(Horizontal) (0 != 0.5)` by maintaining uniform `Anchor.CentreLeft` across all children.
 
 ---
 
