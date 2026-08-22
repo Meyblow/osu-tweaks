@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>OsuTweaks</AssemblyName>
+    <PackageId>osu-tweaks</PackageId>
+    <Title>osu!tweaks</Title>
+    <Description>Коллекция полезных твиков и улучшений интерфейса для osu!cc.</Description>
+    <Version>1.0.0</Version>
+    <Priority>50</Priority>
+    <IconGlyph>SlidersH</IconGlyph>
+    <IsPlugin>true</IsPlugin>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Author Include="Meyblow" OsuProfileId="39791134" />
+    <Tag Include="tools" />
+    <Tag Include="ui" />
+    <Tag Include="settings" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="osucc.Api" Version="2.2.0" />
+    <PackageReference Include="osucc.Build" Version="2.2.0" PrivateAssets="all" />
+    <PackageReference Include="ppy.osu.Game" Version="2026.702.1" />
+  </ItemGroup>
+
+  <Target Name="DeployToOsuCc" AfterTargets="PackagePluginArchive">
+    <MakeDir Directories="$(APPDATA)\osu\osu-cc\plugins" />
+    <Copy SourceFiles="$(OutDir)plugin-$(_PluginId)-$(_PluginVersion).zip" DestinationFolder="$(APPDATA)\osu\osu-cc\plugins" ContinueOnError="true" />
+  </Target>
+
+</Project>
