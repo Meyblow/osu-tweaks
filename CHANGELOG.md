@@ -2,6 +2,13 @@
 
 All notable changes to osu!tweaks are documented in this file.
 
+## [1.1.1] - 2026-08-22
+
+### Fixed
+- **Reset to Default Hierarchy Safety**: Fixed `InvalidOperationException: May not add a drawable to multiple containers` when clicking "Reset to default layout" by applying the vanilla preset directly through the modular zone layout pipeline without attempting to dismantle existing drawables.
+
+---
+
 ## [1.1.0] - 2026-08-22
 
 ### Added

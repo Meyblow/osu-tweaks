@@ -8,7 +8,7 @@
     <PackageId>osu-tweaks</PackageId>
     <Title>osu!tweaks</Title>
     <Description>Коллекция полезных твиков и улучшений интерфейса для osu!cc.</Description>
-    <Version>1.1.0</Version>
+    <Version>1.1.1</Version>
     <Priority>50</Priority>
     <IconGlyph>SlidersH</IconGlyph>
     <IsPlugin>true</IsPlugin>

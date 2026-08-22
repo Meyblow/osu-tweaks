@@ -432,67 +432,29 @@ namespace OsuTweaks.Tweaks
 
         public void ResetToDefault()
         {
-            TweaksLog.Info("ResetToDefault: Restoring 100% original vanilla layout...");
+            if (IsDisposed) return;
+
+            TweaksLog.Info("ResetToDefault: Applying default layout...");
 
             try
             {
-                if (File.Exists(configFilePath))
-                    File.Delete(configFilePath);
-            }
-            catch { }
-
-            leftZone.Flow.Clear(false);
-            centerZone.Flow.Clear(false);
-            rightZone.Flow.Clear(false);
-
-            if (originalLeftFlow != null && originalRightFlow != null)
-            {
-                foreach (var id in originalLeftItems)
+                if (isEditMode)
                 {
-                    if (id == "rulesets" && originalRulesetSelector != null)
-                    {
-                        // Rulesets возвращается на место
-                        continue;
-                    }
-
-                    if (allBlocks.TryGetValue(id, out var block))
-                    {
-                        block.IsHidden.Value = false;
-                        block.IsEditMode = false;
-                        originalLeftFlow.Add(block.ContentDrawable);
-                    }
+                    isEditMode = false;
+                    leftZone.IsEditMode = false;
+                    centerZone.IsEditMode = false;
+                    rightZone.IsEditMode = false;
+                    editHintBanner.FadeOut(150);
                 }
 
-                foreach (var id in originalRightItems)
-                {
-                    if (allBlocks.TryGetValue(id, out var block))
-                    {
-                        block.IsHidden.Value = false;
-                        block.IsEditMode = false;
-                        originalRightFlow.Add(block.ContentDrawable);
-                    }
-                }
+                ApplyPreset("Default (Ванильный)");
+                host.Notify("Тулбар сброшен по умолчанию", NotificationKind.Info);
+                TweaksLog.Info("ResetToDefault: Vanilla toolbar restored.");
             }
-
-            if (originalGridContainer != null)
+            catch (Exception ex)
             {
-                originalGridContainer.Alpha = 1;
-                originalGridContainer.AlwaysPresent = true;
+                TweaksLog.Error("ResetToDefault error", ex);
             }
-
-            if (isEditMode)
-            {
-                isEditMode = false;
-                editHintBanner.FadeOut(150);
-            }
-
-            allBlocks.Clear();
-            if (OsuTweaksPlugin.Instance != null)
-            {
-                OsuTweaksPlugin.Instance.ActivePresetName.Value = "Default (Ванильный)";
-            }
-            host.Notify("Тулбар сброшен по умолчанию", NotificationKind.Info);
-            TweaksLog.Info("ResetToDefault: Vanilla toolbar restored.");
         }
 
         private ToolbarLayoutConfig captureCurrentConfig()
