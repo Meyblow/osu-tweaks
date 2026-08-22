@@ -601,13 +601,15 @@ namespace OsuTweaks.Tweaks
                         {
                             avatarWrapper.Alpha = 1;
                             avatarWrapper.BypassAutoSizeAxes = Axes.None;
-                            avatarWrapper.Anchor = Anchor.Centre;
-                            avatarWrapper.Origin = Anchor.Centre;
+                            avatarWrapper.Anchor = Anchor.CentreLeft;
+                            avatarWrapper.Origin = Anchor.CentreLeft;
                         }
                         if (textWrapper != null)
                         {
                             textWrapper.Alpha = 0;
                             textWrapper.BypassAutoSizeAxes = Axes.Both;
+                            textWrapper.Anchor = Anchor.CentreLeft;
+                            textWrapper.Origin = Anchor.CentreLeft;
                         }
                         if (targetFlow != null)
                         {
@@ -623,13 +625,15 @@ namespace OsuTweaks.Tweaks
                         {
                             avatarWrapper.Alpha = 0;
                             avatarWrapper.BypassAutoSizeAxes = Axes.Both;
+                            avatarWrapper.Anchor = Anchor.CentreLeft;
+                            avatarWrapper.Origin = Anchor.CentreLeft;
                         }
                         if (textWrapper != null)
                         {
                             textWrapper.Alpha = 1;
                             textWrapper.BypassAutoSizeAxes = Axes.None;
-                            textWrapper.Anchor = Anchor.Centre;
-                            textWrapper.Origin = Anchor.Centre;
+                            textWrapper.Anchor = Anchor.CentreLeft;
+                            textWrapper.Origin = Anchor.CentreLeft;
                         }
                         if (targetFlow != null)
                         {

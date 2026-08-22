@@ -2,11 +2,18 @@
 
 All notable changes to osu!tweaks are documented in this file.
 
+## [1.0.7] - 2026-08-22
+
+### Fixed
+- **FillFlowContainer Anchor Alignment Crash**: Fixed `InvalidOperationException: All drawables in a FillFlowContainer must use the same RelativeAnchorPosition for the given FillDirection(Horizontal) (0 != 0.5)` by maintaining uniform `Anchor.CentreLeft` across all children and centering the container via `targetFlow.Anchor = Anchor.Centre`.
+
+---
+
 ## [1.0.6] - 2026-08-22
 
 ### Added
 - **Plugin Document**: Added in-game `Changelog` tab directly inside the osu!cc plugin manager.
-- **Centering for Profile Button**: When avatar is hidden (`UsernameOnly`), the username text is perfectly centered within the button. When username is hidden (`AvatarOnly`), the avatar is centered.
+- **Centering for Profile Button**: When avatar is hidden (`UsernameOnly`), the username text is centered within the button. When username is hidden (`AvatarOnly`), the avatar is centered.
 
 ### Changed
 - **Vanilla Settings UI**: Completely redesigned the settings subsection to 100% match standard osu!lazer settings typography, using native `SettingsButton` and `SettingsDropdown` without external fonts or neon headers.
