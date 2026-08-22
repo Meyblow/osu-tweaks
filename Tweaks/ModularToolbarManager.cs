@@ -170,7 +170,7 @@ namespace OsuTweaks.Tweaks
 
                     string rulesetId = "rulesets";
                     originalLeftItems.Add(rulesetId);
-                    var rulesetBlock = new ToolbarBlockContainer(rulesetId, "Режимы игры", originalRulesetSelector);
+                    var rulesetBlock = new ToolbarBlockContainer(rulesetId, getFriendlyName(rulesetId, originalRulesetSelector), originalRulesetSelector);
                     bindBlockEvents(rulesetBlock);
                     allBlocks[rulesetId] = rulesetBlock;
                     TweaksLog.Info("initManager: Extracted rulesetSelector successfully!");
