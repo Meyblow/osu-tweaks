@@ -2,6 +2,13 @@
 
 All notable changes to osu!tweaks are documented in this file.
 
+## [1.1.0] - 2026-08-22
+
+### Added
+- **Persistent Preset Selection**: Added persistent `ActivePresetName` bindable setting so the active preset name is saved across game restarts and properly displayed in the settings dropdown.
+
+---
+
 ## [1.0.9] - 2026-08-22
 
 ### Changed

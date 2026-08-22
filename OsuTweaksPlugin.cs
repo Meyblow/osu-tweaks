@@ -21,6 +21,7 @@ namespace OsuTweaks
 
         public Bindable<AutoSkipMode> AutoSkipMode { get; private set; } = new(Models.AutoSkipMode.Disabled);
         public Bindable<UserProfileDisplayMode> UserProfileDisplayMode { get; private set; } = new(Models.UserProfileDisplayMode.Default);
+        public Bindable<string> ActivePresetName { get; private set; } = new("Default (Ванильный)");
 
         private ModularToolbarManager? toolbarManager;
 
@@ -32,6 +33,7 @@ namespace OsuTweaks
 
             AutoSkipMode = Host.GetSettings().Bind("auto_skip_mode", Models.AutoSkipMode.Disabled);
             UserProfileDisplayMode = Host.GetSettings().Bind("user_profile_display_mode", Models.UserProfileDisplayMode.Default);
+            ActivePresetName = Host.GetSettings().Bind("active_preset_name", "Default (Ванильный)");
 
             toolbarManager = new ModularToolbarManager(Host);
             Host.AddPatch(new ToolbarPatch(this, Host));

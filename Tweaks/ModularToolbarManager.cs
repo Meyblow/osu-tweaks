@@ -284,6 +284,10 @@ namespace OsuTweaks.Tweaks
             var config = ToolbarPresetManager.LoadPreset(presetName);
             applyConfig(config);
             config.Save(configFilePath);
+            if (OsuTweaksPlugin.Instance != null)
+            {
+                OsuTweaksPlugin.Instance.ActivePresetName.Value = presetName;
+            }
             host.Notify($"Пресет тулбара '{presetName}' применён", NotificationKind.Success);
         }
 
@@ -483,6 +487,10 @@ namespace OsuTweaks.Tweaks
             }
 
             allBlocks.Clear();
+            if (OsuTweaksPlugin.Instance != null)
+            {
+                OsuTweaksPlugin.Instance.ActivePresetName.Value = "Default (Ванильный)";
+            }
             host.Notify("Тулбар сброшен по умолчанию", NotificationKind.Info);
             TweaksLog.Info("ResetToDefault: Vanilla toolbar restored.");
         }
@@ -505,6 +513,10 @@ namespace OsuTweaks.Tweaks
             var dialog = new SavePresetDialog(config, name =>
             {
                 onSaved(name);
+                if (OsuTweaksPlugin.Instance != null)
+                {
+                    OsuTweaksPlugin.Instance.ActivePresetName.Value = name;
+                }
                 host.Notify($"Пресет \"{name}\" успешно сохранён!", NotificationKind.Success);
             });
 

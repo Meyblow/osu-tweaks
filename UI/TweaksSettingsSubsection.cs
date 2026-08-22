@@ -28,20 +28,39 @@ namespace OsuTweaks.UI
             // РАЗДЕЛ: ТУЛБАР
             // ==========================================
             var presets = ToolbarPresetManager.GetAvailablePresets();
+            var plugin = OsuTweaksPlugin.Instance;
+            var activePreset = plugin?.ActivePresetName.Value ?? "Default (Ванильный)";
+            if (!presets.Contains(activePreset))
+            {
+                activePreset = presets.FirstOrDefault() ?? "Default (Ванильный)";
+            }
+
             var presetDropdown = new SettingsDropdown<string>
             {
                 LabelText = "Пресет расположения",
-                Current = new Bindable<string>(presets.FirstOrDefault() ?? "Default (Ванильный)"),
+                Current = new Bindable<string>(activePreset),
                 Items = presets
             };
 
             presetDropdown.Current.BindValueChanged(e =>
             {
-                if (!string.IsNullOrEmpty(e.NewValue))
+                if (!string.IsNullOrEmpty(e.NewValue) && e.NewValue != plugin?.ActivePresetName.Value)
                 {
+                    if (plugin != null) plugin.ActivePresetName.Value = e.NewValue;
                     ModularToolbarManager.Instance?.ApplyPreset(e.NewValue);
                 }
             });
+
+            if (plugin != null)
+            {
+                plugin.ActivePresetName.BindValueChanged(e =>
+                {
+                    if (presetDropdown.Current.Value != e.NewValue)
+                    {
+                        presetDropdown.Current.Value = e.NewValue;
+                    }
+                });
+            }
             Add(presetDropdown);
 
             Add(new SettingsButton
@@ -87,7 +106,6 @@ namespace OsuTweaks.UI
             // ==========================================
             // РАЗДЕЛ: ПРОФИЛЬ ПОЛЬЗОВАТЕЛЯ
             // ==========================================
-            var plugin = OsuTweaksPlugin.Instance;
             var currentProfileMode = plugin?.UserProfileDisplayMode.Value ?? UserProfileDisplayMode.Default;
 
             var profileModeDropdown = new SettingsDropdown<string>
