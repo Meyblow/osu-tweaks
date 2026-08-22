@@ -2,7 +2,7 @@
 
 All notable changes to osu!tweaks are documented in this file.
 
-## [1.3.0] - 2026-08-23
+## [1.3.1] - 2026-08-23
 
 ### Added
 - **Toolbar Corner Radius Slider**: Configurable corner rounding (0px to 24px) for the Floating Island toolbar dock.
