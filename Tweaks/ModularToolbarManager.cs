@@ -39,7 +39,7 @@ namespace OsuTweaks.Tweaks
         public static ModularToolbarManager? Instance { get; private set; }
 
         private readonly IOsuCcPluginHost host;
-        private readonly string configFilePath;
+        private string configFilePath;
 
         private Toolbar? toolbar;
         private Drawable? originalGridContainer;
@@ -74,12 +74,7 @@ namespace OsuTweaks.Tweaks
             Instance = this;
             this.host = host;
 
-            var storage = host.Data;
-            configFilePath = storage?.GetFullPath("layout.json")
-                ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "osu", "osu-cc", "plugins", "osu-tweaks", "layout.json");
-
-            if (storage != null)
-                ToolbarPresetManager.Init(storage);
+            configFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "osu", "osu-cc", "plugins", "osu-tweaks", "layout.json");
 
             RelativeSizeAxes = Axes.Both;
             AlwaysPresent = true;
@@ -218,6 +213,17 @@ namespace OsuTweaks.Tweaks
                 if (editHintBanner.Parent == null) gameRoot.Add(editHintBanner);
                 if (contextMenu.Parent == null) gameRoot.Add(contextMenu);
             }
+
+            try
+            {
+                if (host.Data != null)
+                {
+                    string? path = host.Data.GetFullPath("layout.json");
+                    if (path != null) configFilePath = path;
+                    ToolbarPresetManager.Init(host.Data);
+                }
+            }
+            catch { }
 
             // Загружаем сохраненный конфиг или схему по умолчанию
             var config = ToolbarLayoutConfig.Load(configFilePath);

@@ -30,11 +30,6 @@ namespace OsuTweaks
             TweaksLog.Init(Host);
             TweaksLog.Info("osu!tweaks: OnLoad() starting...");
 
-            if (Host.Data != null)
-            {
-                ToolbarPresetManager.Init(Host.Data);
-            }
-
             AutoSkipMode = Host.GetSettings().Bind("auto_skip_mode", Models.AutoSkipMode.Disabled);
             UserProfileDisplayMode = Host.GetSettings().Bind("user_profile_display_mode", Models.UserProfileDisplayMode.Default);
 
@@ -48,6 +43,18 @@ namespace OsuTweaks
         public override void AttachToGame()
         {
             TweaksLog.Info("osu!tweaks: AttachToGame() called.");
+
+            try
+            {
+                if (Host.Data != null)
+                {
+                    ToolbarPresetManager.Init(Host.Data);
+                }
+            }
+            catch (Exception ex)
+            {
+                TweaksLog.Error("Error attaching Host.Data in AttachToGame", ex);
+            }
 
             Host.AddSettingsSubsection(() => new TweaksSettingsSubsection(Host.GetSettings()));
 
