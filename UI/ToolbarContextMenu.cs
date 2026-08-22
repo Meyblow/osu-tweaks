@@ -114,6 +114,12 @@ namespace OsuTweaks.UI
             this.FadeOut(100);
         }
 
+        protected override bool OnHover(HoverEvent e) => true;
+
+        protected override bool OnMouseMove(MouseMoveEvent e) => true;
+
+        protected override bool OnScroll(ScrollEvent e) => true;
+
         protected override bool OnMouseDown(MouseDownEvent e)
         {
             if (!card.ReceivePositionalInputAt(e.ScreenSpaceMouseDownPosition))

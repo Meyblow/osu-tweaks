@@ -33,10 +33,10 @@ namespace OsuTweaks.UI
             // РАЗДЕЛ 1: ТУЛБАР И ПРЕСЕТЫ
             // ==========================================
             var presets = ToolbarPresetManager.GetAvailablePresets();
-            var activePreset = plugin?.ActivePresetName.Value ?? "Default (Ванильный)";
+            var activePreset = plugin?.ActivePresetName.Value ?? "Default";
             if (!presets.Contains(activePreset))
             {
-                activePreset = presets.FirstOrDefault() ?? "Default (Ванильный)";
+                activePreset = presets.FirstOrDefault() ?? "Default";
             }
 
             var presetDropdown = new SettingsDropdown<string>
@@ -145,7 +145,7 @@ namespace OsuTweaks.UI
                 Action = () =>
                 {
                     ModularToolbarManager.Instance?.ResetToDefault();
-                    presetDropdown.Current.Value = "Default (Ванильный)";
+                    presetDropdown.Current.Value = "Default";
                 }
             });
 
@@ -159,6 +159,23 @@ namespace OsuTweaks.UI
                     LabelText = OsuTweaksStrings.FloatingIslandCheckbox,
                     Margin = new MarginPadding { Top = 10f },
                     Current = plugin.FloatingIslandMode
+                });
+
+                var cornerRadiusBindable = new BindableFloat(plugin.ToolbarCornerRadius.Value)
+                {
+                    MinValue = 0f,
+                    MaxValue = 24f,
+                    Precision = 1f
+                };
+                cornerRadiusBindable.BindValueChanged(e => plugin.ToolbarCornerRadius.Value = e.NewValue);
+                plugin.ToolbarCornerRadius.BindValueChanged(e => cornerRadiusBindable.Value = e.NewValue);
+
+                Add(new SettingsSlider<float>
+                {
+                    LabelText = OsuTweaksStrings.ToolbarCornerRadiusSlider,
+                    Margin = new MarginPadding { Top = 6f },
+                    Current = cornerRadiusBindable,
+                    KeyboardStep = 1f
                 });
 
                 var opacityBindable = new BindableFloat(plugin.ToolbarBackgroundOpacity.Value)
@@ -203,6 +220,23 @@ namespace OsuTweaks.UI
                     Current = plugin.NeonGlowLine
                 });
 
+                var glowOffsetBindable = new BindableFloat(plugin.NeonGlowOffset.Value)
+                {
+                    MinValue = -5f,
+                    MaxValue = 15f,
+                    Precision = 1f
+                };
+                glowOffsetBindable.BindValueChanged(e => plugin.NeonGlowOffset.Value = e.NewValue);
+                plugin.NeonGlowOffset.BindValueChanged(e => glowOffsetBindable.Value = e.NewValue);
+
+                Add(new SettingsSlider<float>
+                {
+                    LabelText = OsuTweaksStrings.NeonGlowOffsetSlider,
+                    Margin = new MarginPadding { Top = 6f },
+                    Current = glowOffsetBindable,
+                    KeyboardStep = 1f
+                });
+
                 Add(new SettingsEnumDropdown<ToolbarAccentColor>
                 {
                     LabelText = OsuTweaksStrings.NeonAccentColorDropdown,
@@ -212,27 +246,7 @@ namespace OsuTweaks.UI
             }
 
             // ==========================================
-            // РАЗДЕЛ 3: ЧАСЫ И ДАТА
-            // ==========================================
-            if (plugin != null)
-            {
-                Add(new SettingsEnumDropdown<ClockDisplayFormat>
-                {
-                    LabelText = OsuTweaksStrings.ClockFormatDropdown,
-                    Margin = new MarginPadding { Top = 10f },
-                    Current = plugin.ClockDisplayFormat
-                });
-
-                Add(new SettingsCheckbox
-                {
-                    LabelText = OsuTweaksStrings.ShowSessionTimerCheckbox,
-                    Margin = new MarginPadding { Top = 6f },
-                    Current = plugin.ShowSessionTimer
-                });
-            }
-
-            // ==========================================
-            // РАЗДЕЛ 4: РАЗДЕЛИТЕЛИ (СПЕЙСЕРЫ)
+            // РАЗДЕЛ 3: РАЗДЕЛИТЕЛИ (СПЕЙСЕРЫ)
             // ==========================================
             if (plugin != null)
             {
@@ -264,14 +278,21 @@ namespace OsuTweaks.UI
             }
 
             // ==========================================
-            // РАЗДЕЛ 6: ГЕЙМПЛЕЙ
+            // РАЗДЕЛ 6: ГЕЙМПЛЕЙ И ЗАПУСК
             // ==========================================
             if (plugin != null)
             {
+                Add(new SettingsCheckbox
+                {
+                    LabelText = OsuTweaksStrings.DarkIntroFlashCheckbox,
+                    Margin = new MarginPadding { Top = 10f },
+                    Current = plugin.DarkIntroFlash
+                });
+
                 Add(new SettingsEnumDropdown<AutoSkipMode>
                 {
                     LabelText = OsuTweaksStrings.AutoSkipDropdown,
-                    Margin = new MarginPadding { Top = 10f },
+                    Margin = new MarginPadding { Top = 6f },
                     Current = plugin.AutoSkipMode
                 });
             }

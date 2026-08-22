@@ -2,45 +2,21 @@
 
 All notable changes to osu!tweaks are documented in this file.
 
-## [1.3.0] - 2026-08-22
-
-### Fixed
-- **Fatal Crash in Clock FillFlowContainer**: Fixed `System.InvalidOperationException: All drawables in a FillFlowContainer must use the same RelativeAnchorPosition for the given FillDirection(Vertical)` by synchronizing all child anchors to `Anchor.TopLeft`.
-- **Floating Island Horizontal Displacement**: Fixed the floating toolbar shifting to the right on the X axis by anchoring it symmetrically to `Anchor.TopCentre` with `Origin = TopCentre`, ensuring perfect center alignment and clean reset.
-- **Native Localization in All Dropdowns**: Switched all settings dropdowns to `SettingsEnumDropdown<T>` with `[LocalisableDescription]`, allowing options (`Accent Glow Color`, `Time & Date Format`, `Spacer Style`, `Avatar & Username Layout`, `Auto-Skip Mode`) to automatically render in English or Russian based on the game's active language.
-- **Drag Ghost & Spacer Badges**: Localized drag preview badges and spacer context menu labels.
-
----
-
-## [1.2.4] - 2026-08-22
-
-### Fixed
-- **SDK Metadata Synchronization**: Internal build synchronization for package metadata.
-
----
-
-## [1.2.2] - 2026-08-22
-
-### Fixed
-- **Synchronized SDK Packages in local_feed**: Updated all `osucc.Api`, `osucc.Build`, and `osucc.Shared` nupkg binaries in `local_feed/` to the latest revision, ensuring GitHub Actions and local builds generate exact matching metadata and eliminating `MissingMethodException` across all platforms.
-
----
-
-## [1.2.1] - 2026-08-22
-
-### Fixed
-- **Settings Slider Type Safety**: Fixed `InvalidCastException: Unable to cast object of type 'Bindable<Single>' to type 'BindableNumber<Single>'` when opening the settings subsection by providing properly bounded `BindableFloat` instances with `MinValue`, `MaxValue`, and `Precision` to `SettingsSlider<float>` controls.
-
----
-
-## [1.2.0] - 2026-08-22
+## [1.3.0] - 2026-08-23
 
 ### Added
-- **Floating Island Toolbar**: Turn your top toolbar into a floating dock with `CornerRadius = 12px`, top/side margins, and shadow effects.
-- **Background Opacity Slider**: Smooth 0% to 100% background transparency slider allowing buttons to float cleanly above game backgrounds.
-- **Compact Toolbar Height**: Configurable toolbar height (26px – 40px) saving screen space on laptops and small monitors.
-- **Neon Glow Underline**: Accent line beneath the toolbar with custom colors (osu! Pink, Neon Purple, Cyberpunk Cyan, Emerald Lime, Gold, White).
-- **Toolbar Clock Customization**: Formats for standard seconds (`HH:mm:ss`), compact without seconds (`HH:mm`), with date (`dd MMM · HH:mm`), with date and seconds (`dd MMM · HH:mm:ss`), and in-game session timer.
-- **Spacer Styles**: Choose between blank gap, thin vertical line (`│`), and minimal dot (`•`) for toolbar spacers.
-- **Preset Code Sharing**: Export (`OT_LAYOUT_v1:...`) and import toolbar layouts via clipboard with one click.
-- **Reset Single Block**: Right-click any block in edit mode → *«Вернуть на стандартное место»* to restore its default position.
+- **Toolbar Corner Radius Slider**: Configurable corner rounding (0px to 24px) for the Floating Island toolbar dock.
+- **Neon Glow Underline Offset Slider**: Configurable vertical offset (-5px to +15px) to position the accent glow line perfectly beneath the toolbar.
+- **Dark Intro Flash on Startup**: Silences the blinding additive white flash (`GameWideFlash`) when launching the game, replacing it with a soft dark fade.
+- **Persistent Toolbar Spacers**: Added automatic deserialization and state persistence for spacers in presets and layout configs.
+- **Top Priority Spacer Action**: Right-clicking in Edit Mode now shows `+ Add spacer (gap)` at the very top of the menu for faster workflow.
+
+### Fixed
+- **Startup Button Hover Glow**: Removed unintended background alpha mutation on toolbar button child boxes, fixing permanent button highlights on launch.
+- **Restored Native Toolbar Clock**: Completely removed invasive clock injection overlays to restore 100% native osu! clock functionality, animations, click mode toggling, and clean vertical alignment.
+- **Edit Mode Ghost Clipping**: Moved drag ghost container to the root game layer to prevent masking/cropping when dragging items beyond toolbar borders.
+- **Edit Mode Subtree Hover**: Disabled button hover propagation in Edit Mode to prevent internal button animations and sounds while dragging.
+- **Gameplay Edit Mode Auto-Exit**: Automatically closes and saves Edit Mode when entering gameplay or results screens.
+- **Default Preset Protection**: Renamed default preset to `Default` and protected it from accidental overwrites.
+- **Context Menu Input Leakage**: Blocked hover and scroll events from passing through context menus to background buttons.
+- **Context Menu Localization**: Replaced hardcoded text with proper `OsuTweaksStrings` keys.

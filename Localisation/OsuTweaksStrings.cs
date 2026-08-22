@@ -16,21 +16,23 @@ namespace OsuTweaks.Localisation
 
         // Section 1: Toolbar & Presets
         public static LocalisableString PresetDropdownLabel => OsuCcLocalisation.Get(getKey(nameof(PresetDropdownLabel)), "Layout Preset");
-        public static LocalisableString DefaultPresetName => OsuCcLocalisation.Get(getKey(nameof(DefaultPresetName)), "Default (Vanilla)");
+        public static LocalisableString DefaultPresetName => OsuCcLocalisation.Get(getKey(nameof(DefaultPresetName)), "Default");
         public static LocalisableString ImportedPresetName => OsuCcLocalisation.Get(getKey(nameof(ImportedPresetName)), "Imported Layout");
 
         public static LocalisableString ButtonEnterEditMode => OsuCcLocalisation.Get(getKey(nameof(ButtonEnterEditMode)), "Customize Toolbar (Edit Mode)");
-        public static LocalisableString ButtonSavePreset => OsuCcLocalisation.Get(getKey(nameof(ButtonSavePreset)), "Save Current Toolbar as Preset...");
-        public static LocalisableString ButtonCopyCode => OsuCcLocalisation.Get(getKey(nameof(ButtonCopyCode)), "Copy Layout Code to Clipboard (Share)");
-        public static LocalisableString ButtonImportCode => OsuCcLocalisation.Get(getKey(nameof(ButtonImportCode)), "Import Layout from Clipboard...");
+        public static LocalisableString ButtonSavePreset => OsuCcLocalisation.Get(getKey(nameof(ButtonSavePreset)), "Save as Preset...");
+        public static LocalisableString ButtonCopyCode => OsuCcLocalisation.Get(getKey(nameof(ButtonCopyCode)), "Share Layout Code...");
+        public static LocalisableString ButtonImportCode => OsuCcLocalisation.Get(getKey(nameof(ButtonImportCode)), "Import Layout...");
         public static LocalisableString ButtonOpenPresetsFolder => OsuCcLocalisation.Get(getKey(nameof(ButtonOpenPresetsFolder)), "Open Presets Folder");
         public static LocalisableString ButtonResetToDefault => OsuCcLocalisation.Get(getKey(nameof(ButtonResetToDefault)), "Reset to Default Layout");
 
         // Section 2: Aesthetics
         public static LocalisableString FloatingIslandCheckbox => OsuCcLocalisation.Get(getKey(nameof(FloatingIslandCheckbox)), "Floating Toolbar Island (Dock)");
+        public static LocalisableString ToolbarCornerRadiusSlider => OsuCcLocalisation.Get(getKey(nameof(ToolbarCornerRadiusSlider)), "Toolbar Corner Radius");
         public static LocalisableString BackgroundOpacitySlider => OsuCcLocalisation.Get(getKey(nameof(BackgroundOpacitySlider)), "Toolbar Background Opacity");
         public static LocalisableString ToolbarHeightSlider => OsuCcLocalisation.Get(getKey(nameof(ToolbarHeightSlider)), "Toolbar Height (Compact Mode)");
         public static LocalisableString NeonGlowLineCheckbox => OsuCcLocalisation.Get(getKey(nameof(NeonGlowLineCheckbox)), "Neon Glow Underline");
+        public static LocalisableString NeonGlowOffsetSlider => OsuCcLocalisation.Get(getKey(nameof(NeonGlowOffsetSlider)), "Underline Vertical Offset");
         public static LocalisableString NeonAccentColorDropdown => OsuCcLocalisation.Get(getKey(nameof(NeonAccentColorDropdown)), "Accent Glow Color");
 
         public static LocalisableString AccentPink => OsuCcLocalisation.Get(getKey(nameof(AccentPink)), "osu! Pink");
@@ -40,22 +42,13 @@ namespace OsuTweaks.Localisation
         public static LocalisableString AccentGold => OsuCcLocalisation.Get(getKey(nameof(AccentGold)), "Gold");
         public static LocalisableString AccentWhite => OsuCcLocalisation.Get(getKey(nameof(AccentWhite)), "White");
 
-        // Section 3: Clock & Date
-        public static LocalisableString ClockFormatDropdown => OsuCcLocalisation.Get(getKey(nameof(ClockFormatDropdown)), "Time & Date Format");
-        public static LocalisableString ClockFormatStandard => OsuCcLocalisation.Get(getKey(nameof(ClockFormatStandard)), "Standard with seconds (HH:mm:ss)");
-        public static LocalisableString ClockFormatCompact => OsuCcLocalisation.Get(getKey(nameof(ClockFormatCompact)), "Compact without seconds (HH:mm)");
-        public static LocalisableString ClockFormatWithDate => OsuCcLocalisation.Get(getKey(nameof(ClockFormatWithDate)), "With date (dd MMM · HH:mm)");
-        public static LocalisableString ClockFormatWithDateAndSeconds => OsuCcLocalisation.Get(getKey(nameof(ClockFormatWithDateAndSeconds)), "With date and seconds (dd MMM · HH:mm:ss)");
-        public static LocalisableString ClockFormatSessionOnly => OsuCcLocalisation.Get(getKey(nameof(ClockFormatSessionOnly)), "Session timer only");
-        public static LocalisableString ShowSessionTimerCheckbox => OsuCcLocalisation.Get(getKey(nameof(ShowSessionTimerCheckbox)), "Show Session Timer");
-
-        // Section 4: Spacers
+        // Section 3: Spacers
         public static LocalisableString SpacerStyleDropdown => OsuCcLocalisation.Get(getKey(nameof(SpacerStyleDropdown)), "Spacer Style");
         public static LocalisableString SpacerBlank => OsuCcLocalisation.Get(getKey(nameof(SpacerBlank)), "Blank gap");
         public static LocalisableString SpacerLine => OsuCcLocalisation.Get(getKey(nameof(SpacerLine)), "Thin vertical line");
         public static LocalisableString SpacerDot => OsuCcLocalisation.Get(getKey(nameof(SpacerDot)), "Dot");
 
-        // Section 5: User Profile
+        // Section 4: User Profile
         public static LocalisableString ProfileModeDropdown => OsuCcLocalisation.Get(getKey(nameof(ProfileModeDropdown)), "Avatar & Username Layout");
         public static LocalisableString ProfileDefault => OsuCcLocalisation.Get(getKey(nameof(ProfileDefault)), "Default (Username | Avatar)");
         public static LocalisableString ProfileAvatarLeft => OsuCcLocalisation.Get(getKey(nameof(ProfileAvatarLeft)), "Avatar on left (Avatar | Username)");
@@ -64,18 +57,20 @@ namespace OsuTweaks.Localisation
         public static LocalisableString ProfileAvatarOnly => OsuCcLocalisation.Get(getKey(nameof(ProfileAvatarOnly)), "Avatar only");
         public static LocalisableString ProfileUsernameOnly => OsuCcLocalisation.Get(getKey(nameof(ProfileUsernameOnly)), "Username only");
 
-        // Section 6: Gameplay
+        // Section 5: Gameplay & Visual Tweaks
+        public static LocalisableString DarkIntroFlashCheckbox => OsuCcLocalisation.Get(getKey(nameof(DarkIntroFlashCheckbox)), "Dark Intro Flash on Startup");
         public static LocalisableString AutoSkipDropdown => OsuCcLocalisation.Get(getKey(nameof(AutoSkipDropdown)), "Auto-Skip Breaks Mode");
         public static LocalisableString AutoSkipDisabled => OsuCcLocalisation.Get(getKey(nameof(AutoSkipDisabled)), "Disabled");
         public static LocalisableString AutoSkipBreaksOnly => OsuCcLocalisation.Get(getKey(nameof(AutoSkipBreaksOnly)), "Auto-skip mid-map breaks");
         public static LocalisableString AutoSkipAll => OsuCcLocalisation.Get(getKey(nameof(AutoSkipAll)), "Auto-skip all (intro, breaks, outro)");
 
         // Edit Mode Banner
-        public static LocalisableString EditBannerHint => OsuCcLocalisation.Get(getKey(nameof(EditBannerHint)), "Edit Mode | Drag blocks to reorder | RMB: hide / reset | Esc: Save");
+        public static LocalisableString EditBannerHint => OsuCcLocalisation.Get(getKey(nameof(EditBannerHint)), "Edit Mode | Drag blocks to reorder | RMB: menu | Esc / Click: Save");
         public static LocalisableString EditBannerSaveButton => OsuCcLocalisation.Get(getKey(nameof(EditBannerSaveButton)), "Save & Exit");
 
         // Context Menu Items
         public static LocalisableString ContextMenuHide => OsuCcLocalisation.Get(getKey(nameof(ContextMenuHide)), "Hide this element");
+        public static LocalisableString ContextMenuShow => OsuCcLocalisation.Get(getKey(nameof(ContextMenuShow)), "Show this element");
         public static LocalisableString ContextMenuMoveLeft => OsuCcLocalisation.Get(getKey(nameof(ContextMenuMoveLeft)), "Move to: Left");
         public static LocalisableString ContextMenuMoveCenter => OsuCcLocalisation.Get(getKey(nameof(ContextMenuMoveCenter)), "Move to: Center");
         public static LocalisableString ContextMenuMoveRight => OsuCcLocalisation.Get(getKey(nameof(ContextMenuMoveRight)), "Move to: Right");
@@ -113,5 +108,6 @@ namespace OsuTweaks.Localisation
         public static LocalisableString NotifyImportInvalid => OsuCcLocalisation.Get(getKey(nameof(NotifyImportInvalid)), "No valid layout code found in clipboard (OT_LAYOUT_v1:...)!");
         public static LocalisableString NotifyLayoutSaved => OsuCcLocalisation.Get(getKey(nameof(NotifyLayoutSaved)), "Toolbar layout saved");
         public static LocalisableString NotifyBlockReset(string name) => OsuCcLocalisation.Get(getKey(nameof(NotifyBlockReset)), "Block '{0}' restored to default position", name);
+        public static LocalisableString NotifyDefaultPresetProtected => OsuCcLocalisation.Get(getKey(nameof(NotifyDefaultPresetProtected)), "'Default' preset is protected and cannot be overwritten. Saved to current layout.");
     }
 }

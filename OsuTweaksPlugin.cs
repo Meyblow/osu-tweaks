@@ -21,21 +21,24 @@ namespace OsuTweaks
 
         public Bindable<AutoSkipMode> AutoSkipMode { get; private set; } = new(Models.AutoSkipMode.Disabled);
         public Bindable<UserProfileDisplayMode> UserProfileDisplayMode { get; private set; } = new(Models.UserProfileDisplayMode.Default);
-        public Bindable<string> ActivePresetName { get; private set; } = new("Default (Ванильный)");
+        public Bindable<string> ActivePresetName { get; private set; } = new("Default");
 
-        // Новые визуальные стили тулбара (Aesthetics)
+        // Визуальные стили тулбара (Aesthetics)
         public Bindable<bool> FloatingIslandMode { get; private set; } = new(false);
+        public Bindable<float> ToolbarCornerRadius { get; private set; } = new(12.0f);
         public Bindable<float> ToolbarBackgroundOpacity { get; private set; } = new(1.0f);
         public Bindable<float> ToolbarHeight { get; private set; } = new(40.0f);
         public Bindable<bool> NeonGlowLine { get; private set; } = new(false);
+        public Bindable<float> NeonGlowOffset { get; private set; } = new(0.0f);
         public Bindable<ToolbarAccentColor> ToolbarAccentColor { get; private set; } = new(Models.ToolbarAccentColor.Pink);
 
-        // Часы и разделители
-        public Bindable<ClockDisplayFormat> ClockDisplayFormat { get; private set; } = new(Models.ClockDisplayFormat.StandardWithSeconds);
-        public Bindable<bool> ShowSessionTimer { get; private set; } = new(false);
         public Bindable<SpacerStyle> SpacerStyle { get; private set; } = new(Models.SpacerStyle.Blank);
 
+        // Дополнительные твики
+        public Bindable<bool> DarkIntroFlash { get; private set; } = new(true);
+
         private ModularToolbarManager? toolbarManager;
+        private IntroFlashCustomizer? introFlashCustomizer;
 
         protected override void OnLoad()
         {
@@ -54,19 +57,23 @@ namespace OsuTweaks
 
             AutoSkipMode = Host.GetSettings().Bind("auto_skip_mode", Models.AutoSkipMode.Disabled);
             UserProfileDisplayMode = Host.GetSettings().Bind("user_profile_display_mode", Models.UserProfileDisplayMode.Default);
-            ActivePresetName = Host.GetSettings().Bind("active_preset_name", "Default (Ванильный)");
+            ActivePresetName = Host.GetSettings().Bind("active_preset_name", "Default");
 
             FloatingIslandMode = Host.GetSettings().Bind("floating_island_mode", false);
+            ToolbarCornerRadius = Host.GetSettings().Bind("toolbar_corner_radius", 12.0f);
             ToolbarBackgroundOpacity = Host.GetSettings().Bind("toolbar_bg_opacity", 1.0f);
             ToolbarHeight = Host.GetSettings().Bind("toolbar_height", 40.0f);
             NeonGlowLine = Host.GetSettings().Bind("neon_glow_line", false);
+            NeonGlowOffset = Host.GetSettings().Bind("neon_glow_offset", 0.0f);
             ToolbarAccentColor = Host.GetSettings().Bind("toolbar_accent_color", Models.ToolbarAccentColor.Pink);
 
-            ClockDisplayFormat = Host.GetSettings().Bind("clock_display_format", Models.ClockDisplayFormat.StandardWithSeconds);
-            ShowSessionTimer = Host.GetSettings().Bind("show_session_timer", false);
             SpacerStyle = Host.GetSettings().Bind("spacer_style", Models.SpacerStyle.Blank);
+            DarkIntroFlash = Host.GetSettings().Bind("dark_intro_flash", true);
 
             toolbarManager = new ModularToolbarManager(Host);
+            introFlashCustomizer = new IntroFlashCustomizer(Host);
+            introFlashCustomizer.Attach(DarkIntroFlash);
+
             Host.AddPatch(new ToolbarPatch(this, Host));
             Host.AddPatch(new PlayerBreakAutoSkipPatch(this, Host));
 
@@ -123,6 +130,9 @@ namespace OsuTweaks
             TweaksLog.Info("osu!tweaks: Disposing plugin...");
             toolbarManager?.Dispose();
             toolbarManager = null;
+
+            introFlashCustomizer?.Dispose();
+            introFlashCustomizer = null;
 
             base.Dispose();
             GC.SuppressFinalize(this);

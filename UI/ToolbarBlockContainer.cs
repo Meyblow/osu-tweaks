@@ -71,7 +71,7 @@ namespace OsuTweaks.UI
 
         public override bool HandlePositionalInput => isEditMode || (!IsHidden.Value && !isHiddenByScreen);
         public override bool HandleNonPositionalInput => true;
-        public override bool PropagatePositionalInputSubTree => isEditMode || (!IsHidden.Value && !isHiddenByScreen);
+        public override bool PropagatePositionalInputSubTree => !isEditMode && (!IsHidden.Value && !isHiddenByScreen);
         public override bool PropagateNonPositionalInputSubTree => true;
 
         public ToolbarBlockContainer(string id, string displayName, Drawable contentDrawable, bool isHidden = false)
@@ -114,7 +114,6 @@ namespace OsuTweaks.UI
                         hoverOverlay = new Box
                         {
                             RelativeSizeAxes = Axes.Both,
-                            Colour = Colour4.White.Opacity(0.12f),
                             Alpha = 0
                         },
                         borderHighlight = new Container

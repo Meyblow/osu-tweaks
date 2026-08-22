@@ -4,27 +4,6 @@ using OsuTweaks.Localisation;
 namespace OsuTweaks.Models
 {
     /// <summary>
-    /// Форматы отображения часов на тулбаре.
-    /// </summary>
-    public enum ClockDisplayFormat
-    {
-        [LocalisableDescription(typeof(OsuTweaksStrings), nameof(OsuTweaksStrings.ClockFormatStandard))]
-        StandardWithSeconds,
-
-        [LocalisableDescription(typeof(OsuTweaksStrings), nameof(OsuTweaksStrings.ClockFormatCompact))]
-        CompactNoSeconds,
-
-        [LocalisableDescription(typeof(OsuTweaksStrings), nameof(OsuTweaksStrings.ClockFormatWithDate))]
-        WithDate,
-
-        [LocalisableDescription(typeof(OsuTweaksStrings), nameof(OsuTweaksStrings.ClockFormatWithDateAndSeconds))]
-        WithDateAndSeconds,
-
-        [LocalisableDescription(typeof(OsuTweaksStrings), nameof(OsuTweaksStrings.ClockFormatSessionOnly))]
-        SessionTimerOnly
-    }
-
-    /// <summary>
     /// Стили отображения визуальных разделителей (спейсеров).
     /// </summary>
     public enum SpacerStyle
@@ -40,7 +19,7 @@ namespace OsuTweaks.Models
     }
 
     /// <summary>
-    /// Акцентные цвета подсветки тулбара и неоновых элементов.
+    /// Акцентные цвета неоновой подсветки тулбара.
     /// </summary>
     public enum ToolbarAccentColor
     {

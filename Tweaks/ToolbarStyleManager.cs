@@ -18,7 +18,8 @@ namespace OsuTweaks.Tweaks
 {
     /// <summary>
     /// Управляет визуальным стилем тулбара: Floating Island (плавающий док),
-    /// прозрачность фона (0-100%), компактная высота (26-40px), неоновая полоса подсветки и акцентные цвета.
+    /// прозрачность фона (0-100%), компактная высота (26-40px), настраиваемый радиус закругления,
+    /// неоновая линия подсветки с регулируемым смещением и акцентными цветами.
     /// </summary>
     public class ToolbarStyleManager : IDisposable
     {
@@ -28,9 +29,11 @@ namespace OsuTweaks.Tweaks
         private Box? neonGlowLine;
 
         private readonly Bindable<bool> floatingIsland = new();
+        private readonly Bindable<float> toolbarCornerRadius = new(12f);
         private readonly Bindable<float> backgroundOpacity = new(1f);
         private readonly Bindable<float> toolbarHeight = new(40f);
         private readonly Bindable<bool> neonGlow = new(false);
+        private readonly Bindable<float> neonGlowOffset = new(0f);
         private readonly Bindable<ToolbarAccentColor> neonColor = new(ToolbarAccentColor.Pink);
 
         public ToolbarStyleManager(IOsuCcPluginHost host)
@@ -41,9 +44,11 @@ namespace OsuTweaks.Tweaks
         public void Attach(
             Toolbar targetToolbar,
             Bindable<bool> floatingIslandMode,
+            Bindable<float> cornerRadius,
             Bindable<float> bgOpacity,
             Bindable<float> height,
             Bindable<bool> glowLine,
+            Bindable<float> glowOffset,
             Bindable<ToolbarAccentColor> glowColor)
         {
             toolbar = targetToolbar;
@@ -51,6 +56,10 @@ namespace OsuTweaks.Tweaks
             floatingIsland.UnbindBindings();
             floatingIsland.BindTo(floatingIslandMode);
             floatingIsland.BindValueChanged(_ => applyStyles(), false);
+
+            toolbarCornerRadius.UnbindBindings();
+            toolbarCornerRadius.BindTo(cornerRadius);
+            toolbarCornerRadius.BindValueChanged(_ => applyStyles(), false);
 
             backgroundOpacity.UnbindBindings();
             backgroundOpacity.BindTo(bgOpacity);
@@ -63,6 +72,10 @@ namespace OsuTweaks.Tweaks
             neonGlow.UnbindBindings();
             neonGlow.BindTo(glowLine);
             neonGlow.BindValueChanged(_ => applyNeonGlow(), false);
+
+            neonGlowOffset.UnbindBindings();
+            neonGlowOffset.BindTo(glowOffset);
+            neonGlowOffset.BindValueChanged(_ => applyNeonGlow(), false);
 
             neonColor.UnbindBindings();
             neonColor.BindTo(glowColor);
@@ -100,7 +113,7 @@ namespace OsuTweaks.Tweaks
                 RelativeSizeAxes = Axes.X,
                 Height = 2f,
                 Anchor = Anchor.BottomCentre,
-                Origin = Anchor.BottomCentre,
+                Origin = Anchor.TopCentre,
                 Alpha = 0,
                 Colour = getColourForAccent(neonColor.Value)
             };
@@ -142,7 +155,7 @@ namespace OsuTweaks.Tweaks
                 toolbar.Margin = new MarginPadding(0);
                 toolbar.Padding = new MarginPadding(0);
                 toolbar.Masking = true;
-                toolbar.CornerRadius = 12f;
+                toolbar.CornerRadius = Math.Clamp(toolbarCornerRadius.Value, 0f, 24f);
                 toolbar.EdgeEffect = new EdgeEffectParameters
                 {
                     Type = EdgeEffectType.Shadow,
@@ -169,22 +182,11 @@ namespace OsuTweaks.Tweaks
         {
             if (toolbar == null) return;
 
+            // Изменяем прозрачность ТОЛЬКО у основного фонового прямоугольника тулбара
+            // Кнопки тулбара и их плашки наведения (HoverBackground) не затрагиваются!
             if (toolbarBackground != null)
             {
                 toolbarBackground.Alpha = backgroundOpacity.Value;
-            }
-
-            // Находим все фоновые плашки в тулбаре
-            foreach (var child in toolbar.ChildrenOfType<Box>())
-            {
-                if (child == neonGlowLine) continue;
-
-                // Если это фоновый темный бокс
-                var col = child.Colour.TopLeft.Linear;
-                if (col.R < 0.2f && col.G < 0.2f && col.B < 0.2f)
-                {
-                    child.Alpha = backgroundOpacity.Value;
-                }
             }
         }
 
@@ -201,6 +203,7 @@ namespace OsuTweaks.Tweaks
             if (neonGlowLine == null) return;
 
             neonGlowLine.Alpha = neonGlow.Value ? 1f : 0f;
+            neonGlowLine.Y = neonGlowOffset.Value;
         }
 
         private void applyNeonColor()

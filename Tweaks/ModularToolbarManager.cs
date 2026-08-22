@@ -70,7 +70,6 @@ namespace OsuTweaks.Tweaks
 
         private ToolbarOverlayPositioner? overlayPositioner;
         private ToolbarStyleManager? styleManager;
-        private ToolbarClockCustomizer? clockCustomizer;
 
         public ModularToolbarManager(IOsuCcPluginHost host)
         {
@@ -87,17 +86,19 @@ namespace OsuTweaks.Tweaks
         [BackgroundDependencyLoader]
         private void load(OsuColour colours)
         {
+            dragGhostContainer = new Container
+            {
+                RelativeSizeAxes = Axes.Both,
+                AlwaysPresent = true,
+                Depth = float.MinValue
+            };
+
             InternalChildren = new Drawable[]
             {
                 leftZone = new ToolbarZoneContainer(ToolbarZone.Left),
                 centerZone = new ToolbarZoneContainer(ToolbarZone.Center),
                 rightZone = new ToolbarZoneContainer(ToolbarZone.Right),
-                overlayPositioner = new ToolbarOverlayPositioner(this, host),
-                dragGhostContainer = new Container
-                {
-                    RelativeSizeAxes = Axes.Both,
-                    AlwaysPresent = true
-                }
+                overlayPositioner = new ToolbarOverlayPositioner(this, host)
             };
 
             contextMenu = new ToolbarContextMenu();
@@ -205,16 +206,18 @@ namespace OsuTweaks.Tweaks
                 toolbar.Add(this);
             }
 
-            // Прикрепляем плашку режима редактирования и контекстное меню к корневому игровому контейнеру host.Game (полный экран 100vw x 100vh)
+            // Прикрепляем плашку режима редактирования, контекстное меню и контейнер перетаскивания к корневому игровому контейнеру host.Game (полный экран 100vw x 100vh)
             if (host.Game is Container<Drawable> gameContainer)
             {
                 if (editHintBanner.Parent == null) gameContainer.Add(editHintBanner);
                 if (contextMenu.Parent == null) gameContainer.Add(contextMenu);
+                if (dragGhostContainer.Parent == null) gameContainer.Add(dragGhostContainer);
             }
             else if (toolbar.Parent is Container<Drawable> gameRoot)
             {
                 if (editHintBanner.Parent == null) gameRoot.Add(editHintBanner);
                 if (contextMenu.Parent == null) gameRoot.Add(contextMenu);
+                if (dragGhostContainer.Parent == null) gameRoot.Add(dragGhostContainer);
             }
 
             try
@@ -253,14 +256,7 @@ namespace OsuTweaks.Tweaks
 
                 styleManager?.Dispose();
                 styleManager = new ToolbarStyleManager(host);
-                styleManager.Attach(toolbar, plugin.FloatingIslandMode, plugin.ToolbarBackgroundOpacity, plugin.ToolbarHeight, plugin.NeonGlowLine, plugin.ToolbarAccentColor);
-
-                if (allBlocks.TryGetValue("clock", out var clockBlock) && clockBlock.ContentDrawable is ToolbarClock clock)
-                {
-                    clockCustomizer?.Dispose();
-                    clockCustomizer = new ToolbarClockCustomizer(host);
-                    clockCustomizer.Attach(clock, plugin.ClockDisplayFormat, plugin.ShowSessionTimer);
-                }
+                styleManager.Attach(toolbar, plugin.FloatingIslandMode, plugin.ToolbarCornerRadius, plugin.ToolbarBackgroundOpacity, plugin.ToolbarHeight, plugin.NeonGlowLine, plugin.NeonGlowOffset, plugin.ToolbarAccentColor);
             }
         }
 
@@ -319,11 +315,48 @@ namespace OsuTweaks.Tweaks
             block.OnBlockDragEnded += onBlockDragEnded;
         }
 
+        private ToolbarBlockContainer? getOrCreateBlock(ToolbarItemConfig item, ToolbarZone zone)
+        {
+            if (allBlocks.TryGetValue(item.Id, out var existing))
+            {
+                existing.IsHidden.Value = item.IsHidden;
+                existing.CurrentZone = zone;
+                return existing;
+            }
+
+            if (item.Id.StartsWith("spacer", StringComparison.OrdinalIgnoreCase))
+            {
+                var spacer = new ToolbarSpacer();
+                var block = new ToolbarBlockContainer(item.Id, Localisation.OsuTweaksStrings.BlockSpacer.ToString(), spacer);
+                block.IsHidden.Value = item.IsHidden;
+                block.CurrentZone = zone;
+                block.IsEditMode = isEditMode;
+                bindBlockEvents(block);
+                allBlocks[item.Id] = block;
+                return block;
+            }
+
+            return null;
+        }
+
         private void applyConfig(ToolbarLayoutConfig config)
         {
             leftZone.Flow.Clear(false);
             centerZone.Flow.Clear(false);
             rightZone.Flow.Clear(false);
+
+            var incomingIds = new HashSet<string>(
+                config.Left.Select(i => i.Id)
+                .Concat(config.Center.Select(i => i.Id))
+                .Concat(config.Right.Select(i => i.Id))
+            );
+
+            // Очищаем старые неиспользуемые спейсеры
+            var spacersToRemove = allBlocks.Keys.Where(k => k.StartsWith("spacer", StringComparison.OrdinalIgnoreCase) && !incomingIds.Contains(k)).ToList();
+            foreach (var k in spacersToRemove)
+            {
+                allBlocks.Remove(k);
+            }
 
             var placed = new HashSet<string>();
 
@@ -331,10 +364,9 @@ namespace OsuTweaks.Tweaks
             int leftPos = 0;
             foreach (var item in config.Left)
             {
-                if (allBlocks.TryGetValue(item.Id, out var block))
+                var block = getOrCreateBlock(item, ToolbarZone.Left);
+                if (block != null)
                 {
-                    block.IsHidden.Value = item.IsHidden;
-                    block.CurrentZone = ToolbarZone.Left;
                     leftZone.Flow.Add(block);
                     leftZone.Flow.SetLayoutPosition(block, leftPos++);
                     placed.Add(item.Id);
@@ -345,10 +377,9 @@ namespace OsuTweaks.Tweaks
             int centerPos = 0;
             foreach (var item in config.Center)
             {
-                if (allBlocks.TryGetValue(item.Id, out var block))
+                var block = getOrCreateBlock(item, ToolbarZone.Center);
+                if (block != null)
                 {
-                    block.IsHidden.Value = item.IsHidden;
-                    block.CurrentZone = ToolbarZone.Center;
                     centerZone.Flow.Add(block);
                     centerZone.Flow.SetLayoutPosition(block, centerPos++);
                     placed.Add(item.Id);
@@ -359,10 +390,9 @@ namespace OsuTweaks.Tweaks
             int rightPos = 0;
             foreach (var item in config.Right)
             {
-                if (allBlocks.TryGetValue(item.Id, out var block))
+                var block = getOrCreateBlock(item, ToolbarZone.Right);
+                if (block != null)
                 {
-                    block.IsHidden.Value = item.IsHidden;
-                    block.CurrentZone = ToolbarZone.Right;
                     rightZone.Flow.Add(block);
                     rightZone.Flow.SetLayoutPosition(block, rightPos++);
                     placed.Add(item.Id);
@@ -424,7 +454,7 @@ namespace OsuTweaks.Tweaks
             rightZone.IsEditMode = false;
 
             editHintBanner.FadeOut(150);
-            host.Notify("Настройки тулбара сохранены", NotificationKind.Success);
+            host.Notify(Localisation.OsuTweaksStrings.NotifyLayoutSaved, NotificationKind.Success);
             TweaksLog.Info("SaveAndExitEditMode: Saved and exited.");
         }
 
@@ -461,7 +491,7 @@ namespace OsuTweaks.Tweaks
                     editHintBanner.FadeOut(150);
                 }
 
-                ApplyPreset("Default (Ванильный)");
+                ApplyPreset("Default");
                 host.Notify("Тулбар сброшен по умолчанию", NotificationKind.Info);
                 TweaksLog.Info("ResetToDefault: Vanilla toolbar restored.");
             }
@@ -488,6 +518,18 @@ namespace OsuTweaks.Tweaks
             var config = captureCurrentConfig();
             var dialog = new SavePresetDialog(config, name =>
             {
+                if (string.IsNullOrWhiteSpace(name) || name.Equals("Default", StringComparison.OrdinalIgnoreCase))
+                {
+                    host.Notify(Localisation.OsuTweaksStrings.NotifyDefaultPresetProtected, NotificationKind.Error);
+                    return;
+                }
+
+                if (!ToolbarPresetManager.SaveCustomPreset(name, config))
+                {
+                    host.Notify(Localisation.OsuTweaksStrings.NotifyDefaultPresetProtected, NotificationKind.Error);
+                    return;
+                }
+
                 onSaved(name);
                 if (OsuTweaksPlugin.Instance != null)
                 {
@@ -695,6 +737,13 @@ namespace OsuTweaks.Tweaks
             }
             else
             {
+                // В РЕЖИМЕ РЕДАКТИРОВАНИЯ: Добавление спейсера на самом верху меню!
+                menuItems.Add(new ContextMenuItemData
+                {
+                    Title = Localisation.OsuTweaksStrings.ContextMenuAddSpacer,
+                    Icon = FontAwesome.Solid.Plus,
+                    Action = () => addSpacer(clickedZone ?? rightZone)
+                });
                 menuItems.Add(new ContextMenuItemData
                 {
                     Title = Localisation.OsuTweaksStrings.EditBannerSaveButton,
@@ -706,12 +755,6 @@ namespace OsuTweaks.Tweaks
                     Title = Localisation.OsuTweaksStrings.ButtonSavePreset,
                     Icon = FontAwesome.Solid.Save,
                     Action = () => ShowSavePresetDialog(_ => { })
-                });
-                menuItems.Add(new ContextMenuItemData
-                {
-                    Title = Localisation.OsuTweaksStrings.ContextMenuAddSpacer,
-                    Icon = FontAwesome.Solid.Plus,
-                    Action = () => addSpacer(clickedZone ?? rightZone)
                 });
                 menuItems.Add(new ContextMenuItemData
                 {
@@ -749,7 +792,7 @@ namespace OsuTweaks.Tweaks
             {
                 new ContextMenuItemData
                 {
-                    Title = block.IsHidden.Value ? "Показать блок" : Localisation.OsuTweaksStrings.ContextMenuHide,
+                    Title = block.IsHidden.Value ? Localisation.OsuTweaksStrings.ContextMenuShow : Localisation.OsuTweaksStrings.ContextMenuHide,
                     Icon = block.IsHidden.Value ? FontAwesome.Solid.Eye : FontAwesome.Solid.EyeSlash,
                     Action = () => block.IsHidden.Value = !block.IsHidden.Value
                 },

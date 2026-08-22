@@ -4,20 +4,22 @@
   "osu-tweaks:Header": "osu!tweaks",
 
   "osu-tweaks:PresetDropdownLabel": "Пресет расположения",
-  "osu-tweaks:DefaultPresetName": "Default (Ванильный)",
+  "osu-tweaks:DefaultPresetName": "Default",
   "osu-tweaks:ImportedPresetName": "Импортированный пресет",
 
   "osu-tweaks:ButtonEnterEditMode": "Настроить тулбар (Режим редактирования)",
-  "osu-tweaks:ButtonSavePreset": "Сохранить текущий тулбар как пресет...",
-  "osu-tweaks:ButtonCopyCode": "Скопировать код раскладки в буфер (Шаринг)",
-  "osu-tweaks:ButtonImportCode": "Импортировать раскладку из буфера обмена...",
+  "osu-tweaks:ButtonSavePreset": "Сохранить как пресет...",
+  "osu-tweaks:ButtonCopyCode": "Поделиться кодом раскладки...",
+  "osu-tweaks:ButtonImportCode": "Импортировать раскладку...",
   "osu-tweaks:ButtonOpenPresetsFolder": "Открыть папку с пресетами",
   "osu-tweaks:ButtonResetToDefault": "Сбросить расположение по умолчанию",
 
   "osu-tweaks:FloatingIslandCheckbox": "Парящий тулбар (Floating Island)",
+  "osu-tweaks:ToolbarCornerRadiusSlider": "Закругление углов тулбара",
   "osu-tweaks:BackgroundOpacitySlider": "Прозрачность фона тулбара",
   "osu-tweaks:ToolbarHeightSlider": "Высота тулбара (Компактный режим)",
   "osu-tweaks:NeonGlowLineCheckbox": "Неоновая линия подсветки снизу (Glow)",
+  "osu-tweaks:NeonGlowOffsetSlider": "Смещение неоновой линии",
   "osu-tweaks:NeonAccentColorDropdown": "Цвет неоновой подсветки",
 
   "osu-tweaks:AccentPink": "osu! Розовый",
@@ -26,14 +28,6 @@
   "osu-tweaks:AccentLime": "Изумрудный лайм",
   "osu-tweaks:AccentGold": "Золотой",
   "osu-tweaks:AccentWhite": "Белый",
-
-  "osu-tweaks:ClockFormatDropdown": "Формат времени и даты",
-  "osu-tweaks:ClockFormatStandard": "Стандартный с секундами (HH:mm:ss)",
-  "osu-tweaks:ClockFormatCompact": "Компактный без секунд (HH:mm)",
-  "osu-tweaks:ClockFormatWithDate": "С датой (дд MMM · HH:mm)",
-  "osu-tweaks:ClockFormatWithDateAndSeconds": "С датой и секундами (дд MMM · HH:mm:ss)",
-  "osu-tweaks:ClockFormatSessionOnly": "Только таймер сессии",
-  "osu-tweaks:ShowSessionTimerCheckbox": "Отображать таймер сессии",
 
   "osu-tweaks:SpacerStyleDropdown": "Стиль разделителей (Spacers)",
   "osu-tweaks:SpacerBlank": "Невидимый зазор",
@@ -48,15 +42,17 @@
   "osu-tweaks:ProfileAvatarOnly": "Только аватар",
   "osu-tweaks:ProfileUsernameOnly": "Только никнейм",
 
+  "osu-tweaks:DarkIntroFlashCheckbox": "Тёмная вспышка при запуске игры",
   "osu-tweaks:AutoSkipDropdown": "Режим пропуска пауз (Автоскип)",
   "osu-tweaks:AutoSkipDisabled": "Выкл",
   "osu-tweaks:AutoSkipBreaksOnly": "Автоскип мид-мап брейков",
   "osu-tweaks:AutoSkipAll": "Автоскип всего (интро, брейки, аутро)",
 
-  "osu-tweaks:EditBannerHint": "Режим настройки | Тяните блоки для смены порядка | ПКМ: скрыть/вернуть | ПКМ: меню | Сохранить",
+  "osu-tweaks:EditBannerHint": "Режим настройки | Тяните блоки для смены порядка | ПКМ: меню | Сохранить",
   "osu-tweaks:EditBannerSaveButton": "Сохранить и выйти",
 
   "osu-tweaks:ContextMenuHide": "Скрыть этот элемент",
+  "osu-tweaks:ContextMenuShow": "Показать этот элемент",
   "osu-tweaks:ContextMenuMoveLeft": "Переместить в: Лево",
   "osu-tweaks:ContextMenuMoveCenter": "Переместить в: Центр",
   "osu-tweaks:ContextMenuMoveRight": "Переместить в: Право",
@@ -90,5 +86,6 @@
   "osu-tweaks:NotifyImportSuccess": "Раскладка успешно импортирована!",
   "osu-tweaks:NotifyImportInvalid": "В буфере обмена нет корректного кода раскладки (OT_LAYOUT_v1:...)!",
   "osu-tweaks:NotifyLayoutSaved": "Настройки тулбара сохранены",
-  "osu-tweaks:NotifyBlockReset": "Блок '{0}' возвращён на исходное место"
+  "osu-tweaks:NotifyBlockReset": "Блок '{0}' возвращён на исходное место",
+  "osu-tweaks:NotifyDefaultPresetProtected": "Пресет 'Default' защищён от перезаписи. Сохранено в текущую раскладку."
 }
