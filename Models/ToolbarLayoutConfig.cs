@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -20,6 +21,7 @@ namespace OsuTweaks.Models
 
     public class ToolbarLayoutConfig
     {
+        private const string CodePrefix = "OT_LAYOUT_v1:";
         private static readonly JsonSerializerOptions serializerOptions = new() { WriteIndented = true };
 
         [JsonPropertyName("left")]
@@ -93,6 +95,44 @@ namespace OsuTweaks.Models
                     new() { Id = "beatmap_listing" }
                 }
             };
+        }
+
+        private static readonly JsonSerializerOptions compactSerializerOptions = new() { WriteIndented = false };
+
+        /// <summary>
+        /// Экспортирует текущую конфигурацию в строку кода для шеринга (Base64)
+        /// </summary>
+        public string ExportCode()
+        {
+            string json = JsonSerializer.Serialize(this, compactSerializerOptions);
+            byte[] bytes = Encoding.UTF8.GetBytes(json);
+            return CodePrefix + Convert.ToBase64String(bytes);
+        }
+
+        /// <summary>
+        /// Импортирует конфигурацию из строки кода шеринга (Base64)
+        /// </summary>
+        public static ToolbarLayoutConfig? ImportCode(string code)
+        {
+            if (string.IsNullOrWhiteSpace(code))
+                return null;
+
+            code = code.Trim();
+            if (!code.StartsWith(CodePrefix, StringComparison.OrdinalIgnoreCase))
+                return null;
+
+            try
+            {
+                string base64 = code.Substring(CodePrefix.Length).Trim();
+                byte[] bytes = Convert.FromBase64String(base64);
+                string json = Encoding.UTF8.GetString(bytes);
+                return JsonSerializer.Deserialize<ToolbarLayoutConfig>(json);
+            }
+            catch (Exception ex)
+            {
+                TweaksLog.Error("Failed to import layout code", ex);
+                return null;
+            }
         }
 
         public static ToolbarLayoutConfig Load(string filePath)

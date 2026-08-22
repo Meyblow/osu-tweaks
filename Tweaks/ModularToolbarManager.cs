@@ -69,6 +69,8 @@ namespace OsuTweaks.Tweaks
         private int currentTargetIndex;
 
         private ToolbarOverlayPositioner? overlayPositioner;
+        private ToolbarStyleManager? styleManager;
+        private ToolbarClockCustomizer? clockCustomizer;
 
         public ModularToolbarManager(IOsuCcPluginHost host)
         {
@@ -246,7 +248,19 @@ namespace OsuTweaks.Tweaks
 
             if (OsuTweaksPlugin.Instance != null)
             {
-                OsuTweaksPlugin.Instance.UserProfileDisplayMode.BindValueChanged(e => ApplyUserProfileDisplayMode(e.NewValue), true);
+                var plugin = OsuTweaksPlugin.Instance;
+                plugin.UserProfileDisplayMode.BindValueChanged(e => ApplyUserProfileDisplayMode(e.NewValue), true);
+
+                styleManager?.Dispose();
+                styleManager = new ToolbarStyleManager(host);
+                styleManager.Attach(toolbar, plugin.FloatingIslandMode, plugin.ToolbarBackgroundOpacity, plugin.ToolbarHeight, plugin.NeonGlowLine, plugin.ToolbarAccentColor);
+
+                if (allBlocks.TryGetValue("clock", out var clockBlock) && clockBlock.ContentDrawable is ToolbarClock clock)
+                {
+                    clockCustomizer?.Dispose();
+                    clockCustomizer = new ToolbarClockCustomizer(host);
+                    clockCustomizer.Attach(clock, plugin.ClockDisplayFormat, plugin.ShowSessionTimer);
+                }
             }
         }
 
@@ -769,8 +783,42 @@ namespace OsuTweaks.Tweaks
                     Action = () => removeSpacer(block)
                 });
             }
+            else
+            {
+                menuItems.Add(new ContextMenuItemData
+                {
+                    Title = "Вернуть на стандартное место",
+                    Icon = FontAwesome.Solid.Undo,
+                    Action = () => resetBlockToDefault(block)
+                });
+            }
 
             contextMenu.ShowAt(e.ScreenSpaceMouseDownPosition, menuItems);
+        }
+
+        private void resetBlockToDefault(ToolbarBlockContainer block)
+        {
+            var def = ToolbarLayoutConfig.CreateDefault();
+            int leftIdx = def.Left.FindIndex(i => i.Id == block.ItemId);
+            if (leftIdx >= 0)
+            {
+                insertBlockIntoZone(block, leftZone, leftIdx);
+                block.IsHidden.Value = false;
+                host.Notify($"Блок '{block.DisplayName}' возвращён на исходное место", NotificationKind.Info);
+                return;
+            }
+
+            int rightIdx = def.Right.FindIndex(i => i.Id == block.ItemId);
+            if (rightIdx >= 0)
+            {
+                insertBlockIntoZone(block, rightZone, rightIdx);
+                block.IsHidden.Value = false;
+                host.Notify($"Блок '{block.DisplayName}' возвращён на исходное место", NotificationKind.Info);
+                return;
+            }
+
+            insertBlockIntoZone(block, rightZone, rightZone.Flow.Count);
+            block.IsHidden.Value = false;
         }
 
         private void insertBlockIntoZone(ToolbarBlockContainer block, ToolbarZoneContainer targetZone, int targetIndex)

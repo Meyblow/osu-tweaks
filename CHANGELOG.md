@@ -2,6 +2,20 @@
 
 All notable changes to osu!tweaks are documented in this file.
 
+## [1.2.0] - 2026-08-22
+
+### Added
+- **Floating Island Toolbar**: Turn your top toolbar into a floating dock with `CornerRadius = 12px`, top/side margins, and shadow effects.
+- **Background Opacity Slider**: Smooth 0% to 100% background transparency slider allowing buttons to float cleanly above game backgrounds.
+- **Compact Toolbar Height**: Configurable toolbar height (26px – 40px) saving screen space on laptops and small monitors.
+- **Neon Glow Underline**: Accent line beneath the toolbar with custom colors (osu! Pink, Neon Purple, Cyberpunk Cyan, Emerald Lime, Gold, White).
+- **Toolbar Clock Customization**: Formats for standard seconds (`HH:mm:ss`), compact without seconds (`HH:mm`), with date (`dd MMM · HH:mm`), with date and seconds (`dd MMM · HH:mm:ss`), and in-game session timer.
+- **Spacer Styles**: Choose between blank gap, thin vertical line (`│`), and minimal dot (`•`) for toolbar spacers.
+- **Preset Code Sharing**: Export (`OT_LAYOUT_v1:...`) and import toolbar layouts via clipboard with one click.
+- **Reset Single Block**: Right-click any block in edit mode → *«Вернуть на стандартное место»* to restore its default position.
+
+---
+
 ## [1.1.1] - 2026-08-22
 
 ### Fixed
