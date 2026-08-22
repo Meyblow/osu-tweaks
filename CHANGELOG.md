@@ -2,6 +2,13 @@
 
 All notable changes to osu!tweaks are documented in this file.
 
+## [1.2.4] - 2026-08-22
+
+### Fixed
+- **Clean CI NuGet Restore**: Removed GitHub Actions NuGet cache action and forced clean package restore directly from `local_feed/` to eliminate cache poisoning.
+
+---
+
 ## [1.2.3] - 2026-08-22
 
 ### Fixed
