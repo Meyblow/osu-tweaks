@@ -12,6 +12,7 @@
     <Priority>50</Priority>
     <IconGlyph>SlidersH</IconGlyph>
     <IsPlugin>true</IsPlugin>
+    <RepositoryUrl>https://github.com/Meyblow/osu-tweaks</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,13 +23,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PluginDocument Include="README.md" Title="README" IconGlyph="Book" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="osucc.Api" Version="2.2.0" />
     <PackageReference Include="osucc.Build" Version="2.2.0" PrivateAssets="all" />
     <PackageReference Include="ppy.osu.Game" Version="2026.702.1" />
   </ItemGroup>
 
-  <Target Name="DeployToOsuCc" AfterTargets="PackagePluginArchive">
-    <MakeDir Directories="$(APPDATA)\osu\osu-cc\plugins" />
+  <Target Name="DeployToOsuCc" AfterTargets="PackagePluginArchive" Condition="'$(OS)' == 'Windows_NT' and Exists('$(APPDATA)\osu\osu-cc\plugins')">
     <Copy SourceFiles="$(OutDir)plugin-$(_PluginId)-$(_PluginVersion).zip" DestinationFolder="$(APPDATA)\osu\osu-cc\plugins" ContinueOnError="true" />
   </Target>
 
