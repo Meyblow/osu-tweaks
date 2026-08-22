@@ -7,6 +7,10 @@ All notable changes to osu!tweaks are documented in this file.
 ### Added
 - **Persistent Preset Selection**: Added persistent `ActivePresetName` bindable setting so the active preset name is saved across game restarts and properly displayed in the settings dropdown.
 
+### Fixed
+- **Plugin Metadata Binary Compatibility**: Ensured strict 3-parameter constructor metadata binding `[assembly: OsuCcPlugin(id, name, priority)]` across all builds to prevent `MissingMethodException` on Linux / NixOS / legacy installations.
+- **Legacy Folder Cleanup Note**: Added instructions to delete obsolete unpacked `plugins/OsuTweaks/` directories when updating to modern `.zip` distribution.
+
 ---
 
 ## [1.0.9] - 2026-08-22
