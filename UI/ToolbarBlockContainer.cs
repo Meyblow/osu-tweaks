@@ -71,7 +71,7 @@ namespace OsuTweaks.UI
 
         public override bool HandlePositionalInput => isEditMode || (!IsHidden.Value && !isHiddenByScreen);
         public override bool HandleNonPositionalInput => true;
-        public override bool PropagatePositionalInputSubTree => true;
+        public override bool PropagatePositionalInputSubTree => isEditMode || (!IsHidden.Value && !isHiddenByScreen);
         public override bool PropagateNonPositionalInputSubTree => true;
 
         public ToolbarBlockContainer(string id, string displayName, Drawable contentDrawable, bool isHidden = false)
@@ -213,12 +213,13 @@ namespace OsuTweaks.UI
 
                 if (IsHidden.Value || isHiddenByScreen)
                 {
-                    // В обычном режиме скрытые блоки полностью невидимы, не кликаются и не занимают место
+                    // В обычном режиме скрытые блоки полностью невидимы, не кликаются и не занимают место,
+                    // НО AlwaysPresent = true сохраняет работу глобальных хоткеев (Ctrl+O, F8, F9)!
                     this.FadeOut(150);
-                    AlwaysPresent = false;
+                    AlwaysPresent = true;
                     BypassAutoSizeAxes = Axes.Both;
                     contentWrapper.Alpha = 0;
-                    contentWrapper.AlwaysPresent = false;
+                    contentWrapper.AlwaysPresent = true;
                     contentWrapper.IsShielded = true;
                 }
                 else
@@ -326,6 +327,10 @@ namespace OsuTweaks.UI
             public bool IsShielded { get; set; }
 
             public override bool HandlePositionalInput => !IsShielded;
+            public override bool PropagatePositionalInputSubTree => !IsShielded;
+
+            public override bool HandleNonPositionalInput => true;
+            public override bool PropagateNonPositionalInputSubTree => true;
 
             public override bool ReceivePositionalInputAt(Vector2 screenSpacePos)
             {

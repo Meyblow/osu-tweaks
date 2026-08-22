@@ -207,16 +207,16 @@ namespace OsuTweaks.Tweaks
                 toolbar.Add(this);
             }
 
-            // Прикрепляем плашку режима редактирования и контекстное меню к корневому контейнеру игры (полноэкранные оверлеи)
-            if (toolbar.Parent is Container<Drawable> gameRoot)
-            {
-                if (editHintBanner.Parent == null) gameRoot.Add(editHintBanner);
-                if (contextMenu.Parent == null) gameRoot.Add(contextMenu);
-            }
-            else if (host.Game is Container<Drawable> gameContainer)
+            // Прикрепляем плашку режима редактирования и контекстное меню к корневому игровому контейнеру host.Game (полный экран 100vw x 100vh)
+            if (host.Game is Container<Drawable> gameContainer)
             {
                 if (editHintBanner.Parent == null) gameContainer.Add(editHintBanner);
                 if (contextMenu.Parent == null) gameContainer.Add(contextMenu);
+            }
+            else if (toolbar.Parent is Container<Drawable> gameRoot)
+            {
+                if (editHintBanner.Parent == null) gameRoot.Add(editHintBanner);
+                if (contextMenu.Parent == null) gameRoot.Add(contextMenu);
             }
 
             // Загружаем сохраненный конфиг или схему по умолчанию

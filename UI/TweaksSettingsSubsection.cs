@@ -90,12 +90,39 @@ namespace OsuTweaks.UI
             // --- Категория: Gameplay ---
             Add(createSectionHeader("Gameplay", FontAwesome.Solid.Gamepad));
 
-            Add(new SettingsEnumDropdown<AutoSkipMode>
+            var plugin = OsuTweaksPlugin.Instance;
+            var initialMode = plugin?.AutoSkipMode.Value ?? AutoSkipMode.Disabled;
+
+            var autoSkipDropdown = new SettingsDropdown<string>
             {
                 LabelText = "Режим автоскипа",
-                Current = OsuTweaksPlugin.Instance?.AutoSkipMode ?? new Bindable<AutoSkipMode>(AutoSkipMode.Disabled)
+                Current = new Bindable<string>(getModeString(initialMode)),
+                Items = new[] { "Выкл", "Автоскип мид-мап брейков", "Автоскип всего (интро, брейки, аутро)" }
+            };
+
+            autoSkipDropdown.Current.BindValueChanged(e =>
+            {
+                if (plugin != null)
+                {
+                    plugin.AutoSkipMode.Value = parseMode(e.NewValue);
+                }
             });
+            Add(autoSkipDropdown);
         }
+
+        private static string getModeString(AutoSkipMode mode) => mode switch
+        {
+            AutoSkipMode.BreaksOnly => "Автоскип мид-мап брейков",
+            AutoSkipMode.All => "Автоскип всего (интро, брейки, аутро)",
+            _ => "Выкл"
+        };
+
+        private static AutoSkipMode parseMode(string str) => str switch
+        {
+            "Автоскип мид-мап брейков" => AutoSkipMode.BreaksOnly,
+            "Автоскип всего (интро, брейки, аутро)" => AutoSkipMode.All,
+            _ => AutoSkipMode.Disabled
+        };
 
         private static Container createSectionHeader(string text, IconUsage icon) => new Container
         {
