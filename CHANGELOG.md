@@ -2,6 +2,13 @@
 
 All notable changes to osu!tweaks are documented in this file.
 
+## [1.2.2] - 2026-08-22
+
+### Fixed
+- **Synchronized SDK Packages in local_feed**: Updated all `osucc.Api`, `osucc.Build`, and `osucc.Shared` nupkg binaries in `local_feed/` to the latest revision, ensuring GitHub Actions and local builds generate exact matching metadata and eliminating `MissingMethodException: Method not found: 'Void osucc.Plugin.OsuCcPluginAttribute..ctor(String, String, Int32, Int32)'` forever across all platforms.
+
+---
+
 ## [1.2.1] - 2026-08-22
 
 ### Fixed
