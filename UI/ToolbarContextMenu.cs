@@ -18,7 +18,7 @@ namespace OsuTweaks.UI
 {
     public class ContextMenuItemData
     {
-        public string Title { get; set; } = string.Empty;
+        public osu.Framework.Localisation.LocalisableString Title { get; set; } = string.Empty;
         public IconUsage? Icon { get; set; }
         public Action? Action { get; set; }
         public bool IsDangerous { get; set; }

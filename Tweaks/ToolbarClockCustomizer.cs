@@ -8,8 +8,10 @@ using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Testing;
 using osu.Framework.Threading;
+using osu.Game.Graphics;
 using osu.Game.Graphics.Sprites;
 using osu.Game.Overlays.Toolbar;
+using osuTK;
 using osucc.Plugin;
 using OsuTweaks.Models;
 using OsuTweaks.Utils;
@@ -18,6 +20,7 @@ namespace OsuTweaks.Tweaks
 {
     /// <summary>
     /// Управляет форматированием времени, даты и таймера сессии в ToolbarClock.
+    /// Заменяет стандартный вывод на отдельный стабильный контейнер, предотвращая мерцание и сброс ванильного Text.
     /// </summary>
     public class ToolbarClockCustomizer : IDisposable
     {
@@ -25,10 +28,15 @@ namespace OsuTweaks.Tweaks
 
         private readonly IOsuCcPluginHost host;
         private ToolbarClock? toolbarClock;
+        private FillFlowContainer? clockFlow;
         private DigitalClockDisplay? digitalDisplay;
-        private OsuSpriteText? realTimeText;
-        private OsuSpriteText? gameTimeText;
-        private FillFlowContainer? runningTextFlow;
+        private AnalogClockDisplay? analogDisplay;
+
+        private FillFlowContainer? customClockContainer;
+        private OsuSpriteText? customRealTime;
+        private FillFlowContainer? customSessionFlow;
+        private OsuSpriteText? customSessionText;
+
         private ScheduledDelegate? updateSchedule;
 
         private readonly Bindable<ClockDisplayFormat> formatBindable = new(ClockDisplayFormat.StandardWithSeconds);
@@ -42,19 +50,22 @@ namespace OsuTweaks.Tweaks
         public void Attach(ToolbarClock clock, Bindable<ClockDisplayFormat> format, Bindable<bool> showSessionTimer)
         {
             toolbarClock = clock;
+
             formatBindable.UnbindBindings();
             formatBindable.BindTo(format);
+            formatBindable.BindValueChanged(_ => updateClock(), false);
 
             showSessionTimerBindable.UnbindBindings();
             showSessionTimerBindable.BindTo(showSessionTimer);
+            showSessionTimerBindable.BindValueChanged(_ => updateClock(), false);
 
-            findClockComponents();
+            setupCustomClock();
 
             updateSchedule?.Cancel();
-            updateSchedule = host.Scheduler?.AddDelayed(updateClock, 250, true);
+            updateSchedule = host.Scheduler?.AddDelayed(updateClock, 200, true);
         }
 
-        private void findClockComponents()
+        private void setupCustomClock()
         {
             if (toolbarClock == null) return;
 
@@ -63,16 +74,70 @@ namespace OsuTweaks.Tweaks
                 digitalDisplay = toolbarClock.ChildrenOfType<DigitalClockDisplay>().FirstOrDefault()
                                  ?? ReflectionHelper.GetFieldValue<DigitalClockDisplay>(toolbarClock, "digital");
 
+                analogDisplay = toolbarClock.ChildrenOfType<AnalogClockDisplay>().FirstOrDefault()
+                                ?? ReflectionHelper.GetFieldValue<AnalogClockDisplay>(toolbarClock, "analog");
+
+                clockFlow = toolbarClock.ChildrenOfType<FillFlowContainer>().FirstOrDefault();
+
+                if (analogDisplay != null)
+                {
+                    analogDisplay.Alpha = 0;
+                }
+
                 if (digitalDisplay != null)
                 {
-                    realTimeText = ReflectionHelper.GetFieldValue<OsuSpriteText>(digitalDisplay, "realTime");
-                    gameTimeText = ReflectionHelper.GetFieldValue<OsuSpriteText>(digitalDisplay, "gameTime");
-                    runningTextFlow = ReflectionHelper.GetFieldValue<FillFlowContainer>(digitalDisplay, "runningText");
+                    digitalDisplay.Alpha = 0;
+                }
+
+                if (clockFlow != null && customClockContainer == null)
+                {
+                    customClockContainer = new FillFlowContainer
+                    {
+                        Name = "osu!tweaks Custom Clock Display",
+                        AutoSizeAxes = Axes.Both,
+                        Direction = FillDirection.Vertical,
+                        Anchor = Anchor.CentreLeft,
+                        Origin = Anchor.CentreLeft,
+                        AlwaysPresent = true,
+                        Children = new Drawable[]
+                        {
+                            customRealTime = new OsuSpriteText
+                            {
+                                Font = OsuFont.Default.With(fixedWidth: true),
+                                Spacing = new Vector2(-1.5f, 0),
+                                Anchor = Anchor.CentreLeft,
+                                Origin = Anchor.CentreLeft
+                            },
+                            customSessionFlow = new FillFlowContainer
+                            {
+                                AutoSizeAxes = Axes.Both,
+                                Direction = FillDirection.Horizontal,
+                                Spacing = new Vector2(2f, 0),
+                                Colour = Colour4.FromHex("#ff66aa"),
+                                Alpha = 0,
+                                Children = new Drawable[]
+                                {
+                                    new OsuSpriteText
+                                    {
+                                        Text = "SESSION",
+                                        Font = OsuFont.Default.With(size: 10f, weight: FontWeight.SemiBold)
+                                    },
+                                    (customSessionText = new OsuSpriteText
+                                    {
+                                        Font = OsuFont.Default.With(size: 10f, weight: FontWeight.SemiBold, fixedWidth: true),
+                                        Spacing = new Vector2(-0.5f, 0)
+                                    })
+                                }
+                            }
+                        }
+                    };
+
+                    clockFlow.Add(customClockContainer);
                 }
             }
             catch (Exception ex)
             {
-                TweaksLog.Error("ToolbarClockCustomizer: Error locating clock components", ex);
+                TweaksLog.Error("ToolbarClockCustomizer: Error setting up custom clock", ex);
             }
         }
 
@@ -80,52 +145,55 @@ namespace OsuTweaks.Tweaks
         {
             if (toolbarClock == null || !toolbarClock.IsAlive) return;
 
-            if (digitalDisplay == null || realTimeText == null)
+            if (customClockContainer == null || customRealTime == null)
             {
-                findClockComponents();
-                if (digitalDisplay == null || realTimeText == null) return;
+                setupCustomClock();
+                if (customClockContainer == null || customRealTime == null) return;
             }
 
             try
             {
+                if (digitalDisplay != null) digitalDisplay.Alpha = 0;
+                if (analogDisplay != null) analogDisplay.Alpha = 0;
+
                 var now = DateTime.Now;
                 var culture = CultureInfo.CurrentCulture;
 
                 switch (formatBindable.Value)
                 {
                     case ClockDisplayFormat.CompactNoSeconds:
-                        realTimeText.Text = now.ToString("HH:mm", culture);
+                        customRealTime.Text = now.ToString("HH:mm", culture);
                         break;
 
                     case ClockDisplayFormat.WithDate:
-                        realTimeText.Text = now.ToString("dd MMM · HH:mm", culture);
+                        customRealTime.Text = now.ToString("dd MMM · HH:mm", culture);
                         break;
 
                     case ClockDisplayFormat.WithDateAndSeconds:
-                        realTimeText.Text = now.ToString("dd MMM · HH:mm:ss", culture);
+                        customRealTime.Text = now.ToString("dd MMM · HH:mm:ss", culture);
                         break;
 
                     case ClockDisplayFormat.SessionTimerOnly:
                         var elapsedOnly = now - sessionStartTime;
-                        realTimeText.Text = $"⏳ {(int)elapsedOnly.TotalHours}ч {elapsedOnly.Minutes:D2}м";
+                        customRealTime.Text = $"⏳ {(int)elapsedOnly.TotalHours}ч {elapsedOnly.Minutes:D2}м";
                         break;
 
                     default: // StandardWithSeconds
-                        realTimeText.Text = now.ToString("HH:mm:ss", culture);
+                        customRealTime.Text = now.ToString("HH:mm:ss", culture);
                         break;
                 }
 
-                if (runningTextFlow != null && gameTimeText != null)
+                if (customSessionFlow != null && customSessionText != null)
                 {
                     if (showSessionTimerBindable.Value && formatBindable.Value != ClockDisplayFormat.SessionTimerOnly)
                     {
                         var elapsed = now - sessionStartTime;
-                        gameTimeText.Text = $"{(int)elapsed.TotalHours:D2}:{elapsed.Minutes:D2}:{elapsed.Seconds:D2}";
-                        runningTextFlow.Alpha = 1;
+                        customSessionText.Text = $"{(int)elapsed.TotalHours:D2}:{elapsed.Minutes:D2}:{elapsed.Seconds:D2}";
+                        customSessionFlow.Alpha = 1;
                     }
-                    else if (!showSessionTimerBindable.Value)
+                    else
                     {
-                        runningTextFlow.Alpha = 0;
+                        customSessionFlow.Alpha = 0;
                     }
                 }
             }
@@ -139,11 +207,25 @@ namespace OsuTweaks.Tweaks
         {
             updateSchedule?.Cancel();
             updateSchedule = null;
+
+            if (customClockContainer != null && clockFlow != null)
+            {
+                try { clockFlow.Remove(customClockContainer, true); } catch { }
+            }
+
+            if (digitalDisplay != null)
+            {
+                digitalDisplay.Alpha = 1;
+            }
+
             toolbarClock = null;
+            clockFlow = null;
             digitalDisplay = null;
-            realTimeText = null;
-            gameTimeText = null;
-            runningTextFlow = null;
+            analogDisplay = null;
+            customClockContainer = null;
+            customRealTime = null;
+            customSessionFlow = null;
+            customSessionText = null;
             GC.SuppressFinalize(this);
         }
     }

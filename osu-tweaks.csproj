@@ -5,15 +5,16 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AssemblyName>OsuTweaks</AssemblyName>
+    <RootNamespace>OsuTweaks</RootNamespace>
     <PackageId>osu-tweaks</PackageId>
     <Title>osu!tweaks</Title>
-    <Description>Коллекция полезных твиков и улучшений интерфейса для osu!cc.</Description>
-    <Version>1.2.4</Version>
+    <Description>Collection of useful tweaks and UI customizations for osu!cc.</Description>
+    <Version>1.2.3</Version>
     <Priority>50</Priority>
     <IconGlyph>SlidersH</IconGlyph>
     <IsPlugin>true</IsPlugin>
     <RepositoryUrl>https://github.com/Meyblow/osu-tweaks</RepositoryUrl>
-    <PackageTags>menu;song-select;settings;tools;ui;gameplay</PackageTags>
+    <PackageTags>menu;song-select;settings;tools;ui;gameplay;visual</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,6 +30,10 @@
     <PackageReference Include="osucc.Api" Version="2.2.0" />
     <PackageReference Include="osucc.Build" Version="2.2.0" PrivateAssets="all" />
     <PackageReference Include="ppy.osu.Game" Version="2026.702.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Localisation/*.json" />
   </ItemGroup>
 
   <Target Name="DeployToOsuCc" AfterTargets="Build" Condition="Exists('$(APPDATA)\osu\osu-cc\plugins\osu-tweaks')">

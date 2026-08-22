@@ -8,6 +8,7 @@ using osu.Framework.Platform;
 using osu.Game.Overlays.Settings;
 using osucc.Client;
 using osucc.Plugin;
+using OsuTweaks.Localisation;
 using OsuTweaks.Models;
 using OsuTweaks.Tweaks;
 
@@ -15,11 +16,11 @@ namespace OsuTweaks.UI
 {
     /// <summary>
     /// Меню настроек osu!tweaks, выполненное в 100% ванильном стиле osu!lazer.
-    /// Использует стандартные SettingsDropdown, SettingsCheckbox, SettingsSlider, SettingsButton и нативную типографику.
+    /// Поддерживает автоматическую локализацию (русский / английский) на основе выбранного языка игры.
     /// </summary>
     public partial class TweaksSettingsSubsection : SettingsSubsection
     {
-        protected override LocalisableString Header => "osu!tweaks";
+        protected override LocalisableString Header => OsuTweaksStrings.Header;
 
         private readonly PluginSettings settings;
 
@@ -40,7 +41,7 @@ namespace OsuTweaks.UI
 
             var presetDropdown = new SettingsDropdown<string>
             {
-                LabelText = "Пресет расположения",
+                LabelText = OsuTweaksStrings.PresetDropdownLabel,
                 Current = new Bindable<string>(activePreset),
                 Items = presets
             };
@@ -68,14 +69,14 @@ namespace OsuTweaks.UI
 
             Add(new SettingsButton
             {
-                Text = "Настроить тулбар (Режим редактирования)",
+                Text = OsuTweaksStrings.ButtonEnterEditMode,
                 Margin = new MarginPadding { Top = 6f },
                 Action = () => ModularToolbarManager.Instance?.EnterEditMode()
             });
 
             Add(new SettingsButton
             {
-                Text = "Сохранить текущий тулбар как пресет...",
+                Text = OsuTweaksStrings.ButtonSavePreset,
                 Margin = new MarginPadding { Top = 6f },
                 Action = () =>
                 {
@@ -90,7 +91,7 @@ namespace OsuTweaks.UI
 
             Add(new SettingsButton
             {
-                Text = "Скопировать код раскладки в буфер (Шаринг)",
+                Text = OsuTweaksStrings.ButtonCopyCode,
                 Margin = new MarginPadding { Top = 6f },
                 Action = () =>
                 {
@@ -98,13 +99,13 @@ namespace OsuTweaks.UI
                     string code = config.ExportCode();
                     var clipboard = plugin?.Host?.GetDependency<Clipboard>();
                     clipboard?.SetText(code);
-                    plugin?.Host?.Notify("Код раскладки скопирован в буфер обмена!", NotificationKind.Success);
+                    plugin?.Host?.Notify(OsuTweaksStrings.NotifyClipboardCopied, NotificationKind.Success);
                 }
             });
 
             Add(new SettingsButton
             {
-                Text = "Импортировать раскладку из буфера обмена...",
+                Text = OsuTweaksStrings.ButtonImportCode,
                 Margin = new MarginPadding { Top = 6f },
                 Action = () =>
                 {
@@ -112,7 +113,7 @@ namespace OsuTweaks.UI
                     string? code = clipboard?.GetText();
                     if (string.IsNullOrWhiteSpace(code))
                     {
-                        plugin?.Host?.Notify("Буфер обмена пуст!", NotificationKind.Warning);
+                        plugin?.Host?.Notify(OsuTweaksStrings.NotifyClipboardEmpty, NotificationKind.Warning);
                         return;
                     }
 
@@ -121,25 +122,25 @@ namespace OsuTweaks.UI
                     {
                         ModularToolbarManager.Instance?.ApplyConfig(config);
                         if (plugin != null) plugin.ActivePresetName.Value = "Импортированный пресет";
-                        plugin?.Host?.Notify("Раскладка успешно импортирована!", NotificationKind.Success);
+                        plugin?.Host?.Notify(OsuTweaksStrings.NotifyImportSuccess, NotificationKind.Success);
                     }
                     else
                     {
-                        plugin?.Host?.Notify("В буфере обмена нет корректного кода раскладки (OT_LAYOUT_v1:...)!", NotificationKind.Error);
+                        plugin?.Host?.Notify(OsuTweaksStrings.NotifyImportInvalid, NotificationKind.Error);
                     }
                 }
             });
 
             Add(new SettingsButton
             {
-                Text = "Открыть папку с пресетами",
+                Text = OsuTweaksStrings.ButtonOpenPresetsFolder,
                 Margin = new MarginPadding { Top = 6f },
                 Action = ToolbarPresetManager.OpenPresetsFolder
             });
 
             Add(new SettingsButton
             {
-                Text = "Сбросить расположение по умолчанию",
+                Text = OsuTweaksStrings.ButtonResetToDefault,
                 Margin = new MarginPadding { Top = 6f, Bottom = 6f },
                 Action = () =>
                 {
@@ -155,7 +156,7 @@ namespace OsuTweaks.UI
             {
                 Add(new SettingsCheckbox
                 {
-                    LabelText = "Парящий тулбар (Floating Island)",
+                    LabelText = OsuTweaksStrings.FloatingIslandCheckbox,
                     Margin = new MarginPadding { Top = 10f },
                     Current = plugin.FloatingIslandMode
                 });
@@ -171,7 +172,7 @@ namespace OsuTweaks.UI
 
                 Add(new SettingsSlider<float>
                 {
-                    LabelText = "Прозрачность фона тулбара",
+                    LabelText = OsuTweaksStrings.BackgroundOpacitySlider,
                     Margin = new MarginPadding { Top = 6f },
                     Current = opacityBindable,
                     DisplayAsPercentage = true,
@@ -189,7 +190,7 @@ namespace OsuTweaks.UI
 
                 Add(new SettingsSlider<float>
                 {
-                    LabelText = "Высота тулбара (Компактный режим)",
+                    LabelText = OsuTweaksStrings.ToolbarHeightSlider,
                     Margin = new MarginPadding { Top = 6f },
                     Current = heightBindable,
                     KeyboardStep = 1f
@@ -197,14 +198,14 @@ namespace OsuTweaks.UI
 
                 Add(new SettingsCheckbox
                 {
-                    LabelText = "Неоновая линия подсветки снизу (Glow)",
+                    LabelText = OsuTweaksStrings.NeonGlowLineCheckbox,
                     Margin = new MarginPadding { Top = 6f },
                     Current = plugin.NeonGlowLine
                 });
 
                 var accentDropdown = new SettingsDropdown<string>
                 {
-                    LabelText = "Цвет неоновой подсветки",
+                    LabelText = OsuTweaksStrings.NeonAccentColorDropdown,
                     Margin = new MarginPadding { Top = 6f },
                     Current = new Bindable<string>(getAccentColorString(plugin.ToolbarAccentColor.Value)),
                     Items = new[] { "osu! Розовый", "Неоновый фиолетовый", "Киберпанк циан", "Изумрудный лайм", "Золотой", "Белый" }
@@ -224,7 +225,7 @@ namespace OsuTweaks.UI
             {
                 var clockDropdown = new SettingsDropdown<string>
                 {
-                    LabelText = "Формат времени и даты",
+                    LabelText = OsuTweaksStrings.ClockFormatDropdown,
                     Margin = new MarginPadding { Top = 10f },
                     Current = new Bindable<string>(getClockFormatString(plugin.ClockDisplayFormat.Value)),
                     Items = new[]
@@ -245,7 +246,7 @@ namespace OsuTweaks.UI
 
                 Add(new SettingsCheckbox
                 {
-                    LabelText = "Отображать таймер сессии",
+                    LabelText = OsuTweaksStrings.ShowSessionTimerCheckbox,
                     Margin = new MarginPadding { Top = 6f },
                     Current = plugin.ShowSessionTimer
                 });
@@ -258,7 +259,7 @@ namespace OsuTweaks.UI
             {
                 var spacerDropdown = new SettingsDropdown<string>
                 {
-                    LabelText = "Стиль разделителей (Spacers)",
+                    LabelText = OsuTweaksStrings.SpacerStyleDropdown,
                     Margin = new MarginPadding { Top = 10f },
                     Current = new Bindable<string>(getSpacerStyleString(plugin.SpacerStyle.Value)),
                     Items = new[] { "Невидимый зазор", "Тонкая вертикальная линия", "Точка" }
@@ -278,7 +279,7 @@ namespace OsuTweaks.UI
 
             var profileModeDropdown = new SettingsDropdown<string>
             {
-                LabelText = "Расположение аватарки и ника",
+                LabelText = OsuTweaksStrings.ProfileModeDropdown,
                 Margin = new MarginPadding { Top = 10f },
                 Current = new Bindable<string>(getProfileModeString(currentProfileMode)),
                 Items = new[]
@@ -310,7 +311,7 @@ namespace OsuTweaks.UI
 
             var autoSkipDropdown = new SettingsDropdown<string>
             {
-                LabelText = "Режим пропуска пауз (Автоскип)",
+                LabelText = OsuTweaksStrings.AutoSkipDropdown,
                 Margin = new MarginPadding { Top = 10f },
                 Current = new Bindable<string>(getAutoSkipModeString(initialAutoSkip)),
                 Items = new[] { "Выкл", "Автоскип мид-мап брейков", "Автоскип всего (интро, брейки, аутро)" }

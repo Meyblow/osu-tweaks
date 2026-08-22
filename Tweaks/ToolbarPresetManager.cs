@@ -10,6 +10,7 @@ namespace OsuTweaks.Tweaks
     /// <summary>
     /// Управляет JSON-пресетами расположения тулбара, используя IOsuCcStorage плагина (presets/*.json)
     /// или безопасный fallback на локальную директорию плагина.
+    /// Предоставляет только пресет "Default (Ванильный)", позволяя пользователям создавать свои собственные пресеты.
     /// </summary>
     public static class ToolbarPresetManager
     {
@@ -33,8 +34,12 @@ namespace OsuTweaks.Tweaks
                     if (!storage.Exists("presets/Default (Ванильный).json"))
                         storage.WriteJson("presets/Default (Ванильный).json", ToolbarLayoutConfig.CreateDefault());
 
-                    if (!storage.Exists("presets/Centered (По центру).json"))
-                        storage.WriteJson("presets/Centered (По центру).json", ToolbarLayoutConfig.CreateCentered());
+                    // Удаляем устаревший встроенный пресет Centered, если он остался от прошлых версий
+                    string? centPath = storage.GetFullPath("presets/Centered (По центру).json");
+                    if (centPath != null && File.Exists(centPath))
+                    {
+                        try { File.Delete(centPath); } catch { }
+                    }
                 }
                 else
                 {
@@ -46,8 +51,10 @@ namespace OsuTweaks.Tweaks
                         ToolbarLayoutConfig.CreateDefault().Save(def);
 
                     string cent = Path.Combine(FallbackPresetsDirectory, "Centered (По центру).json");
-                    if (!File.Exists(cent))
-                        ToolbarLayoutConfig.CreateCentered().Save(cent);
+                    if (File.Exists(cent))
+                    {
+                        try { File.Delete(cent); } catch { }
+                    }
                 }
             }
             catch (Exception ex)
@@ -68,14 +75,22 @@ namespace OsuTweaks.Tweaks
                     var files = storage.GetFiles("presets", "*.json");
                     foreach (var file in files)
                     {
-                        list.Add(Path.GetFileNameWithoutExtension(file));
+                        string name = Path.GetFileNameWithoutExtension(file);
+                        if (name.Equals("Centered (По центру)", StringComparison.OrdinalIgnoreCase))
+                            continue;
+
+                        list.Add(name);
                     }
                 }
                 else if (Directory.Exists(FallbackPresetsDirectory))
                 {
                     foreach (var file in Directory.GetFiles(FallbackPresetsDirectory, "*.json"))
                     {
-                        list.Add(Path.GetFileNameWithoutExtension(file));
+                        string name = Path.GetFileNameWithoutExtension(file);
+                        if (name.Equals("Centered (По центру)", StringComparison.OrdinalIgnoreCase))
+                            continue;
+
+                        list.Add(name);
                     }
                 }
             }
@@ -84,10 +99,9 @@ namespace OsuTweaks.Tweaks
                 TweaksLog.Error("Failed to list presets", ex);
             }
 
-            if (list.Count == 0)
+            if (!list.Contains("Default (Ванильный)"))
             {
-                list.Add("Default (Ванильный)");
-                list.Add("Centered (По центру)");
+                list.Insert(0, "Default (Ванильный)");
             }
 
             return list;

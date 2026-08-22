@@ -670,25 +670,25 @@ namespace OsuTweaks.Tweaks
             {
                 menuItems.Add(new ContextMenuItemData
                 {
-                    Title = "Настроить тулбар...",
+                    Title = Localisation.OsuTweaksStrings.ButtonEnterEditMode,
                     Icon = FontAwesome.Solid.SlidersH,
                     Action = EnterEditMode
                 });
                 menuItems.Add(new ContextMenuItemData
                 {
-                    Title = "Сохранить как пресет...",
+                    Title = Localisation.OsuTweaksStrings.ButtonSavePreset,
                     Icon = FontAwesome.Solid.Save,
                     Action = () => ShowSavePresetDialog(_ => { })
                 });
                 menuItems.Add(new ContextMenuItemData
                 {
-                    Title = "Открыть папку с пресетами",
+                    Title = Localisation.OsuTweaksStrings.ButtonOpenPresetsFolder,
                     Icon = FontAwesome.Solid.FolderOpen,
                     Action = ToolbarPresetManager.OpenPresetsFolder
                 });
                 menuItems.Add(new ContextMenuItemData
                 {
-                    Title = "Сбросить по умолчанию",
+                    Title = Localisation.OsuTweaksStrings.ButtonResetToDefault,
                     Icon = FontAwesome.Solid.Undo,
                     Action = ResetToDefault
                 });
@@ -697,37 +697,37 @@ namespace OsuTweaks.Tweaks
             {
                 menuItems.Add(new ContextMenuItemData
                 {
-                    Title = "Применить и выйти",
+                    Title = Localisation.OsuTweaksStrings.EditBannerSaveButton,
                     Icon = FontAwesome.Solid.Check,
                     Action = SaveAndExitEditMode
                 });
                 menuItems.Add(new ContextMenuItemData
                 {
-                    Title = "Сохранить как пресет...",
+                    Title = Localisation.OsuTweaksStrings.ButtonSavePreset,
                     Icon = FontAwesome.Solid.Save,
                     Action = () => ShowSavePresetDialog(_ => { })
                 });
                 menuItems.Add(new ContextMenuItemData
                 {
-                    Title = "Добавить разделитель (Spacer)",
+                    Title = Localisation.OsuTweaksStrings.ContextMenuAddSpacer,
                     Icon = FontAwesome.Solid.Plus,
                     Action = () => addSpacer(clickedZone ?? rightZone)
                 });
                 menuItems.Add(new ContextMenuItemData
                 {
-                    Title = "Открыть папку с пресетами",
+                    Title = Localisation.OsuTweaksStrings.ButtonOpenPresetsFolder,
                     Icon = FontAwesome.Solid.FolderOpen,
                     Action = ToolbarPresetManager.OpenPresetsFolder
                 });
                 menuItems.Add(new ContextMenuItemData
                 {
-                    Title = "Отменить изменения",
+                    Title = Localisation.OsuTweaksStrings.DialogCancelButton,
                     Icon = FontAwesome.Solid.Times,
                     Action = CancelEditMode
                 });
                 menuItems.Add(new ContextMenuItemData
                 {
-                    Title = "Сбросить по умолчанию",
+                    Title = Localisation.OsuTweaksStrings.ButtonResetToDefault,
                     Icon = FontAwesome.Solid.Undo,
                     IsDangerous = true,
                     Action = ResetToDefault
@@ -749,25 +749,25 @@ namespace OsuTweaks.Tweaks
             {
                 new ContextMenuItemData
                 {
-                    Title = block.IsHidden.Value ? "Показать блок" : "Скрыть блок",
+                    Title = block.IsHidden.Value ? "Показать блок" : Localisation.OsuTweaksStrings.ContextMenuHide,
                     Icon = block.IsHidden.Value ? FontAwesome.Solid.Eye : FontAwesome.Solid.EyeSlash,
                     Action = () => block.IsHidden.Value = !block.IsHidden.Value
                 },
                 new ContextMenuItemData
                 {
-                    Title = "Переместить в: Лево",
+                    Title = Localisation.OsuTweaksStrings.ContextMenuMoveLeft,
                     Icon = FontAwesome.Solid.ArrowLeft,
                     Action = () => moveBlockToZone(block, ToolbarZone.Left)
                 },
                 new ContextMenuItemData
                 {
-                    Title = "Переместить в: Центр",
+                    Title = Localisation.OsuTweaksStrings.ContextMenuMoveCenter,
                     Icon = FontAwesome.Solid.AlignCenter,
                     Action = () => moveBlockToZone(block, ToolbarZone.Center)
                 },
                 new ContextMenuItemData
                 {
-                    Title = "Переместить в: Право",
+                    Title = Localisation.OsuTweaksStrings.ContextMenuMoveRight,
                     Icon = FontAwesome.Solid.ArrowRight,
                     Action = () => moveBlockToZone(block, ToolbarZone.Right)
                 }
@@ -777,7 +777,7 @@ namespace OsuTweaks.Tweaks
             {
                 menuItems.Add(new ContextMenuItemData
                 {
-                    Title = "Удалить разделитель",
+                    Title = Localisation.OsuTweaksStrings.ContextMenuRemoveSpacer,
                     Icon = FontAwesome.Solid.Trash,
                     IsDangerous = true,
                     Action = () => removeSpacer(block)
@@ -787,7 +787,7 @@ namespace OsuTweaks.Tweaks
             {
                 menuItems.Add(new ContextMenuItemData
                 {
-                    Title = "Вернуть на стандартное место",
+                    Title = Localisation.OsuTweaksStrings.ContextMenuResetBlock,
                     Icon = FontAwesome.Solid.Undo,
                     Action = () => resetBlockToDefault(block)
                 });
@@ -804,7 +804,7 @@ namespace OsuTweaks.Tweaks
             {
                 insertBlockIntoZone(block, leftZone, leftIdx);
                 block.IsHidden.Value = false;
-                host.Notify($"Блок '{block.DisplayName}' возвращён на исходное место", NotificationKind.Info);
+                host.Notify(Localisation.OsuTweaksStrings.NotifyBlockReset(block.DisplayName), NotificationKind.Info);
                 return;
             }
 
@@ -813,7 +813,7 @@ namespace OsuTweaks.Tweaks
             {
                 insertBlockIntoZone(block, rightZone, rightIdx);
                 block.IsHidden.Value = false;
-                host.Notify($"Блок '{block.DisplayName}' возвращён на исходное место", NotificationKind.Info);
+                host.Notify(Localisation.OsuTweaksStrings.NotifyBlockReset(block.DisplayName), NotificationKind.Info);
                 return;
             }
 
@@ -988,21 +988,21 @@ namespace OsuTweaks.Tweaks
 
         private static string getFriendlyName(string id, Drawable d) => id switch
         {
-            "settings" => "Настройки",
-            "home" => "Главное меню",
-            "rulesets" => "Режимы игры",
-            "clock" => "Часы",
-            "notifications" => "Уведомления",
-            "rankings" => "Рейтинги",
-            "news" => "Новости",
-            "changelog" => "Список изменений",
-            "wiki" => "Вики",
-            "beatmap_listing" => "Список карт",
-            "chat" => "Чат",
-            "social" => "Сообщество",
-            "music" => "Музыка",
-            "user_profile" => "Профиль игрока",
-            _ => d.GetType().Name
+            "settings" => Localisation.OsuTweaksStrings.BlockSettings.ToString(),
+            "home" => Localisation.OsuTweaksStrings.BlockHome.ToString(),
+            "rulesets" => Localisation.OsuTweaksStrings.BlockRulesets.ToString(),
+            "clock" => Localisation.OsuTweaksStrings.BlockClock.ToString(),
+            "notifications" => Localisation.OsuTweaksStrings.BlockNotifications.ToString(),
+            "rankings" => Localisation.OsuTweaksStrings.BlockRankings.ToString(),
+            "news" => Localisation.OsuTweaksStrings.BlockNews.ToString(),
+            "changelog" => Localisation.OsuTweaksStrings.BlockChangelog.ToString(),
+            "wiki" => Localisation.OsuTweaksStrings.BlockWiki.ToString(),
+            "beatmap_listing" => Localisation.OsuTweaksStrings.BlockBeatmaps.ToString(),
+            "chat" => Localisation.OsuTweaksStrings.BlockChat.ToString(),
+            "social" => Localisation.OsuTweaksStrings.BlockSocial.ToString(),
+            "music" => Localisation.OsuTweaksStrings.BlockMusic.ToString(),
+            "user_profile" => Localisation.OsuTweaksStrings.BlockUserProfile.ToString(),
+            _ => d is ToolbarSpacer ? Localisation.OsuTweaksStrings.BlockSpacer.ToString() : d.GetType().Name
         };
 
         private static Drawable? findGridContainer(Drawable root)

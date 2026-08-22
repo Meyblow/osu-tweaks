@@ -100,7 +100,7 @@ namespace OsuTweaks.UI
                                         {
                                             Anchor = Anchor.CentreLeft,
                                             Origin = Anchor.CentreLeft,
-                                            Text = "Сохранение пресета тулбара",
+                                            Text = Localisation.OsuTweaksStrings.DialogSavePresetTitle,
                                             Font = OsuFont.GetFont(size: 16, weight: FontWeight.Bold),
                                             Colour = Colour4.White
                                         }
@@ -109,7 +109,7 @@ namespace OsuTweaks.UI
                                 // Описание
                                 new OsuSpriteText
                                 {
-                                    Text = "Введите название для нового пресета расположения:",
+                                    Text = Localisation.OsuTweaksStrings.DialogSavePresetPrompt,
                                     Font = OsuFont.GetFont(size: 13, weight: FontWeight.Regular),
                                     Colour = Colour4.White.Opacity(0.8f)
                                 },
@@ -118,7 +118,7 @@ namespace OsuTweaks.UI
                                 {
                                     RelativeSizeAxes = Axes.X,
                                     Height = 36,
-                                    PlaceholderText = "Например: Centered Minimal",
+                                    PlaceholderText = "My Custom Layout",
                                     CommitOnFocusLost = false
                                 },
                                 // Сообщение об ошибке (при валидации)
@@ -141,7 +141,7 @@ namespace OsuTweaks.UI
                                         {
                                             Width = 180,
                                             Height = 38,
-                                            Text = "Сохранить",
+                                            Text = Localisation.OsuTweaksStrings.DialogSaveButton,
                                             BackgroundColour = colours.Pink,
                                             Action = trySave
                                         },
@@ -149,7 +149,7 @@ namespace OsuTweaks.UI
                                         {
                                             Width = 180,
                                             Height = 38,
-                                            Text = "Отмена",
+                                            Text = Localisation.OsuTweaksStrings.DialogCancelButton,
                                             BackgroundColour = Colour4.FromHex("#2a2a36"),
                                             Action = Dismiss
                                         }

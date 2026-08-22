@@ -43,6 +43,15 @@ namespace OsuTweaks
             TweaksLog.Init(Host);
             TweaksLog.Info("osu!tweaks: OnLoad() starting...");
 
+            try
+            {
+                osucc.Localisation.OsuCcLocalisation.RegisterAssembly(typeof(OsuTweaksPlugin).Assembly);
+            }
+            catch (Exception ex)
+            {
+                TweaksLog.Error("Failed to register localization assembly", ex);
+            }
+
             AutoSkipMode = Host.GetSettings().Bind("auto_skip_mode", Models.AutoSkipMode.Disabled);
             UserProfileDisplayMode = Host.GetSettings().Bind("user_profile_display_mode", Models.UserProfileDisplayMode.Default);
             ActivePresetName = Host.GetSettings().Bind("active_preset_name", "Default (Ванильный)");

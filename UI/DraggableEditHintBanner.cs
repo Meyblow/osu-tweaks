@@ -70,7 +70,7 @@ namespace OsuTweaks.UI
                         {
                             Anchor = Anchor.CentreLeft,
                             Origin = Anchor.CentreLeft,
-                            Text = "Режим настройки | Тяните блоки для смены порядка | ЛКМ: скрыть/показать | ПКМ: меню",
+                            Text = Localisation.OsuTweaksStrings.EditBannerHint,
                             Font = OsuFont.GetFont(size: 13, weight: FontWeight.SemiBold),
                             Colour = Colour4.White
                         },
@@ -95,7 +95,7 @@ namespace OsuTweaks.UI
                                     new OsuSpriteText
                                     {
                                         Padding = new MarginPadding { Horizontal = 10, Vertical = 4 },
-                                        Text = "✓ Готово",
+                                        Text = Localisation.OsuTweaksStrings.EditBannerSaveButton,
                                         Font = OsuFont.GetFont(size: 12, weight: FontWeight.Bold),
                                         Colour = colours.PinkLight
                                     }
