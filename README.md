@@ -1,77 +1,46 @@
-# 🛠️ osu!tweaks
+# osu!tweaks
 
-[![osu!cc plugin](https://img.shields.io/badge/osu!cc-plugin-ff66aa.svg)](https://github.com/osucc/osu)
-[![osu!lazer](https://img.shields.io/badge/osu!lazer-compatible-2e3238.svg)](https://osu.ppy.sh)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+osu!cc plugin packed with modular UI tweaks and quality-of-life improvements for osu!lazer.
+Rearrange your top toolbar, hide clutter, and automatically skip breaks mid-map.
 
-**osu!tweaks** — модульный плагин для [osu!cc](https://github.com/osucc/osu) (кастомный клиент на базе osu!lazer), предоставляющий гибкую настройку интерфейса и удобные геймплейные твики.
+Made this to clean up the default lazer UI and make the toolbar actually customizable.
 
----
+### Features
 
-## ✨ Основные возможности
+**Modular toolbar**
+Completely rearrange any element on the top bar via drag and drop. Move ruleset selectors,
+profile buttons, overlays, and plugin icons between Left, Center, and Right zones.
 
-### 🎛️ Модульный конструктор тулбара (Modular Toolbar)
-- **Drag & Drop**: Перетаскивайте любые элементы тулбара (настройки, профиль, оверлеи, плагины, часы, разделители) между зонами (**Лево**, **Центр**, **Право**).
-- **Скрытие элементов**: Скрывайте ненужные иконки в один клик. Скрытые кнопки исчезают из тулбара, но **продолжают полноценно открываться по хоткеям** (`Ctrl+O`, `F8`, `F9` и т.д.).
-- **Интерактивный режим настройки**: Защитный экран предотвращает случайные нажатия нативных кнопок при редактировании, а информационную плашку можно свободно перетаскивать в любое место экрана.
-- **Готовые пресеты**: Переключение между пресетами (например, *Default / Ванильный*, *Centered / По центру*) с автоматическим сохранением конфигурации (`layout.json`).
-- **Разделители (Spacers)**: Добавляйте настраиваемые отступы между группами кнопок.
-- **Умное скрытие селектора режимов**: Селектор рулсетов автоматически скрывается на экранах, где смена режима недопустима (ResultsScreen, Player, Editor).
+**Hide unused buttons**
+Click to hide any icon you don't use. Hidden buttons stay accessible through their native
+game hotkeys (`Ctrl+O`, `F8`, `F9`, etc.), so you keep full functionality with zero visual clutter.
 
-### ⚡ Автоматический скип брейков (Auto-Skip Breaks)
-- Мгновенно и плавно перематывает длинные паузы между нотами без необходимости вручную жать кнопку пропуска.
-- Полностью скрывает визуальную полосу прогресса и кнопку `>>> SKIP` во время брейков, сохраняя экран чистым.
-- Не затрагивает интро в начале карты (пропуск интро остаётся стандартным).
-- Интегрирован с базовой настройкой osu!cc *«Skip breaks mid-map»*.
+**Auto-skip breaks**
+Automatically skips long mid-map break periods and seeks right back to gameplay lead-in.
+Hides the skip progress bar during breaks while leaving song intros completely untouched.
 
----
+**Interactive edit mode**
+Right-click any empty spot on the toolbar to enter edit mode. Drag blocks around, add spacers
+between button groups, or pick from ready-made layout presets (Vanilla, Centered, etc.).
 
-## 📥 Установка
+**Settings & Customization**
+- Toggle auto-break skip on or off in game settings
+- Add custom spacers to group related buttons
+- Quick preset switching and one-click reset to default layout
+- Dynamic hot-reloading — changes apply instantly without restarting the game
 
-1. Скачайте последний архив плагина `plugin-osu-tweaks-1.0.0.zip` из раздела [Releases](https://github.com/Meyblow/osu-tweaks/releases).
-2. Поместите архив в папку плагинов osu!cc:
-   ```text
-   %APPDATA%\osu\osu-cc\plugins\
-   ```
-3. Запустите игру. Плагин автоматически загрузится и появится в меню настроек osu!cc.
+### Install
 
----
+1. Go to the [Releases](https://github.com/Meyblow/osu-tweaks/releases) tab
+2. Download the latest `plugin-osu-tweaks.zip`
+3. Drop it into your osu-cc plugins folder — `%APPDATA%\osu\osu-cc\plugins`
+4. Restart the game, then right-click the toolbar or check `Ctrl+O` → Specials to configure
 
-## 🎮 Использование
+### Notes
 
-- **Настройка тулбара**:
-  - Нажмите **ПКМ** по любому пустому месту тулбара → **«Настроить тулбар...»** *(или через настройки игры)*.
-  - **Зажмите ЛКМ** на блоке и перетащите его в нужную зону или позицию.
-  - **Кликните ЛКМ** по блоку, чтобы скрыть/показать его (скрытые подсвечиваются красным).
-  - Информационную плашку снизу можно свободно перемещать по экрану зажатием **ЛКМ**.
-  - Нажмите **«✓ Готово»** для сохранения.
-- **Включение автоскипа брейков**:
-  - Откройте **Настройки (Ctrl+O)** → раздел **osu!tweaks** → включите галочку **«Автоматический скип брейков»**.
+- Layout configuration is saved locally as JSON (`layout.json`).
+- The ruleset selector automatically hides on screens where changing game modes is disallowed (Results, Player, Editor).
+- Requires osu!cc with plugin support.
 
 ---
-
-## 🔨 Сборка из исходников
-
-Для сборки требуется **.NET 8.0 SDK**:
-
-```bash
-git clone https://github.com/Meyblow/osu-tweaks.git
-cd osu-tweaks
-dotnet build -c Release
-```
-
-Собранный архив плагина будет сгенерирован в `bin/Release/net8.0/plugin-osu-tweaks-1.0.0.zip`.
-
----
-
-## 👤 Автор & Контакты
-
-- **Разработчик**: [Meyblow](https://github.com/Meyblow)
-- **osu! Profile**: [Meyblow](https://osu.ppy.sh/users/39791134) (ID: `39791134`)
-- **Telegram**: [@meyblow](https://t.me/meyblow)
-
----
-
-## 📄 Лицензия
-
-Проект распространяется под лицензией [MIT](LICENSE).
+**Meyblow** — [Telegram](https://t.me/Meyblow) · [osu! profile](https://osu.ppy.sh/users/39791134)
