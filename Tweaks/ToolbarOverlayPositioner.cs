@@ -96,6 +96,7 @@ namespace OsuTweaks.Tweaks
         protected override void Update()
         {
             base.Update();
+            if (IsDisposed) return;
 
             if (loginOverlay == null || musicOverlay == null)
             {

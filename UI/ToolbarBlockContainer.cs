@@ -180,7 +180,7 @@ namespace OsuTweaks.UI
 
         private void updateVisualState()
         {
-            if (contentWrapper == null)
+            if (IsDisposed || contentWrapper == null)
                 return;
 
             if (isEditMode)

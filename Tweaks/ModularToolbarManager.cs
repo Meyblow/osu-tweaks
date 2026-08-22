@@ -251,10 +251,17 @@ namespace OsuTweaks.Tweaks
 
         private void updateScreenRulesetVisibility(IScreen? screen)
         {
+            if (IsDisposed) return;
+
             if (allBlocks.TryGetValue("rulesets", out var rulesetBlock))
             {
                 bool disallow = isScreenDisallowingRulesetChanges(screen);
                 rulesetBlock.IsHiddenByScreen = disallow;
+            }
+
+            if (OsuTweaksPlugin.Instance != null)
+            {
+                ApplyUserProfileDisplayMode(OsuTweaksPlugin.Instance.UserProfileDisplayMode.Value);
             }
         }
 
@@ -514,67 +521,156 @@ namespace OsuTweaks.Tweaks
 
         public void ApplyUserProfileDisplayMode(UserProfileDisplayMode mode)
         {
-            if (!allBlocks.TryGetValue("user_profile", out var userBlock))
-                return;
+            if (IsDisposed) return;
 
-            var userButton = userBlock.ContentDrawable;
-            var flow = userButton.ChildrenOfType<FillFlowContainer>().FirstOrDefault();
-            var avatar = userButton.ChildrenOfType<Drawable>().FirstOrDefault(d => d.GetType().Name.Contains("Avatar"));
-            var text = userButton.ChildrenOfType<OsuSpriteText>().FirstOrDefault();
-
-            if (avatar == null || text == null)
-                return;
-
-            switch (mode)
+            try
             {
-                case UserProfileDisplayMode.Default:
-                    avatar.Alpha = 1;
-                    text.Alpha = 1;
-                    if (flow != null)
+                if (!allBlocks.TryGetValue("user_profile", out var userBlock))
+                    return;
+
+                var userButton = userBlock.ContentDrawable;
+                if (userButton == null || !userButton.IsAlive)
+                    return;
+
+                var avatar = userButton.ChildrenOfType<Drawable>().FirstOrDefault(d => d.GetType().Name.Contains("Avatar"));
+                var text = userButton.ChildrenOfType<OsuSpriteText>().FirstOrDefault();
+
+                if (avatar == null || text == null)
+                    return;
+
+                // Находим FillFlowContainer, содержащий обертки аватарки и ника
+                var flows = userButton.ChildrenOfType<FillFlowContainer>().ToList();
+                FillFlowContainer? targetFlow = null;
+                Drawable? avatarWrapper = null;
+                Drawable? textWrapper = null;
+
+                foreach (var f in flows)
+                {
+                    var aChild = f.Children.FirstOrDefault(c => c == avatar || c.ChildrenOfType<Drawable>().Any(d => d.GetType().Name.Contains("Avatar")));
+                    var tChild = f.Children.FirstOrDefault(c => c == text || c.ChildrenOfType<OsuSpriteText>().Any());
+
+                    if (aChild != null && tChild != null && aChild != tChild && f.Contains(aChild) && f.Contains(tChild))
                     {
-                        flow.SetLayoutPosition(text, 0);
-                        flow.SetLayoutPosition(avatar, 1);
+                        targetFlow = f;
+                        avatarWrapper = aChild;
+                        textWrapper = tChild;
+                        break;
                     }
-                    break;
+                }
 
-                case UserProfileDisplayMode.AvatarLeft:
-                    avatar.Alpha = 1;
-                    text.Alpha = 1;
-                    if (flow != null)
-                    {
-                        flow.SetLayoutPosition(avatar, 0);
-                        flow.SetLayoutPosition(text, 1);
-                    }
-                    break;
-
-                case UserProfileDisplayMode.AvatarOnly:
-                    avatar.Alpha = 1;
-                    text.Alpha = 0;
-                    break;
-
-                case UserProfileDisplayMode.UsernameOnly:
-                    avatar.Alpha = 0;
-                    text.Alpha = 1;
-                    break;
-
-                case UserProfileDisplayMode.WithSeparator:
-                case UserProfileDisplayMode.AvatarLeftWithSep:
-                    avatar.Alpha = 1;
-                    text.Alpha = 1;
-                    if (flow != null)
-                    {
-                        if (mode == UserProfileDisplayMode.AvatarLeftWithSep)
+                switch (mode)
+                {
+                    case UserProfileDisplayMode.Default:
+                        avatar.Alpha = 1;
+                        text.Alpha = 1;
+                        if (avatarWrapper != null) { avatarWrapper.Alpha = 1; avatarWrapper.BypassAutoSizeAxes = Axes.None; avatarWrapper.Anchor = Anchor.CentreLeft; avatarWrapper.Origin = Anchor.CentreLeft; }
+                        if (textWrapper != null) { textWrapper.Alpha = 1; textWrapper.BypassAutoSizeAxes = Axes.None; textWrapper.Anchor = Anchor.CentreLeft; textWrapper.Origin = Anchor.CentreLeft; }
+                        if (targetFlow != null)
                         {
-                            flow.SetLayoutPosition(avatar, 0);
-                            flow.SetLayoutPosition(text, 1);
+                            targetFlow.Anchor = Anchor.Centre;
+                            targetFlow.Origin = Anchor.Centre;
+                            if (textWrapper != null && avatarWrapper != null && targetFlow.Contains(textWrapper) && targetFlow.Contains(avatarWrapper))
+                            {
+                                targetFlow.SetLayoutPosition(textWrapper, 0);
+                                targetFlow.SetLayoutPosition(avatarWrapper, 1);
+                            }
                         }
-                        else
+                        break;
+
+                    case UserProfileDisplayMode.AvatarLeft:
+                        avatar.Alpha = 1;
+                        text.Alpha = 1;
+                        if (avatarWrapper != null) { avatarWrapper.Alpha = 1; avatarWrapper.BypassAutoSizeAxes = Axes.None; avatarWrapper.Anchor = Anchor.CentreLeft; avatarWrapper.Origin = Anchor.CentreLeft; }
+                        if (textWrapper != null) { textWrapper.Alpha = 1; textWrapper.BypassAutoSizeAxes = Axes.None; textWrapper.Anchor = Anchor.CentreLeft; textWrapper.Origin = Anchor.CentreLeft; }
+                        if (targetFlow != null)
                         {
-                            flow.SetLayoutPosition(text, 0);
-                            flow.SetLayoutPosition(avatar, 1);
+                            targetFlow.Anchor = Anchor.Centre;
+                            targetFlow.Origin = Anchor.Centre;
+                            if (avatarWrapper != null && textWrapper != null && targetFlow.Contains(avatarWrapper) && targetFlow.Contains(textWrapper))
+                            {
+                                targetFlow.SetLayoutPosition(avatarWrapper, 0);
+                                targetFlow.SetLayoutPosition(textWrapper, 1);
+                            }
                         }
-                    }
-                    break;
+                        break;
+
+                    case UserProfileDisplayMode.AvatarOnly:
+                        avatar.Alpha = 1;
+                        text.Alpha = 0;
+                        if (avatarWrapper != null)
+                        {
+                            avatarWrapper.Alpha = 1;
+                            avatarWrapper.BypassAutoSizeAxes = Axes.None;
+                            avatarWrapper.Anchor = Anchor.Centre;
+                            avatarWrapper.Origin = Anchor.Centre;
+                        }
+                        if (textWrapper != null)
+                        {
+                            textWrapper.Alpha = 0;
+                            textWrapper.BypassAutoSizeAxes = Axes.Both;
+                        }
+                        if (targetFlow != null)
+                        {
+                            targetFlow.Anchor = Anchor.Centre;
+                            targetFlow.Origin = Anchor.Centre;
+                        }
+                        break;
+
+                    case UserProfileDisplayMode.UsernameOnly:
+                        avatar.Alpha = 0;
+                        text.Alpha = 1;
+                        if (avatarWrapper != null)
+                        {
+                            avatarWrapper.Alpha = 0;
+                            avatarWrapper.BypassAutoSizeAxes = Axes.Both;
+                        }
+                        if (textWrapper != null)
+                        {
+                            textWrapper.Alpha = 1;
+                            textWrapper.BypassAutoSizeAxes = Axes.None;
+                            textWrapper.Anchor = Anchor.Centre;
+                            textWrapper.Origin = Anchor.Centre;
+                        }
+                        if (targetFlow != null)
+                        {
+                            targetFlow.Anchor = Anchor.Centre;
+                            targetFlow.Origin = Anchor.Centre;
+                        }
+                        break;
+
+                    case UserProfileDisplayMode.WithSeparator:
+                    case UserProfileDisplayMode.AvatarLeftWithSep:
+                        avatar.Alpha = 1;
+                        text.Alpha = 1;
+                        if (avatarWrapper != null) { avatarWrapper.Alpha = 1; avatarWrapper.BypassAutoSizeAxes = Axes.None; avatarWrapper.Anchor = Anchor.CentreLeft; avatarWrapper.Origin = Anchor.CentreLeft; }
+                        if (textWrapper != null) { textWrapper.Alpha = 1; textWrapper.BypassAutoSizeAxes = Axes.None; textWrapper.Anchor = Anchor.CentreLeft; textWrapper.Origin = Anchor.CentreLeft; }
+                        if (targetFlow != null)
+                        {
+                            targetFlow.Anchor = Anchor.Centre;
+                            targetFlow.Origin = Anchor.Centre;
+                            if (mode == UserProfileDisplayMode.AvatarLeftWithSep)
+                            {
+                                if (avatarWrapper != null && textWrapper != null && targetFlow.Contains(avatarWrapper) && targetFlow.Contains(textWrapper))
+                                {
+                                    targetFlow.SetLayoutPosition(avatarWrapper, 0);
+                                    targetFlow.SetLayoutPosition(textWrapper, 1);
+                                }
+                            }
+                            else
+                            {
+                                if (textWrapper != null && avatarWrapper != null && targetFlow.Contains(textWrapper) && targetFlow.Contains(avatarWrapper))
+                                {
+                                    targetFlow.SetLayoutPosition(textWrapper, 0);
+                                    targetFlow.SetLayoutPosition(avatarWrapper, 1);
+                                }
+                            }
+                        }
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                TweaksLog.Error($"ApplyUserProfileDisplayMode exception for mode {mode}", ex);
             }
         }
 
