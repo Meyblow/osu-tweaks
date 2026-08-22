@@ -2,6 +2,13 @@
 
 All notable changes to osu!tweaks are documented in this file.
 
+## [1.2.1] - 2026-08-22
+
+### Fixed
+- **Settings Slider Type Safety**: Fixed `InvalidCastException: Unable to cast object of type 'Bindable<Single>' to type 'BindableNumber<Single>'` when opening the settings subsection by providing properly bounded `BindableFloat` instances with `MinValue`, `MaxValue`, and `Precision` to `SettingsSlider<float>` controls.
+
+---
+
 ## [1.2.0] - 2026-08-22
 
 ### Added

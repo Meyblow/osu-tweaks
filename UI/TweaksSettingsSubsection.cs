@@ -160,20 +160,38 @@ namespace OsuTweaks.UI
                     Current = plugin.FloatingIslandMode
                 });
 
+                var opacityBindable = new BindableFloat(plugin.ToolbarBackgroundOpacity.Value)
+                {
+                    MinValue = 0f,
+                    MaxValue = 1f,
+                    Precision = 0.05f
+                };
+                opacityBindable.BindValueChanged(e => plugin.ToolbarBackgroundOpacity.Value = e.NewValue);
+                plugin.ToolbarBackgroundOpacity.BindValueChanged(e => opacityBindable.Value = e.NewValue);
+
                 Add(new SettingsSlider<float>
                 {
                     LabelText = "Прозрачность фона тулбара",
                     Margin = new MarginPadding { Top = 6f },
-                    Current = plugin.ToolbarBackgroundOpacity,
+                    Current = opacityBindable,
                     DisplayAsPercentage = true,
                     KeyboardStep = 0.05f
                 });
+
+                var heightBindable = new BindableFloat(plugin.ToolbarHeight.Value)
+                {
+                    MinValue = 26f,
+                    MaxValue = 40f,
+                    Precision = 1f
+                };
+                heightBindable.BindValueChanged(e => plugin.ToolbarHeight.Value = e.NewValue);
+                plugin.ToolbarHeight.BindValueChanged(e => heightBindable.Value = e.NewValue);
 
                 Add(new SettingsSlider<float>
                 {
                     LabelText = "Высота тулбара (Компактный режим)",
                     Margin = new MarginPadding { Top = 6f },
-                    Current = plugin.ToolbarHeight,
+                    Current = heightBindable,
                     KeyboardStep = 1f
                 });
 
