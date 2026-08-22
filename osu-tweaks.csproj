@@ -8,18 +8,16 @@
     <PackageId>osu-tweaks</PackageId>
     <Title>osu!tweaks</Title>
     <Description>Коллекция полезных твиков и улучшений интерфейса для osu!cc.</Description>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <Priority>50</Priority>
     <IconGlyph>SlidersH</IconGlyph>
     <IsPlugin>true</IsPlugin>
     <RepositoryUrl>https://github.com/Meyblow/osu-tweaks</RepositoryUrl>
+    <PackageTags>menu;song-select;settings;tools;ui;gameplay</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
     <Author Include="Meyblow" OsuProfileId="39791134" />
-    <Tag Include="tools" />
-    <Tag Include="ui" />
-    <Tag Include="settings" />
   </ItemGroup>
 
   <ItemGroup>
