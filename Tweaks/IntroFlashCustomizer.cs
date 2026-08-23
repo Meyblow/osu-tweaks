@@ -5,6 +5,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
 using osu.Framework.Screens;
+using osu.Framework.Testing;
 using osu.Framework.Threading;
 using osu.Game.Screens;
 using osu.Game.Screens.Menu;
@@ -14,7 +15,7 @@ using osucc.Plugin;
 namespace OsuTweaks.Tweaks
 {
     /// <summary>
-    /// Заменяет ослепляющую белую вспышку (GameWideFlash) при запуске игры на мягкое тёмное затухание.
+    /// Запасной монитор для нейтрализации GameWideFlash или других белых полноэкранных вспышек на старте.
     /// </summary>
     public class IntroFlashCustomizer : IDisposable
     {
@@ -36,7 +37,7 @@ namespace OsuTweaks.Tweaks
             if (isHooked) return;
             isHooked = true;
 
-            monitorSchedule = host.Scheduler?.AddDelayed(checkIntroFlashes, 50, true);
+            monitorSchedule = host.Scheduler?.AddDelayed(checkIntroFlashes, 20, true);
         }
 
         private void checkIntroFlashes()
@@ -45,19 +46,19 @@ namespace OsuTweaks.Tweaks
 
             try
             {
-                // Ищем GameWideFlash, добавляемый в корень игры при старте
-                foreach (var child in host.Game.Children.OfType<Drawable>().ToList())
+                if (host.Game is Drawable gameRoot)
                 {
-                    string typeName = child.GetType().Name;
-                    if (typeName.Contains("GameWideFlash", StringComparison.OrdinalIgnoreCase))
+                    foreach (var box in gameRoot.ChildrenOfType<Box>())
                     {
-                        if (child is Box flashBox)
+                        string typeName = box.GetType().Name;
+                        if (typeName.Contains("GameWideFlash", StringComparison.OrdinalIgnoreCase) ||
+                            (box.Blending == BlendingParameters.Additive && box.Colour == Color4.White && box.RelativeSizeAxes == Axes.Both))
                         {
-                            flashBox.Colour = Color4.Black;
-                            flashBox.Blending = BlendingParameters.Inherit;
-                            flashBox.Alpha = 0f;
-                            flashBox.Expire();
-                            TweaksLog.Info("IntroFlashCustomizer: Intercepted and silenced white GameWideFlash on startup!");
+                            box.Colour = Color4.Black;
+                            box.Blending = BlendingParameters.Inherit;
+                            box.Alpha = 0f;
+                            box.Expire();
+                            TweaksLog.Info("IntroFlashCustomizer: Intercepted and silenced white flash box!");
                         }
                     }
                 }

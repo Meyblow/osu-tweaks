@@ -42,6 +42,7 @@ namespace OsuTweaks
             introFlashCustomizer.Attach(DarkIntroFlash);
 
             Host.AddPatch(new PlayerBreakAutoSkipPatch(this, Host));
+            Host.AddPatch(new IntroFlashPatch(this, Host));
 
             TweaksLog.Info("osu!tweaks: OnLoad() complete.");
         }
