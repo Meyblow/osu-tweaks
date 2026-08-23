@@ -264,6 +264,11 @@ namespace OsuTweaks.Tweaks
         {
             if (IsDisposed) return;
 
+            if (isEditMode)
+            {
+                SaveAndExitEditMode();
+            }
+
             if (allBlocks.TryGetValue("rulesets", out var rulesetBlock))
             {
                 bool disallow = isScreenDisallowingRulesetChanges(screen);

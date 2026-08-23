@@ -62,8 +62,6 @@ namespace OsuTweaks.UI
         private Box hiddenBackdrop = null!;
         private SpriteIcon eyeIcon = null!;
 
-        private bool wasDragged;
-
         public event Action<ToolbarBlockContainer, MouseDownEvent>? OnBlockRightClicked;
         public event Action<ToolbarBlockContainer, DragStartEvent>? OnBlockDragStarted;
         public event Action<ToolbarBlockContainer, DragEvent>? OnBlockDragged;
@@ -282,14 +280,8 @@ namespace OsuTweaks.UI
         protected override bool OnClick(ClickEvent e)
         {
             if (isEditMode)
-            {
-                if (e.Button == MouseButton.Left && !wasDragged)
-                {
-                    IsHidden.Value = !IsHidden.Value;
-                }
-                wasDragged = false;
                 return true;
-            }
+
             return base.OnClick(e);
         }
 
@@ -297,7 +289,6 @@ namespace OsuTweaks.UI
         {
             if (isEditMode && e.Button == MouseButton.Left)
             {
-                wasDragged = true;
                 OnBlockDragStarted?.Invoke(this, e);
                 return true;
             }
@@ -319,7 +310,6 @@ namespace OsuTweaks.UI
             if (isEditMode)
             {
                 OnBlockDragEnded?.Invoke(this, e);
-                Schedule(() => wasDragged = false);
                 return;
             }
             base.OnDragEnd(e);

@@ -114,26 +114,22 @@ namespace OsuTweaks.Tweaks
             // 2. АВТОСКИП МИД-МАП БРЕЙКОВ (в режимах BreaksOnly и All)
             if (breaks != null && nextBreakIndex < breaks.Count && currentTime >= firstNoteTime - 500)
             {
-                // Проверяем зависимость от настройки osu!cc "Skip breaks mid-map"
-                if (osuCcSkipBreakTime == null || osuCcSkipBreakTime.Value)
-                {
-                    var currentBreak = breaks[nextBreakIndex];
+                var currentBreak = breaks[nextBreakIndex];
 
-                    if (currentTime >= currentBreak.EndTime)
+                if (currentTime >= currentBreak.EndTime)
+                {
+                    nextBreakIndex++;
+                }
+                else if (currentBreak.HasEffect && currentTime >= currentBreak.StartTime && currentTime < currentBreak.EndTime)
+                {
+                    hideSkipOverlays();
+
+                    double breakSkipTarget = currentBreak.EndTime - skip_lead_in;
+                    if (breakSkipTarget - currentTime >= minimum_skip_savings)
                     {
                         nextBreakIndex++;
-                    }
-                    else if (currentBreak.HasEffect && currentTime >= currentBreak.StartTime && currentTime < currentBreak.EndTime)
-                    {
-                        hideSkipOverlays();
-
-                        double breakSkipTarget = currentBreak.EndTime - skip_lead_in;
-                        if (breakSkipTarget - currentTime >= minimum_skip_savings)
-                        {
-                            nextBreakIndex++;
-                            performSkip(breakSkipTarget, "Break");
-                            return;
-                        }
+                        performSkip(breakSkipTarget, "Break");
+                        return;
                     }
                 }
             }

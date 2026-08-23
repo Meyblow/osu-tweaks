@@ -2,6 +2,15 @@
 
 All notable changes to osu!tweaks are documented in this file.
 
+## [1.3.2] - 2026-08-23
+
+### Fixed
+- **Accidental Block Hiding in Edit Mode**: Removed left-click toggle on `IsHidden` so dragging and clicking blocks in Edit Mode never accidentally hides buttons or turns them red. Hiding and showing blocks is now exclusively done via the context menu (RMB).
+- **Auto-Skip Breaks Reliability**: Decoupled `TweaksBreakAutoSkipper` from unset host configuration flags, ensuring breaks and intros are reliably auto-skipped during gameplay according to the user's `Auto-Skip Breaks Mode` setting.
+- **Screen Transition Edit Mode Auto-Close**: Edit Mode now automatically saves and closes upon entering song select or gameplay screens.
+
+---
+
 ## [1.3.1] - 2026-08-23
 
 ### Added
