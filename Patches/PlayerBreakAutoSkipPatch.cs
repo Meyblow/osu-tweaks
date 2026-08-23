@@ -27,13 +27,12 @@ namespace OsuTweaks.Patches
                 if (plugin == null || plugin.AutoSkipMode.Value == AutoSkipMode.Disabled)
                     return;
 
-                var breaks = __instance.GameplayState?.Beatmap?.Breaks;
                 var gcc = ReflectionHelper.GetPropertyValue<GameplayClockContainer>(__instance, "GameplayClockContainer");
                 if (gcc != null)
                 {
-                    var skipper = new TweaksBreakAutoSkipper(__instance, gcc, breaks);
+                    var skipper = new TweaksIntroOutroSkipper(__instance, gcc);
                     gcc.Add(skipper);
-                    TweaksLog.Info($"PlayerBreakAutoSkipPatch: Successfully injected TweaksBreakAutoSkipper (Mode={plugin.AutoSkipMode.Value})");
+                    TweaksLog.Info($"PlayerBreakAutoSkipPatch: Successfully injected TweaksIntroOutroSkipper (Mode={plugin.AutoSkipMode.Value})");
                 }
             }
             catch (Exception ex)

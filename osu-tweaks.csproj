@@ -8,13 +8,13 @@
     <RootNamespace>OsuTweaks</RootNamespace>
     <PackageId>osu-tweaks</PackageId>
     <Title>osu!tweaks</Title>
-    <Description>Collection of useful tweaks and UI customizations for osu!cc.</Description>
-    <Version>1.3.3</Version>
+    <Description>Collection of useful tweaks and quality-of-life enhancements for osu!cc.</Description>
+    <Version>1.4.0</Version>
     <Priority>50</Priority>
     <IconGlyph>SlidersH</IconGlyph>
     <IsPlugin>true</IsPlugin>
     <RepositoryUrl>https://github.com/Meyblow/osu-tweaks</RepositoryUrl>
-    <PackageTags>menu;song-select;settings;tools;ui;gameplay;visual</PackageTags>
+    <PackageTags>gameplay;autoskip;visual;intro-flash;tweaks</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

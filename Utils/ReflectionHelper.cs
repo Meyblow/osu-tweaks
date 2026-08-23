@@ -1,6 +1,10 @@
 using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Reflection;
+using osu.Framework.Graphics;
+using osu.Framework.Graphics.Shapes;
+using osu.Framework.Testing;
 
 namespace OsuTweaks.Utils
 {
@@ -67,6 +71,13 @@ namespace OsuTweaks.Utils
             if (instance == null) return default;
             var field = FindField(instance.GetType(), fieldName);
             return field != null ? (T?)field.GetValue(instance) : default;
+        }
+
+        public static Box? FindFlashBox(Drawable root)
+        {
+            if (root == null) return null;
+            return root.ChildrenOfType<Box>()
+                .FirstOrDefault(b => b.RelativeSizeAxes == Axes.Both && (b.Name.Contains("flash", StringComparison.OrdinalIgnoreCase) || b.Blending == BlendingParameters.Additive));
         }
     }
 }
