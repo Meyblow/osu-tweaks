@@ -2,6 +2,18 @@
 
 All notable changes to osu!tweaks are documented in this file.
 
+## [1.5.1] - 2026-08-23
+
+### Added
+- **Skip Startup Intro**: Direct 1-frame skip to MainMenu for Circles, Triangles, and Welcome intro sequences under a single toggle.
+
+### Fixed
+- **Instant Quick-Retry Lifecycle**: Correctly hooked `PlayerLoader.OnResuming` and `Player.OnExiting` for zero-delay restart on `Ctrl+R` without affecting normal song select entrance animations.
+- **Dynamic Minimalist HUD**: Continuous recursive scanning for asynchronously loaded skin elements (HP, Score, Progress, Mods).
+- **Star Difficulty Text Contrast**: High-contrast text coloring (`ForStarDifficultyText`) across all 4 difficulty color palettes.
+
+---
+
 ## [1.5.0] - 2026-08-23
 
 ### Added
