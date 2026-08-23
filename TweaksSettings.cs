@@ -8,6 +8,7 @@ namespace OsuTweaks
     {
         public const string AutoSkipMode = "auto_skip_mode";
         public const string InstantQuickRetry = "instant_quick_retry";
+        public const string SkipResultsAnimation = "skip_results_animation";
         public const string SilentFailSound = "silent_fail_sound";
         public const string DarkIntroFlash = "dark_intro_flash";
         public const string SkipStartupIntro = "skip_startup_intro";

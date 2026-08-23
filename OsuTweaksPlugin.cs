@@ -18,6 +18,7 @@ namespace OsuTweaks
         // 1. Gameplay & Restart
         public Bindable<AutoSkipMode> AutoSkipMode { get; private set; } = new(Models.AutoSkipMode.Disabled);
         public Bindable<bool> InstantQuickRetry { get; private set; } = new(false);
+        public Bindable<bool> SkipResultsAnimation { get; private set; } = new(false);
         public Bindable<bool> SilentFailSound { get; private set; } = new(false);
 
         // 2. Visual & Focus
@@ -50,6 +51,7 @@ namespace OsuTweaks
             // Bind settings using centralized TweaksSettings constants
             AutoSkipMode = Host.GetSettings().Bind(TweaksSettings.AutoSkipMode, Models.AutoSkipMode.Disabled);
             InstantQuickRetry = Host.GetSettings().Bind(TweaksSettings.InstantQuickRetry, false);
+            SkipResultsAnimation = Host.GetSettings().Bind(TweaksSettings.SkipResultsAnimation, false);
             SilentFailSound = Host.GetSettings().Bind(TweaksSettings.SilentFailSound, false);
 
             DarkIntroFlash = Host.GetSettings().Bind(TweaksSettings.DarkIntroFlash, true);
@@ -71,6 +73,7 @@ namespace OsuTweaks
             Host.AddPatch(new InstantRestartPatch(this, Host, InstantQuickRetry));
             Host.AddPatch(new PlayerExitingRestartPatch(this, Host));
             Host.AddPatch(new PlayerLoaderResumingPatch(this, Host));
+            Host.AddPatch(new ResultsScreenSkipAnimationPatch(this, Host, SkipResultsAnimation));
             Host.AddPatch(new FailSoundPatch(this, Host, SilentFailSound));
             Host.AddPatch(new StarDifficultyColorPatch(this, Host, StarRatingPalette));
             Host.AddPatch(new StarDifficultyTextColorPatch(this, Host));

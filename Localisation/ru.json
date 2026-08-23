@@ -15,6 +15,7 @@
   "osu-tweaks:AutoSkipAll": "Всё (Интро, брейки и аутро)",
 
   "osu-tweaks:InstantQuickRetryCheckbox": "Мгновенный Quick-Retry (рестарт без задержек)",
+  "osu-tweaks:SkipResultsAnimationCheckbox": "Пропуск анимаций на экране результатов (Мгновенный показ)",
   "osu-tweaks:SilentFailSoundCheckbox": "Бесшумный / мягкий фейл (без резкого звука)",
 
   "osu-tweaks:DarkIntroFlashCheckbox": "Тёмная вспышка при запуске (Dark Intro Flash)",

@@ -25,8 +25,9 @@ namespace OsuTweaks.Localisation
         public static LocalisableString AutoSkipIntroAndBreaks => OsuCcLocalisation.Get(getKey(nameof(AutoSkipIntroAndBreaks)), "Intro & breaks");
         public static LocalisableString AutoSkipAll => OsuCcLocalisation.Get(getKey(nameof(AutoSkipAll)), "All (Intro, breaks & outro)");
 
-        // 2. Instant Quick-Retry
+        // 2. Instant Quick-Retry & Results
         public static LocalisableString InstantQuickRetryCheckbox => OsuCcLocalisation.Get(getKey(nameof(InstantQuickRetryCheckbox)), "Instant Quick-Retry (Zero-Delay Restart)");
+        public static LocalisableString SkipResultsAnimationCheckbox => OsuCcLocalisation.Get(getKey(nameof(SkipResultsAnimationCheckbox)), "Skip Results Screen Animations (Instant statistics)");
 
         // 3. Silent Fail Sound
         public static LocalisableString SilentFailSoundCheckbox => OsuCcLocalisation.Get(getKey(nameof(SilentFailSoundCheckbox)), "Silent Fail Sound (Mute on death)");

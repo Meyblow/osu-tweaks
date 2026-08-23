@@ -5,6 +5,7 @@ All notable changes to osu!tweaks are documented in this file.
 ## [1.5.1] - 2026-08-23
 
 ### Added
+- **Skip Results Screen Animations**: Instantly displays final score, accuracy, grade badge, and hit statistics in 1 frame without waiting for rolling counters and expand transitions.
 - **Skip Startup Intro**: Direct 1-frame skip to MainMenu for Circles, Triangles, and Welcome intro sequences under a single toggle.
 
 ### Fixed

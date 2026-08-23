@@ -45,6 +45,13 @@ namespace OsuTweaks.UI
 
                 Add(new SettingsCheckbox
                 {
+                    LabelText = OsuTweaksStrings.SkipResultsAnimationCheckbox,
+                    Margin = new MarginPadding { Top = 6f },
+                    Current = plugin.SkipResultsAnimation
+                });
+
+                Add(new SettingsCheckbox
+                {
                     LabelText = OsuTweaksStrings.SilentFailSoundCheckbox,
                     Margin = new MarginPadding { Top = 6f },
                     Current = plugin.SilentFailSound

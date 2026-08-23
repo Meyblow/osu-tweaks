@@ -18,6 +18,8 @@ A lightweight osu!cc plugin with quality-of-life gameplay tweaks, focus enhancem
   - Modes: `Disabled`, `Breaks only`, `Intro only`, `Intro & breaks`, `All`.
 - **⚡ Instant Quick-Retry (Zero-Delay Restart)**:
   Eliminates transition delays when pressing `Ctrl+R` or restarting a map, dropping you right back into the beatmap in 1 frame.
+- **📊 Skip Results Screen Animations**:
+  Instantly displays final score, accuracy, grade badge, and hit statistics in 1 frame without waiting for rolling counters and expand transitions.
 - **🔇 Silent Fail Sound**:
   Suppresses the harsh fail audio on death, making retrying smooth and quiet.
 
