@@ -18,6 +18,7 @@
   "osu-tweaks:SilentFailSoundCheckbox": "Бесшумный / мягкий фейл (без резкого звука)",
 
   "osu-tweaks:DarkIntroFlashCheckbox": "Тёмная вспышка при запуске (Dark Intro Flash)",
+  "osu-tweaks:SkipStartupIntroCheckbox": "Пропуск заставки при запуске (Circles, Triangles, Welcome)",
   "osu-tweaks:MinimalistHUDCheckbox": "Минималистичный HUD (скрывать HP, прогресс и скор)",
   "osu-tweaks:DisableLowHealthShakeCheckbox": "Отключить тряску экрана и красную вспышку при low HP",
 

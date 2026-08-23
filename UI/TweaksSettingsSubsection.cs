@@ -62,6 +62,13 @@ namespace OsuTweaks.UI
 
                 Add(new SettingsCheckbox
                 {
+                    LabelText = OsuTweaksStrings.SkipStartupIntroCheckbox,
+                    Margin = new MarginPadding { Top = 6f },
+                    Current = plugin.SkipStartupIntro
+                });
+
+                Add(new SettingsCheckbox
+                {
                     LabelText = OsuTweaksStrings.MinimalistHUDCheckbox,
                     Margin = new MarginPadding { Top = 6f },
                     Current = plugin.MinimalistHUD

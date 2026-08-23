@@ -24,6 +24,8 @@ A lightweight osu!cc plugin with quality-of-life gameplay tweaks, focus enhancem
 ### 🎯 Visual & Focus
 - **🌙 Dark Intro Flash on Startup**:
   Eliminates the blinding full-screen white flash (`GameWideFlash`) when launching osu!lazer, replacing it with a soft dark fade.
+- **🚀 Skip Startup Intro (Circles, Triangles, Welcome)**:
+  Skips all startup intros directly to the MainMenu in 1 frame under a single toggle.
 - **👓 Minimalist HUD (Clean Gameplay)**:
   Automatically hides HP bar, score, progress bar, combo counter, and mod icons during active gameplay, keeping only notes and the Hit Error Bar visible (restores instantly on pause).
 - **🛡️ Disable Screen Shake & Red Flash on Low HP**:

@@ -5,6 +5,7 @@ All notable changes to osu!tweaks are documented in this file.
 ## [1.5.0] - 2026-08-23
 
 ### Added
+- **Skip Startup Intro (Circles, Triangles & Welcome)**: Skip directly to MainMenu on game launch with a single universal toggle.
 - **Instant Quick-Retry (Zero-Delay Restart)**: Skips transition delays when restarting gameplay (`Ctrl+R`), loading into the beatmap in 1 frame.
 - **Minimalist HUD (Clean Gameplay)**: Automatically hides HP bar, score, progress, and mods during active gameplay, keeping only notes and Hit Error Bar (restores on pause).
 - **Disable Screen Shake & Red Flash on Low HP**: Completely stabilizes the screen during clutch low-health moments for pure aiming focus.

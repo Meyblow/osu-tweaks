@@ -22,6 +22,7 @@ namespace OsuTweaks
 
         // 2. Visual & Focus
         public Bindable<bool> DarkIntroFlash { get; private set; } = new(true);
+        public Bindable<bool> SkipStartupIntro { get; private set; } = new(false);
         public Bindable<bool> MinimalistHUD { get; private set; } = new(false);
         public Bindable<bool> DisableLowHealthShake { get; private set; } = new(false);
         public Bindable<StarRatingPalette> StarRatingPalette { get; private set; } = new(Models.StarRatingPalette.Vanilla);
@@ -53,6 +54,7 @@ namespace OsuTweaks
             SilentFailSound = Host.GetSettings().Bind("silent_fail_sound", false);
 
             DarkIntroFlash = Host.GetSettings().Bind("dark_intro_flash", true);
+            SkipStartupIntro = Host.GetSettings().Bind("skip_startup_intro", false);
             MinimalistHUD = Host.GetSettings().Bind("minimalist_hud", false);
             DisableLowHealthShake = Host.GetSettings().Bind("disable_low_health_shake", false);
             StarRatingPalette = Host.GetSettings().Bind("star_rating_palette", Models.StarRatingPalette.Vanilla);
@@ -69,6 +71,7 @@ namespace OsuTweaks
             // Register Harmony patches
             Host.AddPatch(new PlayerBreakAutoSkipPatch(this, Host));
             Host.AddPatch(new IntroFlashPatch(this, Host));
+            Host.AddPatch(new SkipStartupIntroPatch(this, Host, SkipStartupIntro));
             Host.AddPatch(new InstantRestartPatch(this, Host, InstantQuickRetry));
             Host.AddPatch(new PlayerExitingRestartPatch(this, Host));
             Host.AddPatch(new PlayerLoaderResumingPatch(this, Host));

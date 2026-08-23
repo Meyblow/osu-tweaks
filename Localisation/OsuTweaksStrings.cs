@@ -31,8 +31,9 @@ namespace OsuTweaks.Localisation
         // 3. Silent Fail Sound
         public static LocalisableString SilentFailSoundCheckbox => OsuCcLocalisation.Get(getKey(nameof(SilentFailSoundCheckbox)), "Silent Fail Sound (Mute on death)");
 
-        // 4. Dark Intro Flash
+        // 4. Dark Intro Flash & Skip Intro
         public static LocalisableString DarkIntroFlashCheckbox => OsuCcLocalisation.Get(getKey(nameof(DarkIntroFlashCheckbox)), "Dark Intro Flash on Startup");
+        public static LocalisableString SkipStartupIntroCheckbox => OsuCcLocalisation.Get(getKey(nameof(SkipStartupIntroCheckbox)), "Skip Startup Intro (Circles, Triangles & Welcome)");
 
         // 5. Minimalist HUD
         public static LocalisableString MinimalistHUDCheckbox => OsuCcLocalisation.Get(getKey(nameof(MinimalistHUDCheckbox)), "Minimalist HUD (Clean Gameplay)");
