@@ -1,22 +1,27 @@
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Testing;
 using osu.Game.Screens.Play;
+using osuTK;
 using OsuTweaks.Utils;
 
 namespace OsuTweaks.Tweaks
 {
     /// <summary>
-    /// Отключает эффект тряски экрана и пульсирующую красную виньетку при низком уровне здоровья.
+    /// Отключает тряску экрана и красную вспышку виньетки при низком уровне здоровья (Low HP).
+    /// Выполняет поиск контейнеров один раз при загрузке и работает по событиям.
     /// </summary>
     public partial class TweaksScreenShakeCustomizer : Component
     {
         private readonly Player player;
         private readonly Bindable<bool> isEnabled = new(false);
+        private readonly List<Container> shakeContainers = new();
+        private readonly List<Drawable> flashOverlays = new();
+        private bool hasScanned;
 
         public TweaksScreenShakeCustomizer(Player player)
         {
@@ -31,25 +36,18 @@ namespace OsuTweaks.Tweaks
             if (plugin != null)
             {
                 isEnabled.BindTo(plugin.DisableLowHealthShake);
-                isEnabled.BindValueChanged(_ => suppressShakeAndFlash(), true);
+                isEnabled.BindValueChanged(v => applySuppression(v.NewValue), true);
             }
+
+            Scheduler.AddDelayed(scanContainersOnce, 200);
         }
 
-        protected override void Update()
-        {
-            base.Update();
-            if (IsDisposed || !isEnabled.Value) return;
-
-            suppressShakeAndFlash();
-        }
-
-        private void suppressShakeAndFlash()
+        private void scanContainersOnce()
         {
             if (IsDisposed) return;
 
             try
             {
-                // Ищем контейнеры с эффектами тряски экрана и виньетки
                 foreach (var container in player.ChildrenOfType<Container>())
                 {
                     string name = container.GetType().Name;
@@ -57,15 +55,43 @@ namespace OsuTweaks.Tweaks
                     if (name.Contains("ScreenShake", StringComparison.OrdinalIgnoreCase) ||
                         name.Contains("ShakeContainer", StringComparison.OrdinalIgnoreCase))
                     {
-                        container.ClearTransforms();
-                        container.Position = osuTK.Vector2.Zero;
-                        container.Rotation = 0f;
+                        shakeContainers.Add(container);
+                    }
+                    else if (name.Contains("LowHealth", StringComparison.OrdinalIgnoreCase) ||
+                             name.Contains("FlashHealth", StringComparison.OrdinalIgnoreCase) ||
+                             name.Contains("HealthFlash", StringComparison.OrdinalIgnoreCase))
+                    {
+                        flashOverlays.Add(container);
+                    }
+                }
+
+                hasScanned = true;
+                applySuppression(isEnabled.Value);
+            }
+            catch (Exception ex)
+            {
+                TweaksLog.Error("TweaksScreenShakeCustomizer: Error scanning containers", ex);
+            }
+        }
+
+        private void applySuppression(bool suppress)
+        {
+            if (IsDisposed || !hasScanned) return;
+
+            try
+            {
+                if (suppress)
+                {
+                    foreach (var shake in shakeContainers)
+                    {
+                        shake.ClearTransforms();
+                        shake.Position = Vector2.Zero;
                     }
 
-                    if (name.Contains("LowHealthOverlay", StringComparison.OrdinalIgnoreCase) ||
-                        name.Contains("FlashHealthDisplay", StringComparison.OrdinalIgnoreCase))
+                    foreach (var flash in flashOverlays)
                     {
-                        container.Alpha = 0f;
+                        flash.ClearTransforms();
+                        flash.Alpha = 0f;
                     }
                 }
             }
@@ -73,6 +99,13 @@ namespace OsuTweaks.Tweaks
             {
                 // ignore disposed exceptions
             }
+        }
+
+        protected override void Dispose(bool isDisposing)
+        {
+            shakeContainers.Clear();
+            flashOverlays.Clear();
+            base.Dispose(isDisposing);
         }
     }
 }

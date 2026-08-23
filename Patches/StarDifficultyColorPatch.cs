@@ -1,121 +1,86 @@
 using System;
 using osu.Framework.Bindables;
-using osu.Framework.Extensions.Color4Extensions;
+using osu.Framework.Graphics.Colour;
 using osuTK.Graphics;
 using osucc.Core;
 using osucc.Plugin;
 using OsuTweaks.Models;
+using OsuTweaks.Utils;
 
 namespace OsuTweaks.Patches
 {
     /// <summary>
-    /// Патч на OsuColour.ForStarDifficulty для кастомизации цветового спектра фона плашек звёзд сложности карт.
+    /// Патч на OsuColour.ForStarDifficulty для применения кастомных градиентов сложности звёзд.
     /// </summary>
     public sealed class StarDifficultyColorPatch : PluginPatch<OsuTweaksPlugin>
     {
-        public static Bindable<StarRatingPalette>? PaletteBindable { get; private set; }
+        private static Bindable<StarRatingPalette>? paletteBindable;
 
         public StarDifficultyColorPatch(OsuTweaksPlugin plugin, IOsuCcPluginHost host, Bindable<StarRatingPalette> palette)
             : base(plugin, host, "osu.Game.Graphics.OsuColour", "ForStarDifficulty", MethodType.Prefix)
         {
-            PaletteBindable = palette;
+            paletteBindable = palette;
         }
 
-        public static bool Prefix(double starDifficulty, ref Color4 __result)
+        public static bool Prefix(double stars, ref Color4 __result)
         {
-            if (PaletteBindable == null || PaletteBindable.Value == StarRatingPalette.Vanilla)
-                return true;
+            if (paletteBindable == null || paletteBindable.Value == StarRatingPalette.Vanilla)
+                return true; // Use default lazer palette
 
             try
             {
-                __result = GetCustomStarColour(starDifficulty, PaletteBindable.Value);
-                return false;
+                __result = GetCustomColor(stars, paletteBindable.Value);
+                return false; // Skip original
             }
-            catch
+            catch (Exception ex)
             {
+                TweaksLog.Error("StarDifficultyColorPatch error", ex);
                 return true;
             }
         }
 
-        public static Color4 GetCustomStarColour(double stars, StarRatingPalette palette)
+        public static Color4 GetCustomColor(double stars, StarRatingPalette palette)
         {
-            float s = (float)Math.Max(0, stars);
-
             return palette switch
             {
-                StarRatingPalette.ClassicStable => getClassicStableColour(s),
-                StarRatingPalette.Neon => getNeonColour(s),
-                StarRatingPalette.Pastel => getPastelColour(s),
+                StarRatingPalette.ClassicStable => getClassicStableColor(stars),
+                StarRatingPalette.Neon => getCyberNeonColor(stars),
+                StarRatingPalette.Pastel => getSoftPastelColor(stars),
                 _ => Color4.White
             };
         }
 
-        private static Color4 getClassicStableColour(float stars)
+        private static Color4 getClassicStableColor(double stars)
         {
-            if (stars < 1.5f) return Color4Extensions.FromHex("#4fc0ff"); // Easy
-            if (stars < 2.25f) return Color4Extensions.FromHex("#4fffcb"); // Normal
-            if (stars < 3.75f) return Color4Extensions.FromHex("#f6f05c"); // Hard
-            if (stars < 5.25f) return Color4Extensions.FromHex("#ff5454"); // Insane
-            if (stars < 6.5f) return Color4Extensions.FromHex("#8e5eff"); // Expert
-            if (stars < 8.0f) return Color4Extensions.FromHex("#ff5ee2"); // Master
-            return Color4Extensions.FromHex("#2a2a35"); // 8+ Stars
+            if (stars < 1.5) return new Color4(74, 144, 226, 255);   // 1* Blue
+            if (stars < 2.25) return new Color4(80, 227, 194, 255);  // 2* Cyan
+            if (stars < 3.75) return new Color4(126, 211, 33, 255);  // 3* Green
+            if (stars < 4.5) return new Color4(248, 231, 28, 255);   // 4* Yellow
+            if (stars < 5.25) return new Color4(245, 166, 35, 255);  // 5* Orange
+            if (stars < 6.0) return new Color4(208, 2, 27, 255);     // 6* Red
+            if (stars < 7.0) return new Color4(144, 19, 254, 255);   // 7* Purple
+            if (stars < 8.0) return new Color4(74, 74, 74, 255);     // 8* Dark Gray
+            return new Color4(20, 20, 20, 255);                      // 9*+ Black
         }
 
-        private static Color4 getNeonColour(float stars)
+        private static Color4 getCyberNeonColor(double stars)
         {
-            if (stars < 2.0f) return Color4Extensions.FromHex("#00f5d4");
-            if (stars < 3.5f) return Color4Extensions.FromHex("#70e000");
-            if (stars < 5.0f) return Color4Extensions.FromHex("#fee440");
-            if (stars < 6.5f) return Color4Extensions.FromHex("#f72585");
-            if (stars < 8.0f) return Color4Extensions.FromHex("#7209b7");
-            return Color4Extensions.FromHex("#3a0ca3");
+            if (stars < 2.0) return new Color4(0, 255, 240, 255);    // Neon Cyan
+            if (stars < 4.0) return new Color4(57, 255, 20, 255);    // Neon Lime
+            if (stars < 5.5) return new Color4(255, 255, 0, 255);    // Electric Yellow
+            if (stars < 6.5) return new Color4(255, 0, 127, 255);    // Neon Pink
+            if (stars < 7.5) return new Color4(180, 0, 255, 255);    // Cyber Violet
+            return new Color4(255, 7, 58, 255);                      // Laser Red
         }
 
-        private static Color4 getPastelColour(float stars)
+        private static Color4 getSoftPastelColor(double stars)
         {
-            if (stars < 2.0f) return Color4Extensions.FromHex("#a0c4ff");
-            if (stars < 3.5f) return Color4Extensions.FromHex("#caffbf");
-            if (stars < 5.0f) return Color4Extensions.FromHex("#fdffb6");
-            if (stars < 6.5f) return Color4Extensions.FromHex("#ffadad");
-            if (stars < 8.0f) return Color4Extensions.FromHex("#bdb2ff");
-            return Color4Extensions.FromHex("#ffc6ff");
-        }
-    }
-
-    /// <summary>
-    /// Патч на OsuColour.ForStarDifficultyText для обеспечения идеальной читаемости текста поверх кастомных цветов.
-    /// </summary>
-    public sealed class StarDifficultyTextColorPatch : PluginPatch<OsuTweaksPlugin>
-    {
-        public StarDifficultyTextColorPatch(OsuTweaksPlugin plugin, IOsuCcPluginHost host)
-            : base(plugin, host, "osu.Game.Graphics.OsuColour", "ForStarDifficultyText", MethodType.Prefix)
-        {
-        }
-
-        public static bool Prefix(double starDifficulty, ref Color4 __result)
-        {
-            var palette = StarDifficultyColorPatch.PaletteBindable;
-            if (palette == null || palette.Value == StarRatingPalette.Vanilla)
-                return true;
-
-            try
-            {
-                // Для тёмных фонов (высокая сложность 6.5+) - белый текст, для светлых фонов - темный текст
-                if (starDifficulty >= 6.5)
-                {
-                    __result = Color4.White;
-                }
-                else
-                {
-                    __result = Color4.Black.Opacity(0.85f);
-                }
-
-                return false;
-            }
-            catch
-            {
-                return true;
-            }
+            if (stars < 2.0) return new Color4(179, 205, 224, 255);  // Pastel Sky
+            if (stars < 4.0) return new Color4(186, 225, 200, 255);  // Pastel Mint
+            if (stars < 5.5) return new Color4(255, 243, 176, 255);  // Pastel Butter
+            if (stars < 6.5) return new Color4(255, 204, 188, 255);  // Pastel Peach
+            if (stars < 7.5) return new Color4(255, 179, 186, 255);  // Pastel Rose
+            return new Color4(218, 182, 214, 255);                   // Pastel Lavender
         }
     }
 }

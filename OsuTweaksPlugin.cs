@@ -30,7 +30,6 @@ namespace OsuTweaks
         // 3. Audio & Song Select
         public Bindable<double> PreviewVolumeLimit { get; private set; } = new(0.6);
 
-        private IntroFlashCustomizer? introFlashCustomizer;
         private TweaksAudioLimiter? audioLimiter;
 
         protected override void OnLoad()
@@ -48,23 +47,20 @@ namespace OsuTweaks
                 TweaksLog.Error("Failed to register localization assembly", ex);
             }
 
-            // Bind settings
-            AutoSkipMode = Host.GetSettings().Bind("auto_skip_mode", Models.AutoSkipMode.Disabled);
-            InstantQuickRetry = Host.GetSettings().Bind("instant_quick_retry", false);
-            SilentFailSound = Host.GetSettings().Bind("silent_fail_sound", false);
+            // Bind settings using centralized TweaksSettings constants
+            AutoSkipMode = Host.GetSettings().Bind(TweaksSettings.AutoSkipMode, Models.AutoSkipMode.Disabled);
+            InstantQuickRetry = Host.GetSettings().Bind(TweaksSettings.InstantQuickRetry, false);
+            SilentFailSound = Host.GetSettings().Bind(TweaksSettings.SilentFailSound, false);
 
-            DarkIntroFlash = Host.GetSettings().Bind("dark_intro_flash", true);
-            SkipStartupIntro = Host.GetSettings().Bind("skip_startup_intro", false);
-            MinimalistHUD = Host.GetSettings().Bind("minimalist_hud", false);
-            DisableLowHealthShake = Host.GetSettings().Bind("disable_low_health_shake", false);
-            StarRatingPalette = Host.GetSettings().Bind("star_rating_palette", Models.StarRatingPalette.Vanilla);
+            DarkIntroFlash = Host.GetSettings().Bind(TweaksSettings.DarkIntroFlash, true);
+            SkipStartupIntro = Host.GetSettings().Bind(TweaksSettings.SkipStartupIntro, false);
+            MinimalistHUD = Host.GetSettings().Bind(TweaksSettings.MinimalistHUD, false);
+            DisableLowHealthShake = Host.GetSettings().Bind(TweaksSettings.DisableLowHealthShake, false);
+            StarRatingPalette = Host.GetSettings().Bind(TweaksSettings.StarRatingPalette, Models.StarRatingPalette.Vanilla);
 
-            PreviewVolumeLimit = Host.GetSettings().Bind("preview_volume_limit", 0.6);
+            PreviewVolumeLimit = Host.GetSettings().Bind(TweaksSettings.PreviewVolumeLimit, 0.6);
 
-            // Initialize customizers
-            introFlashCustomizer = new IntroFlashCustomizer(Host);
-            introFlashCustomizer.Attach(DarkIntroFlash);
-
+            // Initialize audio limiter with reversibility support
             audioLimiter = new TweaksAudioLimiter(Host);
             audioLimiter.Attach(PreviewVolumeLimit);
 
@@ -92,15 +88,11 @@ namespace OsuTweaks
         {
             TweaksLog.Info("osu!tweaks: Disposing plugin...");
 
-            introFlashCustomizer?.Dispose();
-            introFlashCustomizer = null;
-
             audioLimiter?.Dispose();
             audioLimiter = null;
 
             base.Dispose();
             GC.SuppressFinalize(this);
-            TweaksLog.Info("osu!tweaks: Plugin disposed.");
         }
     }
 }

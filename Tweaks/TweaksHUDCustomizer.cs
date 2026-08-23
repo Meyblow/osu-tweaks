@@ -14,6 +14,7 @@ namespace OsuTweaks.Tweaks
     /// <summary>
     /// Автоматически скрывает отвлекающие элементы HUD (HP, прогресс, скор, комбо, моды) во время игры,
     /// оставляя только Hit Error Bar и игровое поле, и плавно возвращает их на паузе.
+    /// Работает по событиям без сканирования дерева в цикле Update().
     /// </summary>
     public partial class TweaksHUDCustomizer : Component
     {
@@ -23,6 +24,7 @@ namespace OsuTweaks.Tweaks
 
         private readonly HashSet<Drawable> trackedElements = new();
         private bool isCurrentlyHidden;
+        private bool hasInitialScanCompleted;
 
         public TweaksHUDCustomizer(Player player, GameplayClockContainer clockContainer)
         {
@@ -40,28 +42,15 @@ namespace OsuTweaks.Tweaks
                 isEnabled.BindTo(plugin.MinimalistHUD);
                 isEnabled.BindValueChanged(_ => applyVisibilityState(), true);
             }
+
+            // Откладываем разовое сканирование на момент полной загрузки компонентов HUD
+            Scheduler.AddDelayed(scanHudElementsOnce, 250);
         }
 
-        protected override void Update()
+        private void scanHudElementsOnce()
         {
-            base.Update();
+            if (IsDisposed) return;
 
-            if (IsDisposed || !isEnabled.Value) return;
-
-            // Динамически сканируем дерево игрока на наличие компонентов худа
-            scanHudElements();
-
-            bool shouldHide = clockContainer.IsRunning;
-
-            if (shouldHide != isCurrentlyHidden)
-            {
-                isCurrentlyHidden = shouldHide;
-                applyVisibilityState();
-            }
-        }
-
-        private void scanHudElements()
-        {
             try
             {
                 var hud = ReflectionHelper.GetPropertyValue<Drawable>(player, "HUDOverlay")
@@ -89,20 +78,33 @@ namespace OsuTweaks.Tweaks
                         if (!name.Contains("HitError", StringComparison.OrdinalIgnoreCase) &&
                             !fullName.Contains("HitError", StringComparison.OrdinalIgnoreCase))
                         {
-                            if (trackedElements.Add(child))
-                            {
-                                if (isCurrentlyHidden)
-                                {
-                                    child.FadeTo(0f, 150, Easing.OutQuint);
-                                }
-                            }
+                            trackedElements.Add(child);
                         }
                     }
                 }
+
+                hasInitialScanCompleted = true;
+                applyVisibilityState();
             }
             catch (Exception ex)
             {
                 TweaksLog.Error("TweaksHUDCustomizer: Error scanning HUD elements", ex);
+            }
+        }
+
+        protected override void Update()
+        {
+            base.Update();
+
+            if (IsDisposed || !isEnabled.Value || !hasInitialScanCompleted) return;
+
+            bool shouldHide = clockContainer.IsRunning;
+
+            // Переключаем прозрачность строго по изменению состояния
+            if (shouldHide != isCurrentlyHidden)
+            {
+                isCurrentlyHidden = shouldHide;
+                applyVisibilityState();
             }
         }
 

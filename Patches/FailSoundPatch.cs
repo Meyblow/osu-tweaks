@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using osu.Framework.Audio.Sample;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
@@ -13,10 +14,13 @@ namespace OsuTweaks.Patches
 {
     /// <summary>
     /// Патч на GameplayMenuOverlay.PopIn для отключения резкого звука проигрыша карты при открытии FailOverlay.
+    /// Поддерживает обратимость: восстанавливает исходную громкость при деактивации или закрытии.
     /// </summary>
     public sealed class FailSoundPatch : PluginPatch<OsuTweaksPlugin>
     {
         private static Bindable<bool>? silentFailBindable;
+        private static readonly Dictionary<SkinnableSound, double> originalSkinnableVolumes = new();
+        private static readonly Dictionary<ISample, double> originalSampleVolumes = new();
 
         public FailSoundPatch(OsuTweaksPlugin plugin, IOsuCcPluginHost host, Bindable<bool> silentFail)
             : base(plugin, host, "osu.Game.Screens.Play.GameplayMenuOverlay", "PopIn", MethodType.Prefix)
@@ -31,9 +35,13 @@ namespace OsuTweaks.Patches
 
             try
             {
-                // Глушим звук фейла внутри FailOverlay
+                // Запоминаем исходную громкость и глушим звук фейла
                 foreach (var skinnable in __instance.ChildrenOfType<SkinnableSound>())
                 {
+                    if (!originalSkinnableVolumes.ContainsKey(skinnable))
+                    {
+                        originalSkinnableVolumes[skinnable] = skinnable.Volume.Value;
+                    }
                     skinnable.Volume.Value = 0;
                 }
 
@@ -42,6 +50,10 @@ namespace OsuTweaks.Patches
 
                 if (sampleField != null && sampleField.GetValue(__instance) is ISample s)
                 {
+                    if (!originalSampleVolumes.ContainsKey(s))
+                    {
+                        originalSampleVolumes[s] = s.Volume.Value;
+                    }
                     s.Volume.Value = 0;
                 }
 
@@ -51,6 +63,25 @@ namespace OsuTweaks.Patches
             {
                 TweaksLog.Error("FailSoundPatch error", ex);
             }
+        }
+
+        public static void RestoreOriginalVolumes()
+        {
+            try
+            {
+                foreach (var kvp in originalSkinnableVolumes)
+                {
+                    kvp.Key.Volume.Value = kvp.Value;
+                }
+                originalSkinnableVolumes.Clear();
+
+                foreach (var kvp in originalSampleVolumes)
+                {
+                    kvp.Key.Volume.Value = kvp.Value;
+                }
+                originalSampleVolumes.Clear();
+            }
+            catch { }
         }
     }
 }
