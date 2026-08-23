@@ -22,14 +22,14 @@ namespace OsuTweaks.Patches
             paletteBindable = palette;
         }
 
-        public static bool Prefix(double stars, ref Color4 __result)
+        public static bool Prefix(double starDifficulty, ref Color4 __result)
         {
             if (paletteBindable == null || paletteBindable.Value == StarRatingPalette.Vanilla)
                 return true; // Use default lazer palette
 
             try
             {
-                __result = GetCustomColor(stars, paletteBindable.Value);
+                __result = GetCustomColor(starDifficulty, paletteBindable.Value);
                 return false; // Skip original
             }
             catch (Exception ex)

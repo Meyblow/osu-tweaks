@@ -17,7 +17,7 @@ namespace OsuTweaks.Patches
         {
         }
 
-        public static bool Prefix(double stars, ref Color4 __result)
+        public static bool Prefix(double starDifficulty, ref Color4 __result)
         {
             var plugin = OsuTweaksPlugin.Instance;
             if (plugin?.StarRatingPalette.Value == Models.StarRatingPalette.Vanilla)
@@ -25,7 +25,7 @@ namespace OsuTweaks.Patches
 
             try
             {
-                var bg = StarDifficultyColorPatch.GetCustomColor(stars, plugin?.StarRatingPalette.Value ?? Models.StarRatingPalette.Vanilla);
+                var bg = StarDifficultyColorPatch.GetCustomColor(starDifficulty, plugin?.StarRatingPalette.Value ?? Models.StarRatingPalette.Vanilla);
                 // Относительная яркость по стандарту WCAG
                 double luminance = 0.299 * bg.R + 0.587 * bg.G + 0.114 * bg.B;
 
