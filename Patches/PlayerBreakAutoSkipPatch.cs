@@ -9,7 +9,7 @@ using OsuTweaks.Utils;
 namespace OsuTweaks.Patches
 {
     /// <summary>
-    /// Патч на Player.LoadComplete для внедрения TweaksBreakAutoSkipper в GameplayClockContainer.
+    /// Патч на Player.LoadComplete для внедрения TweaksAutoSkipper в GameplayClockContainer.
     /// </summary>
     public sealed class PlayerBreakAutoSkipPatch : PluginPatch<OsuTweaksPlugin>
     {
@@ -30,9 +30,9 @@ namespace OsuTweaks.Patches
                 var gcc = ReflectionHelper.GetPropertyValue<GameplayClockContainer>(__instance, "GameplayClockContainer");
                 if (gcc != null)
                 {
-                    var skipper = new TweaksIntroOutroSkipper(__instance, gcc);
+                    var skipper = new TweaksAutoSkipper(__instance, gcc);
                     gcc.Add(skipper);
-                    TweaksLog.Info($"PlayerBreakAutoSkipPatch: Successfully injected TweaksIntroOutroSkipper (Mode={plugin.AutoSkipMode.Value})");
+                    TweaksLog.Info($"PlayerBreakAutoSkipPatch: Successfully injected TweaksAutoSkipper (Mode={plugin.AutoSkipMode.Value})");
                 }
             }
             catch (Exception ex)

@@ -10,8 +10,8 @@ osu!cc plugin with useful gameplay tweaks and quality-of-life improvements for o
 
 ### Features
 
-- **Auto-skip Intro & Outro**
-  Automatically skip lead-in periods before the first note and long waits after the last note, getting you straight to the action and results. Native break skipping is fully handled by osu!cc.
+- **Auto-skip (Intro, Breaks, Outro)**
+  Automatically skip lead-in periods before the first note, mid-map breaks, and long waits after the last note, getting you straight to the action. Fully configurable (Breaks only, Intro only, Intro & breaks, All).
 
 - **Dark Intro Flash on Startup**
   Replaces the bright white additive flash when launching the game with a smooth dark fade to protect your eyes.

@@ -16,9 +16,11 @@ namespace OsuTweaks.Localisation
 
         // Gameplay & Visual Tweaks
         public static LocalisableString DarkIntroFlashCheckbox => OsuCcLocalisation.Get(getKey(nameof(DarkIntroFlashCheckbox)), "Dark Intro Flash on Startup");
-        public static LocalisableString AutoSkipDropdown => OsuCcLocalisation.Get(getKey(nameof(AutoSkipDropdown)), "Auto-Skip Mode (Intro & Outro)");
+        public static LocalisableString AutoSkipDropdown => OsuCcLocalisation.Get(getKey(nameof(AutoSkipDropdown)), "Auto-Skip Mode");
         public static LocalisableString AutoSkipDisabled => OsuCcLocalisation.Get(getKey(nameof(AutoSkipDisabled)), "Disabled");
-        public static LocalisableString AutoSkipIntroOnly => OsuCcLocalisation.Get(getKey(nameof(AutoSkipIntroOnly)), "Auto-skip intro");
-        public static LocalisableString AutoSkipAll => OsuCcLocalisation.Get(getKey(nameof(AutoSkipAll)), "Auto-skip intro and outro");
+        public static LocalisableString AutoSkipBreaksOnly => OsuCcLocalisation.Get(getKey(nameof(AutoSkipBreaksOnly)), "Breaks only");
+        public static LocalisableString AutoSkipIntroOnly => OsuCcLocalisation.Get(getKey(nameof(AutoSkipIntroOnly)), "Intro only");
+        public static LocalisableString AutoSkipIntroAndBreaks => OsuCcLocalisation.Get(getKey(nameof(AutoSkipIntroAndBreaks)), "Intro & breaks");
+        public static LocalisableString AutoSkipAll => OsuCcLocalisation.Get(getKey(nameof(AutoSkipAll)), "All (Intro, breaks & outro)");
     }
 }

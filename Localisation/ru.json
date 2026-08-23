@@ -4,8 +4,10 @@
 
   "osu-tweaks:Header": "osu!tweaks",
   "osu-tweaks:DarkIntroFlashCheckbox": "Тёмная вспышка при запуске (Dark Intro Flash)",
-  "osu-tweaks:AutoSkipDropdown": "Автоскип (Интро и Аутро)",
+  "osu-tweaks:AutoSkipDropdown": "Режим автоскипа",
   "osu-tweaks:AutoSkipDisabled": "Отключено",
-  "osu-tweaks:AutoSkipIntroOnly": "Автоскип только интро",
-  "osu-tweaks:AutoSkipAll": "Автоскип интро и аутро"
+  "osu-tweaks:AutoSkipBreaksOnly": "Только брейки (паузы)",
+  "osu-tweaks:AutoSkipIntroOnly": "Только интро",
+  "osu-tweaks:AutoSkipIntroAndBreaks": "Интро и брейки",
+  "osu-tweaks:AutoSkipAll": "Всё (Интро, брейки и аутро)"
 }

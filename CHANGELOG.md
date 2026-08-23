@@ -6,10 +6,10 @@ All notable changes to osu!tweaks are documented in this file.
 
 ### Changed
 - **Modular Toolbar Moved to Separate Plugin**: All toolbar customization features (drag & drop layout, floating island dock, geometry sliders, profile button styling, and presets) have been moved to a dedicated plugin: [**Extended Toolbar**](https://github.com/Meyblow/extended-toolbar). Install it separately if you used those features.
-- **Auto-Skip Refactor**: Reimplemented intro and outro auto-skipping using a clean state machine (`TweaksIntroOutroSkipper`). Native break skipping is fully handled by `osu!cc`.
+- **State Machine Auto-Skip**: Reimplemented auto-skipping for intros, mid-map breaks, and outros using a robust state machine (`TweaksAutoSkipper`) with configurable modes (`Breaks only`, `Intro only`, `Intro & breaks`, `All`).
 
 ### Added
-- **Dark Intro Flash on Startup**: Eliminates the blinding white additive intro flash when launching the game.
+- **Dark Intro Flash on Startup**: Eliminates the blinding white additive intro flash when launching the game via a direct Prefix patch on `GameWideFlash`.
 
 ---
 
