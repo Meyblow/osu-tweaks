@@ -12,8 +12,8 @@ using OsuTweaks.Utils;
 namespace OsuTweaks.Tweaks
 {
     /// <summary>
-    /// Автоматически скрывает отвлекающие элементы HUD (HP, прогресс, скор, моды) во время игры,
-    /// оставляя только Hit Error Bar и ноты, и возвращает их на паузе.
+    /// Автоматически скрывает отвлекающие элементы HUD (HP, прогресс, скор, комбо, моды) во время игры,
+    /// оставляя только Hit Error Bar и игровое поле, и плавно возвращает их на паузе.
     /// </summary>
     public partial class TweaksHUDCustomizer : Component
     {
@@ -21,8 +21,7 @@ namespace OsuTweaks.Tweaks
         private readonly GameplayClockContainer clockContainer;
         private readonly Bindable<bool> isEnabled = new(false);
 
-        private Drawable? hudOverlay;
-        private readonly List<Drawable> hiddenElements = new();
+        private readonly HashSet<Drawable> trackedElements = new();
         private bool isCurrentlyHidden;
 
         public TweaksHUDCustomizer(Player player, GameplayClockContainer clockContainer)
@@ -41,44 +40,6 @@ namespace OsuTweaks.Tweaks
                 isEnabled.BindTo(plugin.MinimalistHUD);
                 isEnabled.BindValueChanged(_ => applyVisibilityState(), true);
             }
-
-            resolveElements();
-        }
-
-        private void resolveElements()
-        {
-            try
-            {
-                hudOverlay = ReflectionHelper.GetPropertyValue<Drawable>(player, "HUDOverlay")
-                             ?? player.ChildrenOfType<HUDOverlay>().FirstOrDefault();
-
-                if (hudOverlay == null) return;
-
-                hiddenElements.Clear();
-
-                foreach (var child in hudOverlay.ChildrenOfType<Drawable>())
-                {
-                    string name = child.GetType().Name;
-
-                    // Прячем HP, прогресс карты, очки, комбо и моды
-                    if (name.Contains("Health", StringComparison.OrdinalIgnoreCase) ||
-                        name.Contains("SongProgress", StringComparison.OrdinalIgnoreCase) ||
-                        name.Contains("ScoreCounter", StringComparison.OrdinalIgnoreCase) ||
-                        name.Contains("ComboCounter", StringComparison.OrdinalIgnoreCase) ||
-                        name.Contains("ModDisplay", StringComparison.OrdinalIgnoreCase))
-                    {
-                        // Не прячем HitErrorDisplay или само игровое поле
-                        if (!name.Contains("HitError", StringComparison.OrdinalIgnoreCase) && !hiddenElements.Contains(child))
-                        {
-                            hiddenElements.Add(child);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                TweaksLog.Error("TweaksHUDCustomizer: Error resolving HUD elements", ex);
-            }
         }
 
         protected override void Update()
@@ -87,10 +48,8 @@ namespace OsuTweaks.Tweaks
 
             if (IsDisposed || !isEnabled.Value) return;
 
-            if (hiddenElements.Count == 0)
-            {
-                resolveElements();
-            }
+            // Динамически сканируем дерево игрока на наличие компонентов худа
+            scanHudElements();
 
             bool shouldHide = clockContainer.IsRunning;
 
@@ -98,6 +57,52 @@ namespace OsuTweaks.Tweaks
             {
                 isCurrentlyHidden = shouldHide;
                 applyVisibilityState();
+            }
+        }
+
+        private void scanHudElements()
+        {
+            try
+            {
+                var hud = ReflectionHelper.GetPropertyValue<Drawable>(player, "HUDOverlay")
+                          ?? player.ChildrenOfType<HUDOverlay>().FirstOrDefault();
+
+                if (hud == null) return;
+
+                foreach (var child in hud.ChildrenOfType<Drawable>())
+                {
+                    string name = child.GetType().Name;
+                    string fullName = child.GetType().FullName ?? "";
+
+                    // Проверяем компоненты здоровья, прогресса, очков, комбо и модов
+                    if (name.Contains("Health", StringComparison.OrdinalIgnoreCase) ||
+                        name.Contains("SongProgress", StringComparison.OrdinalIgnoreCase) ||
+                        name.Contains("ScoreCounter", StringComparison.OrdinalIgnoreCase) ||
+                        name.Contains("ComboCounter", StringComparison.OrdinalIgnoreCase) ||
+                        name.Contains("ModDisplay", StringComparison.OrdinalIgnoreCase) ||
+                        fullName.Contains("Health", StringComparison.OrdinalIgnoreCase) ||
+                        fullName.Contains("SongProgress", StringComparison.OrdinalIgnoreCase) ||
+                        fullName.Contains("ScoreCounter", StringComparison.OrdinalIgnoreCase) ||
+                        fullName.Contains("ArgonScore", StringComparison.OrdinalIgnoreCase))
+                    {
+                        // Никогда не трогаем Hit Error Display или ноты
+                        if (!name.Contains("HitError", StringComparison.OrdinalIgnoreCase) &&
+                            !fullName.Contains("HitError", StringComparison.OrdinalIgnoreCase))
+                        {
+                            if (trackedElements.Add(child))
+                            {
+                                if (isCurrentlyHidden)
+                                {
+                                    child.FadeTo(0f, 150, Easing.OutQuint);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                TweaksLog.Error("TweaksHUDCustomizer: Error scanning HUD elements", ex);
             }
         }
 
@@ -109,11 +114,11 @@ namespace OsuTweaks.Tweaks
             {
                 float targetAlpha = (isEnabled.Value && isCurrentlyHidden) ? 0f : 1f;
 
-                foreach (var elem in hiddenElements)
+                foreach (var elem in trackedElements)
                 {
                     if (elem.IsPresent || targetAlpha > 0)
                     {
-                        elem.FadeTo(targetAlpha, 250, Easing.OutQuint);
+                        elem.FadeTo(targetAlpha, 200, Easing.OutQuint);
                     }
                 }
             }
@@ -125,11 +130,11 @@ namespace OsuTweaks.Tweaks
 
         protected override void Dispose(bool isDisposing)
         {
-            foreach (var elem in hiddenElements)
+            foreach (var elem in trackedElements)
             {
                 try { elem.FadeIn(100); } catch { }
             }
-            hiddenElements.Clear();
+            trackedElements.Clear();
 
             base.Dispose(isDisposing);
         }

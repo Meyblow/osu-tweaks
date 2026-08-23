@@ -70,8 +70,10 @@ namespace OsuTweaks
             Host.AddPatch(new PlayerBreakAutoSkipPatch(this, Host));
             Host.AddPatch(new IntroFlashPatch(this, Host));
             Host.AddPatch(new InstantRestartPatch(this, Host, InstantQuickRetry));
+            Host.AddPatch(new PlayerLoaderRestartPatch(this, Host));
             Host.AddPatch(new FailSoundPatch(this, Host, SilentFailSound));
             Host.AddPatch(new StarDifficultyColorPatch(this, Host, StarRatingPalette));
+            Host.AddPatch(new StarDifficultyTextColorPatch(this, Host));
 
             TweaksLog.Info("osu!tweaks: OnLoad() complete.");
         }

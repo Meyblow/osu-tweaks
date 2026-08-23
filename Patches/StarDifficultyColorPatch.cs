@@ -9,26 +9,26 @@ using OsuTweaks.Models;
 namespace OsuTweaks.Patches
 {
     /// <summary>
-    /// Патч на OsuColour.ForStarDifficulty для кастомизации цветового спектра звёзд сложности карт.
+    /// Патч на OsuColour.ForStarDifficulty для кастомизации цветового спектра фона плашек звёзд сложности карт.
     /// </summary>
     public sealed class StarDifficultyColorPatch : PluginPatch<OsuTweaksPlugin>
     {
-        private static Bindable<StarRatingPalette>? paletteBindable;
+        public static Bindable<StarRatingPalette>? PaletteBindable { get; private set; }
 
         public StarDifficultyColorPatch(OsuTweaksPlugin plugin, IOsuCcPluginHost host, Bindable<StarRatingPalette> palette)
             : base(plugin, host, "osu.Game.Graphics.OsuColour", "ForStarDifficulty", MethodType.Prefix)
         {
-            paletteBindable = palette;
+            PaletteBindable = palette;
         }
 
         public static bool Prefix(double starDifficulty, ref Color4 __result)
         {
-            if (paletteBindable == null || paletteBindable.Value == StarRatingPalette.Vanilla)
+            if (PaletteBindable == null || PaletteBindable.Value == StarRatingPalette.Vanilla)
                 return true;
 
             try
             {
-                __result = GetCustomStarColour(starDifficulty, paletteBindable.Value);
+                __result = GetCustomStarColour(starDifficulty, PaletteBindable.Value);
                 return false;
             }
             catch
@@ -79,6 +79,43 @@ namespace OsuTweaks.Patches
             if (stars < 6.5f) return Color4Extensions.FromHex("#ffadad");
             if (stars < 8.0f) return Color4Extensions.FromHex("#bdb2ff");
             return Color4Extensions.FromHex("#ffc6ff");
+        }
+    }
+
+    /// <summary>
+    /// Патч на OsuColour.ForStarDifficultyText для обеспечения идеальной читаемости текста поверх кастомных цветов.
+    /// </summary>
+    public sealed class StarDifficultyTextColorPatch : PluginPatch<OsuTweaksPlugin>
+    {
+        public StarDifficultyTextColorPatch(OsuTweaksPlugin plugin, IOsuCcPluginHost host)
+            : base(plugin, host, "osu.Game.Graphics.OsuColour", "ForStarDifficultyText", MethodType.Prefix)
+        {
+        }
+
+        public static bool Prefix(double starDifficulty, ref Color4 __result)
+        {
+            var palette = StarDifficultyColorPatch.PaletteBindable;
+            if (palette == null || palette.Value == StarRatingPalette.Vanilla)
+                return true;
+
+            try
+            {
+                // Для тёмных фонов (высокая сложность 6.5+) - белый текст, для светлых фонов - темный текст
+                if (starDifficulty >= 6.5)
+                {
+                    __result = Color4.White;
+                }
+                else
+                {
+                    __result = Color4.Black.Opacity(0.85f);
+                }
+
+                return false;
+            }
+            catch
+            {
+                return true;
+            }
         }
     }
 }
