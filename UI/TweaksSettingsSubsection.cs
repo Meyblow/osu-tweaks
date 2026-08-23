@@ -1,3 +1,4 @@
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Localisation;
 using osu.Game.Graphics.UserInterface;
@@ -83,13 +84,23 @@ namespace OsuTweaks.UI
                 // ==========================================
                 // 3. AUDIO & SONG SELECT
                 // ==========================================
+                var volumeBindable = new BindableDouble(plugin.PreviewVolumeLimit.Value)
+                {
+                    MinValue = 0.1,
+                    MaxValue = 1.0,
+                    Precision = 0.05,
+                    Default = 0.6
+                };
+                volumeBindable.BindValueChanged(e => plugin.PreviewVolumeLimit.Value = e.NewValue);
+                plugin.PreviewVolumeLimit.BindValueChanged(e => volumeBindable.Value = e.NewValue);
+
                 Add(new SettingsSlider<double>
                 {
                     LabelText = OsuTweaksStrings.PreviewVolumeLimiterSlider,
                     Margin = new MarginPadding { Top = 16f, Bottom = 10f },
                     DisplayAsPercentage = true,
                     KeyboardStep = 0.05f,
-                    Current = plugin.PreviewVolumeLimit
+                    Current = volumeBindable
                 });
             }
         }
