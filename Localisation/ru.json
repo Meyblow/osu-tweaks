@@ -40,7 +40,9 @@
   "osu-tweaks:ProfileWithSeparator": "С разделителем (Ник │ Аватар)",
   "osu-tweaks:ProfileAvatarLeftWithSep": "Аватар слева с разделителем (Аватар │ Ник)",
   "osu-tweaks:ProfileAvatarOnly": "Только аватар",
-  "osu-tweaks:ProfileUsernameOnly": "Только никнейм",
+  "osu-tweaks:ProfileStatsPositionDropdown": "Расположение ранга и PP в профиле",
+  "osu-tweaks:ProfileStatsRight": "Справа (по умолчанию)",
+  "osu-tweaks:ProfileStatsLeft": "Слева (выезжает слева)",
 
   "osu-tweaks:DarkIntroFlashCheckbox": "Тёмная вспышка при запуске игры",
   "osu-tweaks:AutoSkipDropdown": "Режим пропуска пауз (Автоскип)",

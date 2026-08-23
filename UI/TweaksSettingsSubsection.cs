@@ -272,9 +272,22 @@ namespace OsuTweaks.UI
 
                 profileDropdown.Current.BindValueChanged(e =>
                 {
-                    ModularToolbarManager.Instance?.ApplyUserProfileDisplayMode(e.NewValue);
+                    ModularToolbarManager.Instance?.ApplyUserProfileDisplayMode(e.NewValue, plugin.ProfileStatsPosition.Value);
                 });
                 Add(profileDropdown);
+
+                var statsDropdown = new SettingsEnumDropdown<ProfileStatsPosition>
+                {
+                    LabelText = OsuTweaksStrings.ProfileStatsPositionDropdown,
+                    Margin = new MarginPadding { Top = 6f },
+                    Current = plugin.ProfileStatsPosition
+                };
+
+                statsDropdown.Current.BindValueChanged(e =>
+                {
+                    ModularToolbarManager.Instance?.ApplyUserProfileDisplayMode(plugin.UserProfileDisplayMode.Value, e.NewValue);
+                });
+                Add(statsDropdown);
             }
 
             // ==========================================

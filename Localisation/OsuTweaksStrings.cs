@@ -101,6 +101,10 @@ namespace OsuTweaks.Localisation
         public static LocalisableString DialogSaveButton => OsuCcLocalisation.Get(getKey(nameof(DialogSaveButton)), "Save");
         public static LocalisableString DialogCancelButton => OsuCcLocalisation.Get(getKey(nameof(DialogCancelButton)), "Cancel");
 
+        public static LocalisableString ProfileStatsPositionDropdown => OsuCcLocalisation.Get(getKey(nameof(ProfileStatsPositionDropdown)), "Rank & PP Stats Position");
+        public static LocalisableString ProfileStatsRight => OsuCcLocalisation.Get(getKey(nameof(ProfileStatsRight)), "On right (Default)");
+        public static LocalisableString ProfileStatsLeft => OsuCcLocalisation.Get(getKey(nameof(ProfileStatsLeft)), "On left (Slide in from left)");
+
         // Notifications
         public static LocalisableString NotifyClipboardCopied => OsuCcLocalisation.Get(getKey(nameof(NotifyClipboardCopied)), "Layout code copied to clipboard!");
         public static LocalisableString NotifyClipboardEmpty => OsuCcLocalisation.Get(getKey(nameof(NotifyClipboardEmpty)), "Clipboard is empty!");

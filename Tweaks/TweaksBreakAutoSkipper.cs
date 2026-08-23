@@ -15,11 +15,8 @@ using OsuTweaks.Utils;
 namespace OsuTweaks.Tweaks
 {
     /// <summary>
-    /// Автономный компонент автоскипа для osu!tweaks.
-    /// Поддерживает режимы:
-    /// - Disabled (Выкл)
-    /// - BreaksOnly (Автоскип мид-мап брейков)
-    /// - All (Автоскип всего: интро, брейки, аутро)
+    /// Автономный компонент автоскипа брейков для osu!tweaks.
+    /// Внедряется в GameplayClockContainer и оптимизированно перематывает брейк к нотам.
     /// </summary>
     public partial class TweaksBreakAutoSkipper : Component
     {
@@ -31,11 +28,7 @@ namespace OsuTweaks.Tweaks
         private readonly IReadOnlyList<BreakPeriod>? breaks;
 
         private double firstNoteTime = double.MaxValue;
-        private double lastNoteEndTime = double.MaxValue;
-
         private int nextBreakIndex;
-        private bool hasSkippedIntro;
-        private bool hasSkippedOutro;
 
         private object? drawableRuleset;
         private PropertyInfo? frameStablePlaybackProp;
@@ -59,7 +52,6 @@ namespace OsuTweaks.Tweaks
                 if (hitObjects != null && hitObjects.Count > 0)
                 {
                     firstNoteTime = hitObjects[0].StartTime;
-                    lastNoteEndTime = hitObjects.Max(h => h.GetEndTime());
                 }
 
                 drawableRuleset = ReflectionHelper.GetPropertyValue<object>(player, "DrawableRuleset");
@@ -89,65 +81,45 @@ namespace OsuTweaks.Tweaks
             base.Update();
 
             var plugin = OsuTweaksPlugin.Instance;
-            if (plugin == null)
+            if (plugin == null || plugin.AutoSkipMode.Value == AutoSkipMode.Disabled)
                 return;
 
-            var mode = plugin.AutoSkipMode.Value;
-            if (mode == AutoSkipMode.Disabled)
+            if (osuCcSkipBreakTime != null && !osuCcSkipBreakTime.Value)
+                return;
+
+            if (breaks == null || nextBreakIndex >= breaks.Count)
                 return;
 
             double currentTime = clockContainer.CurrentTime;
 
-            // 1. АВТОСКИП ИНТРО (только в режиме All)
-            if (mode == AutoSkipMode.All && !hasSkippedIntro)
+            // Пропускаем интро в начале карты
+            if (currentTime < firstNoteTime - 500)
+                return;
+
+            var currentBreak = breaks[nextBreakIndex];
+
+            // Если время вышло за пределы текущего брейка, переходим к следующему
+            if (currentTime >= currentBreak.EndTime)
             {
-                double introSkipTarget = firstNoteTime - skip_lead_in;
-                if (introSkipTarget - currentTime >= minimum_skip_savings)
-                {
-                    hasSkippedIntro = true;
-                    performSkip(introSkipTarget, "Intro");
-                    hideSkipOverlays();
-                    return;
-                }
+                nextBreakIndex++;
+                return;
             }
 
-            // 2. АВТОСКИП МИД-МАП БРЕЙКОВ (в режимах BreaksOnly и All)
-            if (breaks != null && nextBreakIndex < breaks.Count && currentTime >= firstNoteTime - 500)
+            // Если вошли в диапазон брейка:
+            if (currentBreak.HasEffect && currentTime >= currentBreak.StartTime && currentTime < currentBreak.EndTime)
             {
-                var currentBreak = breaks[nextBreakIndex];
+                hideBreakSkipOverlays();
 
-                if (currentTime >= currentBreak.EndTime)
+                double skipTarget = currentBreak.EndTime - skip_lead_in;
+                if (skipTarget - currentTime >= minimum_skip_savings)
                 {
                     nextBreakIndex++;
+                    performBreakSkip(skipTarget);
                 }
-                else if (currentBreak.HasEffect && currentTime >= currentBreak.StartTime && currentTime < currentBreak.EndTime)
-                {
-                    hideSkipOverlays();
-
-                    double breakSkipTarget = currentBreak.EndTime - skip_lead_in;
-                    if (breakSkipTarget - currentTime >= minimum_skip_savings)
-                    {
-                        nextBreakIndex++;
-                        performSkip(breakSkipTarget, "Break");
-                        return;
-                    }
-                }
-            }
-
-            // 3. АВТОСКИП АУТРО (только в режиме All)
-            if (mode == AutoSkipMode.All && !hasSkippedOutro && currentTime >= lastNoteEndTime + 800)
-            {
-                hasSkippedOutro = true;
-                double trackEndTime = player.GameplayState?.Beatmap?.HitObjects.Count > 0
-                    ? lastNoteEndTime + 1200
-                    : clockContainer.CurrentTime;
-
-                TweaksLog.Info($"TweaksBreakAutoSkipper: Outro auto-complete at {currentTime:F0}ms");
-                hideSkipOverlays();
             }
         }
 
-        private void hideSkipOverlays()
+        private void hideBreakSkipOverlays()
         {
             try
             {
@@ -155,53 +127,45 @@ namespace OsuTweaks.Tweaks
 
                 foreach (var overlay in clockContainer.ChildrenOfType<SkipOverlay>())
                 {
-                    overlay.Alpha = 0;
-                    overlay.AlwaysPresent = false;
+                    overlay.FadeOut(100);
                 }
             }
             catch { }
         }
 
-        private void performSkip(double targetTime, string reason)
+        private void performBreakSkip(double targetTime)
         {
             try
             {
-                TweaksLog.Info($"TweaksBreakAutoSkipper: Auto-skipping {reason} to {targetTime:F0}ms");
+                TweaksLog.Info($"TweaksBreakAutoSkipper: Event-driven auto-skipping break to {targetTime:F0}ms");
 
                 // 1. Mute samples
                 var sampleDisabled = samplePlaybackDisabledField?.GetValue(player) as Bindable<bool>;
                 if (sampleDisabled != null)
-                    sampleDisabled.Value = true;
-
-                // 2. Temporarily disable frame-stable playback
-                bool wasFrameStable = false;
-                if (drawableRuleset != null && frameStablePlaybackProp != null)
                 {
-                    wasFrameStable = (bool)(frameStablePlaybackProp.GetValue(drawableRuleset) ?? true);
-                    frameStablePlaybackProp.SetValue(drawableRuleset, false);
+                    sampleDisabled.Value = true;
+                    updateSampleDisabledStateMethod?.Invoke(player, null);
                 }
 
-                // 3. Seek
+                // 2. Disable frame stable playback
+                frameStablePlaybackProp?.SetValue(drawableRuleset, false);
+
+                // 3. Seek to targetTime
                 clockContainer.Seek(targetTime);
 
-                // 4. Re-enable frame-stable playback after one frame
-                if (drawableRuleset != null && frameStablePlaybackProp != null && wasFrameStable)
-                {
-                    var capturedProp = frameStablePlaybackProp;
-                    var capturedRuleset = drawableRuleset;
-                    Scheduler.AddDelayed(() =>
-                    {
-                        if (IsDisposed) return;
-                        capturedProp.SetValue(capturedRuleset, true);
-                    }, 0);
-                }
+                // 4. Restore frame stable playback
+                frameStablePlaybackProp?.SetValue(drawableRuleset, true);
 
                 // 5. Restore sample playback
-                updateSampleDisabledStateMethod?.Invoke(player, null);
+                if (sampleDisabled != null)
+                {
+                    sampleDisabled.Value = false;
+                    updateSampleDisabledStateMethod?.Invoke(player, null);
+                }
             }
             catch (Exception ex)
             {
-                TweaksLog.Error($"TweaksBreakAutoSkipper.performSkip ({reason}) error", ex);
+                TweaksLog.Error("TweaksBreakAutoSkipper.performBreakSkip error", ex);
             }
         }
     }

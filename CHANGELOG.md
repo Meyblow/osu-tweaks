@@ -2,6 +2,17 @@
 
 All notable changes to osu!tweaks are documented in this file.
 
+## [1.3.3] - 2026-08-23
+
+### Fixed
+- **Edit Mode Toolbar Interaction**: Fixed positional input queue propagation in `ToolbarBlockContainer` so that clicking, dragging, and context menu actions on toolbar buttons and game icons work smoothly in Edit Mode.
+- **Native osu! Button Shielding**: Refined input shielding so native osu! buttons are not inadvertently triggered while rearranging or toggling blocks.
+
+### Added
+- **Profile Stats Position (Left / Right)**: Added setting to configure whether rank (#) and PP performance stats slide in from the right or left of the user profile button.
+
+---
+
 ## [1.3.2] - 2026-08-23
 
 ### Fixed

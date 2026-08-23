@@ -69,7 +69,7 @@ namespace OsuTweaks.UI
 
         public override bool HandlePositionalInput => isEditMode || (!IsHidden.Value && !isHiddenByScreen);
         public override bool HandleNonPositionalInput => true;
-        public override bool PropagatePositionalInputSubTree => !isEditMode && (!IsHidden.Value && !isHiddenByScreen);
+        public override bool PropagatePositionalInputSubTree => isEditMode || (!IsHidden.Value && !isHiddenByScreen);
         public override bool PropagateNonPositionalInputSubTree => true;
 
         public ToolbarBlockContainer(string id, string displayName, Drawable contentDrawable, bool isHidden = false)
@@ -280,7 +280,13 @@ namespace OsuTweaks.UI
         protected override bool OnClick(ClickEvent e)
         {
             if (isEditMode)
+            {
+                if (e.Button == MouseButton.Left)
+                {
+                    IsHidden.Value = !IsHidden.Value;
+                }
                 return true;
+            }
 
             return base.OnClick(e);
         }

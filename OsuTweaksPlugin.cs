@@ -21,6 +21,7 @@ namespace OsuTweaks
 
         public Bindable<AutoSkipMode> AutoSkipMode { get; private set; } = new(Models.AutoSkipMode.Disabled);
         public Bindable<UserProfileDisplayMode> UserProfileDisplayMode { get; private set; } = new(Models.UserProfileDisplayMode.Default);
+        public Bindable<ProfileStatsPosition> ProfileStatsPosition { get; private set; } = new(Models.ProfileStatsPosition.Right);
         public Bindable<string> ActivePresetName { get; private set; } = new("Default");
 
         // Визуальные стили тулбара (Aesthetics)
@@ -57,6 +58,7 @@ namespace OsuTweaks
 
             AutoSkipMode = Host.GetSettings().Bind("auto_skip_mode", Models.AutoSkipMode.Disabled);
             UserProfileDisplayMode = Host.GetSettings().Bind("user_profile_display_mode", Models.UserProfileDisplayMode.Default);
+            ProfileStatsPosition = Host.GetSettings().Bind("profile_stats_position", Models.ProfileStatsPosition.Right);
             ActivePresetName = Host.GetSettings().Bind("active_preset_name", "Default");
 
             FloatingIslandMode = Host.GetSettings().Bind("floating_island_mode", false);

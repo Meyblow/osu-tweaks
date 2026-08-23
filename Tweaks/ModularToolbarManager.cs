@@ -53,7 +53,7 @@ namespace OsuTweaks.Tweaks
         private ToolbarZoneContainer rightZone = null!;
 
         private ToolbarContextMenu contextMenu = null!;
-        private Container dragGhostContainer = null!;
+        private DragGhostContainer dragGhostContainer = null!;
         private DraggableEditHintBanner editHintBanner = null!;
         private DragGhostBadge? activeGhost;
 
@@ -86,7 +86,7 @@ namespace OsuTweaks.Tweaks
         [BackgroundDependencyLoader]
         private void load(OsuColour colours)
         {
-            dragGhostContainer = new Container
+            dragGhostContainer = new DragGhostContainer
             {
                 RelativeSizeAxes = Axes.Both,
                 AlwaysPresent = true,
@@ -252,7 +252,8 @@ namespace OsuTweaks.Tweaks
             if (OsuTweaksPlugin.Instance != null)
             {
                 var plugin = OsuTweaksPlugin.Instance;
-                plugin.UserProfileDisplayMode.BindValueChanged(e => ApplyUserProfileDisplayMode(e.NewValue), true);
+                plugin.UserProfileDisplayMode.BindValueChanged(e => ApplyUserProfileDisplayMode(e.NewValue, plugin.ProfileStatsPosition.Value), true);
+                plugin.ProfileStatsPosition.BindValueChanged(e => ApplyUserProfileDisplayMode(plugin.UserProfileDisplayMode.Value, e.NewValue), true);
 
                 styleManager?.Dispose();
                 styleManager = new ToolbarStyleManager(host);
@@ -277,7 +278,7 @@ namespace OsuTweaks.Tweaks
 
             if (OsuTweaksPlugin.Instance != null)
             {
-                ApplyUserProfileDisplayMode(OsuTweaksPlugin.Instance.UserProfileDisplayMode.Value);
+                ApplyUserProfileDisplayMode(OsuTweaksPlugin.Instance.UserProfileDisplayMode.Value, OsuTweaksPlugin.Instance.ProfileStatsPosition.Value);
             }
         }
 
@@ -555,7 +556,7 @@ namespace OsuTweaks.Tweaks
             }
         }
 
-        public void ApplyUserProfileDisplayMode(UserProfileDisplayMode mode)
+        public void ApplyUserProfileDisplayMode(UserProfileDisplayMode mode, ProfileStatsPosition statsPos = ProfileStatsPosition.Right)
         {
             if (IsDisposed) return;
 
@@ -596,6 +597,17 @@ namespace OsuTweaks.Tweaks
                     if (parentFlow == null)
                         return;
 
+                    // Находим блок со статистикой (ранг # и PP)
+                    var stats = ReflectionHelper.GetFieldValue<Drawable>(userButton, "statsContainer")
+                                ?? ReflectionHelper.GetFieldValue<Drawable>(userButton, "stats")
+                                ?? userButton.ChildrenOfType<Drawable>().FirstOrDefault(d => 
+                                    d != avatarContainer && 
+                                    d != usernameText && 
+                                    (d.GetType().Name.Contains("Stat") || d.GetType().Name.Contains("Rank")));
+
+                    int avatarPos = 1;
+                    int namePos = 0;
+
                     switch (mode)
                     {
                         case UserProfileDisplayMode.Default:
@@ -606,11 +618,8 @@ namespace OsuTweaks.Tweaks
                             usernameText.BypassAutoSizeAxes = Axes.None;
                             usernameText.Margin = new MarginPadding { Right = 5f, Left = 0 };
 
-                            if (parentFlow.Contains(usernameText) && parentFlow.Contains(avatarContainer))
-                            {
-                                parentFlow.SetLayoutPosition(usernameText, 0);
-                                parentFlow.SetLayoutPosition(avatarContainer, 1);
-                            }
+                            namePos = 0;
+                            avatarPos = 1;
                             break;
 
                         case UserProfileDisplayMode.AvatarLeft:
@@ -621,11 +630,8 @@ namespace OsuTweaks.Tweaks
                             usernameText.BypassAutoSizeAxes = Axes.None;
                             usernameText.Margin = new MarginPadding { Left = 5f, Right = 0 };
 
-                            if (parentFlow.Contains(avatarContainer) && parentFlow.Contains(usernameText))
-                            {
-                                parentFlow.SetLayoutPosition(avatarContainer, 0);
-                                parentFlow.SetLayoutPosition(usernameText, 1);
-                            }
+                            avatarPos = 0;
+                            namePos = 1;
                             break;
 
                         case UserProfileDisplayMode.AvatarOnly:
@@ -636,11 +642,8 @@ namespace OsuTweaks.Tweaks
                             usernameText.BypassAutoSizeAxes = Axes.Both;
                             usernameText.Margin = new MarginPadding(0);
 
-                            if (parentFlow.Contains(avatarContainer) && parentFlow.Contains(usernameText))
-                            {
-                                parentFlow.SetLayoutPosition(avatarContainer, 0);
-                                parentFlow.SetLayoutPosition(usernameText, 1);
-                            }
+                            avatarPos = 0;
+                            namePos = 1;
                             break;
 
                         case UserProfileDisplayMode.UsernameOnly:
@@ -651,11 +654,8 @@ namespace OsuTweaks.Tweaks
                             usernameText.BypassAutoSizeAxes = Axes.None;
                             usernameText.Margin = new MarginPadding(0);
 
-                            if (parentFlow.Contains(usernameText) && parentFlow.Contains(avatarContainer))
-                            {
-                                parentFlow.SetLayoutPosition(usernameText, 0);
-                                parentFlow.SetLayoutPosition(avatarContainer, 1);
-                            }
+                            namePos = 0;
+                            avatarPos = 1;
                             break;
 
                         case UserProfileDisplayMode.WithSeparator:
@@ -669,22 +669,31 @@ namespace OsuTweaks.Tweaks
                             if (mode == UserProfileDisplayMode.AvatarLeftWithSep)
                             {
                                 usernameText.Margin = new MarginPadding { Left = 8f, Right = 0 };
-                                if (parentFlow.Contains(avatarContainer) && parentFlow.Contains(usernameText))
-                                {
-                                    parentFlow.SetLayoutPosition(avatarContainer, 0);
-                                    parentFlow.SetLayoutPosition(usernameText, 1);
-                                }
+                                avatarPos = 0;
+                                namePos = 1;
                             }
                             else
                             {
                                 usernameText.Margin = new MarginPadding { Right = 8f, Left = 0 };
-                                if (parentFlow.Contains(usernameText) && parentFlow.Contains(avatarContainer))
-                                {
-                                    parentFlow.SetLayoutPosition(usernameText, 0);
-                                    parentFlow.SetLayoutPosition(avatarContainer, 1);
-                                }
+                                namePos = 0;
+                                avatarPos = 1;
                             }
                             break;
+                    }
+
+                    if (parentFlow.Contains(avatarContainer)) parentFlow.SetLayoutPosition(avatarContainer, avatarPos);
+                    if (parentFlow.Contains(usernameText)) parentFlow.SetLayoutPosition(usernameText, namePos);
+
+                    // Управляем позицией блока статистики (ранг и PP): слева или справа
+                    if (stats != null)
+                    {
+                        var targetFlow = (parentFlow.Contains(stats) ? parentFlow : null)
+                                         ?? userButton.ChildrenOfType<FillFlowContainer>().FirstOrDefault(f => f.Contains(stats));
+
+                        if (targetFlow != null)
+                        {
+                            targetFlow.SetLayoutPosition(stats, statsPos == ProfileStatsPosition.Left ? -10 : 10);
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -989,10 +998,11 @@ namespace OsuTweaks.Tweaks
                 activeGhost = null;
             }
 
-            if (currentTargetZone != null)
-            {
-                insertBlockIntoZone(block, currentTargetZone, currentTargetIndex);
-            }
+            var mousePos = e.ScreenSpaceMousePosition;
+            var targetZone = currentTargetZone ?? getZoneUnderMouse(mousePos) ?? getZone(block.CurrentZone);
+            int targetIndex = currentTargetZone != null ? currentTargetIndex : targetZone.GetInsertionIndexForPosition(mousePos);
+
+            insertBlockIntoZone(block, targetZone, targetIndex);
 
             draggingBlock = null;
             currentTargetZone = null;
@@ -1157,8 +1167,19 @@ namespace OsuTweaks.Tweaks
             }
         }
 
+        private sealed partial class DragGhostContainer : Container
+        {
+            public override bool HandlePositionalInput => false;
+            public override bool PropagatePositionalInputSubTree => false;
+            public override bool ReceivePositionalInputAt(Vector2 screenSpacePos) => false;
+        }
+
         private sealed partial class DragGhostBadge : CompositeDrawable
         {
+            public override bool HandlePositionalInput => false;
+            public override bool PropagatePositionalInputSubTree => false;
+            public override bool ReceivePositionalInputAt(Vector2 screenSpacePos) => false;
+
             public DragGhostBadge(string title)
             {
                 AutoSizeAxes = Axes.Both;
