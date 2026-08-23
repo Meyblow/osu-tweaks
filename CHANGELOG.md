@@ -2,6 +2,14 @@
 
 All notable changes to osu!tweaks are documented in this file.
 
+## [1.4.1] - 2026-08-23
+
+### Added
+- **Mid-map Break Auto-Skip**: Restored and improved automatic skipping of mid-map pauses with customizable modes (`Breaks only`, `Intro only`, `Intro & breaks`, `All`).
+- **GameWideFlash Prefix Neutralization**: Instant zero-alpha suppression on `GameWideFlash` for seamless dark startup transition.
+
+---
+
 ## [1.4.0] - 2026-08-23
 
 ### Changed
