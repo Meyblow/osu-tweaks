@@ -1,13 +1,31 @@
 {
   "osu-tweaks:name": "osu!tweaks",
-  "osu-tweaks:description": "Коллекция полезных геймплейных твиков и улучшений для osu!cc.",
+  "osu-tweaks:description": "Коллекция полезных геймплейных твиков, QoL и визуальных улучшений для osu!cc.",
 
   "osu-tweaks:Header": "osu!tweaks",
-  "osu-tweaks:DarkIntroFlashCheckbox": "Тёмная вспышка при запуске (Dark Intro Flash)",
+  "osu-tweaks:SectionGameplay": "Геймплей и рестарт",
+  "osu-tweaks:SectionVisual": "Визуал и фокус",
+  "osu-tweaks:SectionAudio": "Аудио и меню выбора карт",
+
   "osu-tweaks:AutoSkipDropdown": "Режим автоскипа",
   "osu-tweaks:AutoSkipDisabled": "Отключено",
   "osu-tweaks:AutoSkipBreaksOnly": "Только брейки (паузы)",
   "osu-tweaks:AutoSkipIntroOnly": "Только интро",
   "osu-tweaks:AutoSkipIntroAndBreaks": "Интро и брейки",
-  "osu-tweaks:AutoSkipAll": "Всё (Интро, брейки и аутро)"
+  "osu-tweaks:AutoSkipAll": "Всё (Интро, брейки и аутро)",
+
+  "osu-tweaks:InstantQuickRetryCheckbox": "Мгновенный Quick-Retry (рестарт без задержек)",
+  "osu-tweaks:SilentFailSoundCheckbox": "Бесшумный / мягкий фейл (без резкого звука)",
+
+  "osu-tweaks:DarkIntroFlashCheckbox": "Тёмная вспышка при запуске (Dark Intro Flash)",
+  "osu-tweaks:MinimalistHUDCheckbox": "Минималистичный HUD (скрывать HP, прогресс и скор)",
+  "osu-tweaks:DisableLowHealthShakeCheckbox": "Отключить тряску экрана и красную вспышку при low HP",
+
+  "osu-tweaks:StarRatingPaletteDropdown": "Палитра цветов звёзд сложности",
+  "osu-tweaks:StarRatingVanilla": "Vanilla (Стандартная)",
+  "osu-tweaks:StarRatingClassicStable": "Classic osu!stable",
+  "osu-tweaks:StarRatingNeon": "Cyber Neon (Неон)",
+  "osu-tweaks:StarRatingPastel": "Soft Pastel (Пастель)",
+
+  "osu-tweaks:PreviewVolumeLimiterSlider": "Лимит максимальной громкости превью в Song Select"
 }

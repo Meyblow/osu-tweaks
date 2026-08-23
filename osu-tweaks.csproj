@@ -9,12 +9,12 @@
     <PackageId>osu-tweaks</PackageId>
     <Title>osu!tweaks</Title>
     <Description>Collection of useful tweaks and quality-of-life enhancements for osu!cc.</Description>
-    <Version>1.4.1</Version>
+    <Version>1.5.0</Version>
     <Priority>50</Priority>
     <IconGlyph>SlidersH</IconGlyph>
     <IsPlugin>true</IsPlugin>
     <RepositoryUrl>https://github.com/Meyblow/osu-tweaks</RepositoryUrl>
-    <PackageTags>gameplay;autoskip;visual;intro-flash;tweaks</PackageTags>
+    <PackageTags>gameplay;autoskip;visual;focus;audio;tweaks</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

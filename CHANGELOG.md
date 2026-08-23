@@ -2,6 +2,18 @@
 
 All notable changes to osu!tweaks are documented in this file.
 
+## [1.5.0] - 2026-08-23
+
+### Added
+- **Instant Quick-Retry (Zero-Delay Restart)**: Skips transition delays when restarting gameplay (`Ctrl+R`), loading into the beatmap in 1 frame.
+- **Minimalist HUD (Clean Gameplay)**: Automatically hides HP bar, score, progress, and mods during active gameplay, keeping only notes and Hit Error Bar (restores on pause).
+- **Disable Screen Shake & Red Flash on Low HP**: Completely stabilizes the screen during clutch low-health moments for pure aiming focus.
+- **Custom Star Rating Gradient Palettes**: Customize the star difficulty colors across Song Select with 4 palettes (`Vanilla`, `Classic osu!stable`, `Cyber Neon`, `Soft Pastel`).
+- **Silent Fail Sound**: Suppresses the harsh fail audio sample on death for a smooth, quiet retry loop.
+- **Song Preview Volume Limiter**: Configurable maximum volume cap (slider 10%–100%) for preview tracks in Song Select to protect ears against loud maps.
+
+---
+
 ## [1.4.1] - 2026-08-23
 
 ### Added
